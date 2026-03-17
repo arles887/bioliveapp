@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Heart, MessageCircle, Share2, Eye, User, Zap } from "lucide-react";
+import { Play, Heart, MessageCircle, Share2, Eye, User, Zap, Plus } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
