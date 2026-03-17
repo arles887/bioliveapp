@@ -1,0 +1,35 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "reel-1",
+      "description": "Short form nature video",
+      "imageUrl": "https://picsum.photos/seed/bio1/1080/1920",
+      "imageHint": "nature forest"
+    },
+    {
+      "id": "reel-2",
+      "description": "Sustainable lifestyle video",
+      "imageUrl": "https://picsum.photos/seed/bio2/1080/1920",
+      "imageHint": "sustainable living"
+    },
+    {
+      "id": "live-1",
+      "description": "Live organic cooking show",
+      "imageUrl": "https://picsum.photos/seed/bio3/1280/720",
+      "imageHint": "organic cooking"
+    },
+    {
+      "id": "live-2",
+      "description": "Wilderness exploration live",
+      "imageUrl": "https://picsum.photos/seed/bio4/1280/720",
+      "imageHint": "wilderness hiking"
+    },
+    {
+      "id": "user-1",
+      "description": "User profile avatar",
+      "imageUrl": "https://picsum.photos/seed/user1/200/200",
+      "imageHint": "person portrait"
+    }
+  ]
+}
