@@ -1,51 +1,41 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 80 15% 95%; /* #F3F4F0 */
-    --foreground: 120 10% 10%;
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 120 15% 10%; /* Very dark green-grey */
     --card: 0 0% 100%;
-    --card-foreground: 120 10% 10%;
+    --card-foreground: 120 15% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 120 10% 10%;
-    --primary: 101 60% 40%; /* #51A329 - Vibrant Green */
-    --primary-foreground: 80 15% 98%;
-    --secondary: 101 20% 90%;
-    --secondary-foreground: 101 60% 20%;
-    --muted: 101 10% 85%;
-    --muted-foreground: 101 10% 40%;
-    --accent: 69 79% 55%; /* #C9E830 - Lime Green */
-    --accent-foreground: 101 60% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --popover-foreground: 120 15% 10%;
+    --primary: 142 45% 25%; /* Deep Forest Green - #224331 */
+    --primary-foreground: 60 30% 98%;
+    --secondary: 142 20% 96%; /* Soft Sage Mist */
+    --secondary-foreground: 142 45% 15%;
+    --muted: 142 10% 92%;
+    --muted-foreground: 142 10% 45%;
+    --accent: 78 60% 60%; /* Vibrant Moss Green */
+    --accent-foreground: 142 45% 10%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 101 20% 85%;
-    --input: 101 20% 85%;
-    --ring: 101 60% 40%;
-    --radius: 1rem;
+    --border: 142 15% 90%;
+    --input: 142 15% 90%;
+    --ring: 142 45% 25%;
+    --radius: 1.5rem; /* Larger, more modern radius */
   }
   .dark {
-    --background: 120 10% 5%;
-    --foreground: 80 15% 95%;
-    --card: 120 10% 8%;
-    --card-foreground: 80 15% 95%;
-    --popover: 120 10% 8%;
-    --popover-foreground: 80 15% 95%;
-    --primary: 101 60% 50%;
-    --primary-foreground: 120 10% 5%;
-    --secondary: 120 10% 15%;
-    --secondary-foreground: 80 15% 95%;
-    --muted: 120 10% 15%;
-    --muted-foreground: 120 10% 60%;
-    --accent: 69 79% 55%;
-    --accent-foreground: 120 10% 5%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 80 15% 95%;
-    --border: 120 10% 20%;
-    --input: 120 10% 20%;
-    --ring: 101 60% 50%;
+    --background: 142 30% 5%;
+    --foreground: 60 30% 98%;
+    --card: 142 30% 8%;
+    --card-foreground: 60 30% 98%;
+    --primary: 142 45% 50%;
+    --primary-foreground: 142 30% 5%;
+    --secondary: 142 20% 15%;
+    --secondary-foreground: 60 30% 98%;
+    --border: 142 15% 20%;
+    --ring: 142 45% 50%;
   }
 }
 
@@ -54,15 +44,22 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-neutral-50 text-foreground selection:bg-accent/30;
   }
 }
 
-/* Custom styles for immersive video feed */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.glass-effect {
+  @apply bg-white/70 backdrop-blur-xl border-white/20 shadow-sm;
+}
+
+.organic-shadow {
+  shadow: 0 10px 30px -10px rgba(34, 67, 49, 0.15);
 }

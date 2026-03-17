@@ -1,7 +1,6 @@
-
 "use client";
 
-import { Home, Radio, PlusSquare, Play, Bell, User } from "lucide-react";
+import { Home, Radio, Plus, Play, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type NavItem = "home" | "reels" | "upload" | "lives" | "profile";
@@ -14,38 +13,52 @@ export function BottomNav({
   setActiveTab: (tab: NavItem) => void;
 }) {
   const navItems = [
-    { id: "home", icon: Home, label: "Home" },
+    { id: "home", icon: Home, label: "Feed" },
     { id: "reels", icon: Play, label: "Reels" },
-    { id: "upload", icon: PlusSquare, label: "Post", isSpecial: true },
+    { id: "upload", icon: Plus, label: "Create", isSpecial: true },
     { id: "lives", icon: Radio, label: "Live" },
-    { id: "profile", icon: User, label: "Profile" },
+    { id: "profile", icon: User, label: "Bio" },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 z-50 flex h-16 w-full items-center justify-around border-t bg-background px-2 pb-safe">
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        return (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id as NavItem)}
-            className={cn(
-              "flex flex-col items-center justify-center gap-1 transition-colors",
-              item.isSpecial ? "mb-6" : "",
-              activeTab === item.id ? "text-primary" : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <div className={cn(
-              "flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-300",
-              item.isSpecial ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-110" : "",
-              activeTab === item.id && !item.isSpecial ? "bg-primary/10" : ""
-            )}>
-              <Icon size={item.isSpecial ? 24 : 22} strokeWidth={activeTab === item.id ? 2.5 : 2} />
-            </div>
-            {!item.isSpecial && <span className="text-[10px] font-medium">{item.label}</span>}
-          </button>
-        );
-      })}
-    </nav>
+    <div className="fixed bottom-0 left-0 w-full px-4 pb-6 z-50 pointer-events-none">
+      <nav className="max-w-md mx-auto h-20 glass-effect rounded-[2.5rem] border flex items-center justify-around px-6 pointer-events-auto organic-shadow shadow-2xl">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          
+          if (item.isSpecial) {
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id as NavItem)}
+                className="relative -top-2 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-xl shadow-primary/40 transition-all hover:scale-110 active:scale-95"
+              >
+                <Icon size={28} strokeWidth={3} />
+              </button>
+            );
+          }
+
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id as NavItem)}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 transition-all duration-300",
+                isActive ? "text-primary scale-110" : "text-neutral-400 hover:text-neutral-600"
+              )}
+            >
+              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+              <span className={cn(
+                "text-[10px] font-bold tracking-tight uppercase",
+                isActive ? "opacity-100" : "opacity-0"
+              )}>
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

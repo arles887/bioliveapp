@@ -1,13 +1,11 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, AlertCircle } from "lucide-react";
+import { Send } from "lucide-react";
 import { aiChatMessageModeration } from "@/ai/flows/ai-chat-message-moderation";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 
 interface Message {
   id: string;
@@ -37,13 +35,12 @@ export function ChatPanel() {
 
     setIsSending(true);
     try {
-      // AI Content Moderation
       const moderation = await aiChatMessageModeration({ message: inputText });
       
       if (!moderation.isSafe) {
         toast({
           title: "Message Blocked",
-          description: moderation.reason || "Your message was flagged as inappropriate.",
+          description: moderation.reason || "Your message was flagged.",
           variant: "destructive",
         });
         setIsSending(false);
@@ -65,40 +62,40 @@ export function ChatPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-black/20 backdrop-blur-sm rounded-t-2xl border-x border-t overflow-hidden">
-      <div className="p-3 border-b bg-primary/10 flex items-center justify-between">
-        <h3 className="font-semibold text-sm">Live Chat</h3>
-        <div className="flex items-center gap-1">
+    <div className="flex flex-col h-full bg-white rounded-t-[2.5rem] overflow-hidden border-t">
+      <div className="px-6 py-4 border-b flex items-center justify-between">
+        <h3 className="font-bold text-sm text-primary tracking-tight">Community Chat</h3>
+        <div className="flex items-center gap-2 px-3 py-1 bg-red-50 rounded-full">
           <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></div>
-          <span className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Live</span>
+          <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">Live</span>
         </div>
       </div>
       
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
         {messages.map((msg) => (
-          <div key={msg.id} className="flex flex-col gap-0.5">
-            <span className="text-[11px] font-bold text-accent">{msg.user}</span>
-            <div className="bg-white/10 rounded-xl rounded-tl-none p-2 text-sm text-white">
+          <div key={msg.id} className="flex flex-col gap-1">
+            <span className="text-[10px] font-black text-accent-foreground/50 uppercase tracking-widest">{msg.user}</span>
+            <div className="bg-neutral-50 rounded-2xl rounded-tl-none px-4 py-2.5 text-sm text-neutral-800 border border-neutral-100 max-w-[90%]">
               {msg.text}
             </div>
           </div>
         ))}
       </div>
 
-      <form onSubmit={handleSend} className="p-3 bg-white/5 flex gap-2">
+      <form onSubmit={handleSend} className="p-4 bg-neutral-50 border-t flex gap-3">
         <Input 
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Say something nice..." 
-          className="flex-1 h-10 bg-white/10 border-none text-white placeholder:text-white/40 rounded-full focus-visible:ring-primary"
+          placeholder="Join the conversation..." 
+          className="flex-1 h-12 bg-white border-neutral-200 rounded-2xl focus-visible:ring-primary px-5"
         />
         <Button 
           type="submit" 
           size="icon" 
           disabled={isSending}
-          className="rounded-full bg-primary hover:bg-primary/90 shrink-0"
+          className="rounded-2xl h-12 w-12 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
         >
-          <Send size={18} />
+          <Send size={20} />
         </Button>
       </form>
     </div>

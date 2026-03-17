@@ -1,46 +1,36 @@
-
 "use client";
 
-import { Search, User, Bell } from "lucide-react";
+import { Search, Bell, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
 import { useState } from "react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export function TopBar({ onAuthClick }: { onAuthClick: () => void }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn] = useState(false);
   const avatarImage = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl;
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-md">
+    <header className="sticky top-0 z-50 flex h-20 w-full items-center justify-between gap-4 bg-white/80 px-6 backdrop-blur-xl border-b border-neutral-100">
       <div className="flex items-center gap-2">
-        <h1 className="font-headline text-xl font-bold text-primary">BioLive</h1>
+        <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-white">
+           <Menu size={18} />
+        </div>
+        <h1 className="text-xl font-black tracking-tighter text-primary uppercase">Bio<span className="text-accent">Live</span></h1>
       </div>
       
-      <div className="relative flex flex-1 items-center max-w-md">
-        <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-        <Input 
-          className="pl-9 bg-secondary/50 border-none rounded-full h-9 focus-visible:ring-primary" 
-          placeholder="Search creators, lives..." 
-        />
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-primary"></span>
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-primary transition-colors">
+          <Search size={22} />
+        </Button>
+        <Button variant="ghost" size="icon" className="text-neutral-400 hover:text-primary transition-colors relative">
+          <Bell size={22} />
+          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-accent rounded-full border-2 border-white"></span>
         </Button>
         
         {isLoggedIn ? (
-          <Avatar className="h-9 w-9 border-2 border-primary">
+          <Avatar className="h-9 w-9 ring-2 ring-primary/10">
             <AvatarImage src={avatarImage} />
             <AvatarFallback>UN</AvatarFallback>
           </Avatar>
@@ -48,8 +38,7 @@ export function TopBar({ onAuthClick }: { onAuthClick: () => void }) {
           <Button 
             onClick={onAuthClick} 
             size="sm" 
-            variant="default"
-            className="rounded-full bg-primary hover:bg-primary/90"
+            className="rounded-full bg-primary text-white font-bold px-6 h-9 shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
           >
             Join
           </Button>
