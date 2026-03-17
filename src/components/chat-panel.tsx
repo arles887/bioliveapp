@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, Shield } from "lucide-react";
 import { aiChatMessageModeration } from "@/ai/flows/ai-chat-message-moderation";
 import { toast } from "@/hooks/use-toast";
 
@@ -18,6 +18,7 @@ export function ChatPanel() {
   const [messages, setMessages] = useState<Message[]>([
     { id: "1", user: "GardenGuru", text: "Welcome everyone! Ask me anything about soil health." },
     { id: "2", user: "BioFan99", text: "What's the best organic fertilizer?" },
+    { id: "3", user: "CyberNature", text: "Loving the neon vibes here! 🌿⚡" },
   ]);
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -39,8 +40,8 @@ export function ChatPanel() {
       
       if (!moderation.isSafe) {
         toast({
-          title: "Message Blocked",
-          description: moderation.reason || "Your message was flagged.",
+          title: "System Guard Active",
+          description: moderation.reason || "Signal filtered for safety.",
           variant: "destructive",
         });
         setIsSending(false);
@@ -49,7 +50,7 @@ export function ChatPanel() {
 
       const newMessage: Message = {
         id: Date.now().toString(),
-        user: "You",
+        user: "Me",
         text: inputText,
       };
       setMessages([...messages, newMessage]);
@@ -62,40 +63,43 @@ export function ChatPanel() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white rounded-t-[2.5rem] overflow-hidden border-t">
-      <div className="px-6 py-4 border-b flex items-center justify-between">
-        <h3 className="font-bold text-sm text-primary tracking-tight">Community Chat</h3>
-        <div className="flex items-center gap-2 px-3 py-1 bg-red-50 rounded-full">
-          <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></div>
-          <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">Live</span>
+    <div className="flex flex-col h-full bg-[#050906] rounded-t-[3rem] overflow-hidden border-t border-white/10">
+      <div className="px-8 py-5 border-b border-white/5 flex items-center justify-between bg-white/2">
+        <div className="flex items-center gap-3">
+            <Shield size={14} className="text-primary" />
+            <h3 className="font-black text-[11px] text-primary uppercase tracking-[0.3em] italic">Bio Community</h3>
+        </div>
+        <div className="flex items-center gap-3 px-4 py-1.5 bg-primary/10 rounded-full border border-primary/20">
+          <div className="h-2 w-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(204,255,0,1)]"></div>
+          <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">Signal Live</span>
         </div>
       </div>
       
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-6 no-scrollbar">
         {messages.map((msg) => (
-          <div key={msg.id} className="flex flex-col gap-1">
-            <span className="text-[10px] font-black text-accent-foreground/50 uppercase tracking-widest">{msg.user}</span>
-            <div className="bg-neutral-50 rounded-2xl rounded-tl-none px-4 py-2.5 text-sm text-neutral-800 border border-neutral-100 max-w-[90%]">
+          <div key={msg.id} className="flex flex-col gap-2 group">
+            <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] group-hover:text-primary transition-colors">@{msg.user}</span>
+            <div className="bg-white/5 rounded-[1.5rem] rounded-tl-none px-5 py-3.5 text-sm text-white/80 border border-white/5 max-w-[90%] transition-all hover:bg-white/10">
               {msg.text}
             </div>
           </div>
         ))}
       </div>
 
-      <form onSubmit={handleSend} className="p-4 bg-neutral-50 border-t flex gap-3">
+      <form onSubmit={handleSend} className="p-6 bg-[#050906] border-t border-white/5 flex gap-4">
         <Input 
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Join the conversation..." 
-          className="flex-1 h-12 bg-white border-neutral-200 rounded-2xl focus-visible:ring-primary px-5"
+          placeholder="Inject signal..." 
+          className="flex-1 h-14 bg-white/5 border-white/10 rounded-[1.5rem] focus-visible:ring-primary px-6 text-white text-sm placeholder:text-white/20"
         />
         <Button 
           type="submit" 
           size="icon" 
           disabled={isSending}
-          className="rounded-2xl h-12 w-12 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+          className="rounded-[1.5rem] h-14 w-14 bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/30 transition-all hover:scale-105"
         >
-          <Send size={20} />
+          <Send size={22} className="text-black" />
         </Button>
       </form>
     </div>

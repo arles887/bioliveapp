@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 142 30% 2%; /* Negro profundo con matiz verde */
+    --background: 142 30% 2%;
     --foreground: 0 0% 100%;
     --card: 142 30% 4%;
     --card-foreground: 0 0% 100%;
@@ -46,15 +46,15 @@
 }
 
 .neon-glow {
-  box-shadow: 0 0 15px rgba(204, 255, 0, 0.3);
+  box-shadow: 0 0 20px rgba(204, 255, 0, 0.4);
 }
 
 .neon-border {
-  border: 1px solid rgba(204, 255, 0, 0.2);
+  border: 1px solid rgba(204, 255, 0, 0.4);
 }
 
 .glass-dark {
-  @apply bg-black/40 backdrop-blur-2xl border-white/5 shadow-2xl;
+  @apply bg-black/60 backdrop-blur-2xl border-white/10 shadow-2xl;
 }
 
 @keyframes float {
@@ -67,15 +67,15 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.5; filter: blur(10px); }
-  50% { opacity: 0.8; filter: blur(15px); }
+  0%, 100% { opacity: 0.4; filter: blur(15px); }
+  50% { opacity: 0.7; filter: blur(25px); }
 }
 
 .glow-bg {
   position: absolute;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(204, 255, 0, 0.1) 0%, transparent 70%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(204, 255, 0, 0.15) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
 }
