@@ -188,6 +188,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   ]);
   const [inputText, setInputText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const gifts = [
     { name: "Bio-Seed", icon: Leaf, cost: 50, color: "text-green-400" },
@@ -199,8 +200,13 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
   const handleTikiTiki = (e: React.MouseEvent | React.TouchEvent) => {
     setLikes(prev => prev + 1);
+    if (!containerRef.current) return;
+    
+    const rect = containerRef.current.getBoundingClientRect();
     const clientX = 'clientX' in e ? (e as React.MouseEvent).clientX : (e as any).touches[0].clientX;
-    const newHeart = { id: Date.now(), x: clientX };
+    const x = clientX - rect.left;
+    
+    const newHeart = { id: Date.now(), x };
     setHearts(prev => [...prev, newHeart]);
     setTimeout(() => {
       setHearts(prev => prev.filter(h => h.id !== newHeart.id));
@@ -219,14 +225,12 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
     setEspBalance(prev => prev - gift.cost);
     
-    // Animación dinámica
     const newGiftAnim = { id: Date.now(), icon: gift.icon, color: gift.color };
     setActiveGifts(prev => [...prev, newGiftAnim]);
     setTimeout(() => {
       setActiveGifts(prev => prev.filter(g => g.id !== newGiftAnim.id));
     }, 2000);
 
-    // Mensaje en chat
     const newMessage = {
       id: Date.now(),
       user: "SISTEMA",
@@ -275,7 +279,10 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black animate-in slide-in-from-bottom duration-500 flex flex-col max-w-[420px] mx-auto overflow-hidden">
+    <div 
+      ref={containerRef}
+      className="fixed inset-0 z-[100] bg-black animate-in slide-in-from-bottom duration-500 flex flex-col w-full max-w-[420px] left-1/2 -translate-x-1/2 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)]"
+    >
       <div className="absolute inset-0 z-0 cursor-pointer" onClick={handleTikiTiki}>
         <Image 
           src={live.img} 
@@ -287,30 +294,29 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
       </div>
 
-      {/* Capa de Corazones */}
-      <div className="absolute inset-0 pointer-events-none z-10">
+      {/* Capa de Corazones (Relativa al contenedor 420px) */}
+      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
         {hearts.map(heart => (
           <div 
             key={heart.id}
             className="absolute bottom-20 animate-heart-float text-primary"
-            style={{ left: `${Math.min(heart.x - 20, 380)}px` }}
+            style={{ left: `${Math.max(20, Math.min(heart.x - 12, 380))}px` }}
           >
             <Heart fill="currentColor" size={24} />
           </div>
         ))}
       </div>
 
-      {/* Capa de Regalos Dinámicos */}
+      {/* Capa de Regalos Dinámicos (Relativa al contenedor 420px) */}
       <div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center">
         {activeGifts.map(gift => (
           <div key={gift.id} className={cn("animate-gift-bounce flex flex-col items-center", gift.color)}>
-            <gift.icon size={120} strokeWidth={1} className="drop-shadow-[0_0_30px_rgba(204,255,0,0.5)]" />
-            <span className="text-xl font-black italic uppercase tracking-widest mt-4">Gift Sent!</span>
+            <gift.icon size={100} strokeWidth={1} className="drop-shadow-[0_0_30px_rgba(204,255,0,0.5)]" />
+            <span className="text-lg font-black italic uppercase tracking-widest mt-4">Gift Sent!</span>
           </div>
         ))}
       </div>
 
-      {/* Header del Live */}
       <div className="relative z-20 p-6 flex items-center justify-between">
         <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
           <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary">
@@ -342,7 +348,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         </div>
       </div>
 
-      {/* Likes Counter */}
       <div className="relative z-20 mt-2 px-6">
         <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full border border-primary/30">
           <Heart size={10} fill="currentColor" className="text-primary" />
@@ -352,7 +357,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       <div className="flex-1"></div>
 
-      {/* Contenedor del Chat y Regalos */}
       <div className={cn(
         "relative z-20 px-4 pb-6 transition-all duration-500 transform",
         isChatVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
@@ -383,7 +387,11 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
                 <Gift size={18} />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-[280px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2rem] p-4 mb-4">
+            <PopoverContent 
+              side="top"
+              align="start"
+              className="w-[280px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2rem] p-4 mb-4"
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-white/5 pb-2">
                   <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Bio-Gifts Shop</span>
