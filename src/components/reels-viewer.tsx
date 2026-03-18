@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
 const VIDEO_SOURCES = [
+  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
@@ -16,7 +18,7 @@ const VIDEO_SOURCES = [
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
 ];
 
-const INITIAL_REELS = Array.from({ length: 25 }, (_, i) => ({
+const INITIAL_REELS = Array.from({ length: 50 }, (_, i) => ({
   id: `reel-${i}`,
   user: `BioEntity_${i + 100}`,
   description: `Inyectando señal neural #${i + 1}. Exploración del bioma Gaia Sector ${Math.floor(Math.random() * 10)}. #bio #cyber #life`,
@@ -94,14 +96,15 @@ export function ReelsViewer({
 
 function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare, requireAuth }: any) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isYouTube = reel.video.includes('youtube.com') || reel.video.includes('youtu.be');
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          videoRef.current?.play().catch(() => {});
+          if (!isYouTube) videoRef.current?.play().catch(() => {});
         } else {
-          videoRef.current?.pause();
+          if (!isYouTube) videoRef.current?.pause();
         }
       },
       { threshold: 0.6 }
@@ -109,19 +112,27 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
 
     if (videoRef.current) observer.observe(videoRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [isYouTube]);
 
   return (
     <div className="relative h-full w-full snap-start shrink-0 flex flex-col items-center justify-center">
       <div className="relative w-full h-full max-w-[500px] bg-black">
-        <video 
-          ref={videoRef}
-          src={reel.video} 
-          className="h-full w-full object-cover opacity-80" 
-          loop 
-          muted 
-          playsInline
-        />
+        {isYouTube ? (
+          <iframe 
+            src={reel.video} 
+            className="h-full w-full object-cover opacity-80 pointer-events-none" 
+            allow="autoplay; encrypted-media"
+          />
+        ) : (
+          <video 
+            ref={videoRef}
+            src={reel.video} 
+            className="h-full w-full object-cover opacity-80" 
+            loop 
+            muted 
+            playsInline
+          />
+        )}
         
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none"></div>
         

@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/popover";
 
 const VIDEO_SOURCES = [
+  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
@@ -34,18 +36,18 @@ const INITIAL_LIVES = Array.from({ length: 25 }, (_, i) => ({
   id: `live-${i}`,
   title: [
     "Amazon Rainforest 4K", 
-    "Cyber-Organic Chess", 
+    "Cyber-Organic City", 
     "Coral Reef Flow", 
     "Arctic Bio-Node", 
     "Desert Winds Live", 
     "Bioluminescent Cave"
   ][i % 6],
-  category: ["Naturaleza", "Gaming", "Trending", "Naturaleza", "Global", "Trending"][i % 6],
+  category: ["Naturaleza", "Global", "Trending", "Naturaleza", "Global", "Trending"][i % 6],
   user: `Watcher_${i + 50}`,
   watchers: `${(Math.random() * 10 + 1).toFixed(1)}K`,
   img: `https://picsum.photos/seed/live${i}/600/1000`,
   video: VIDEO_SOURCES[i % VIDEO_SOURCES.length],
-  locked: i === 2 // Una bloqueada como ejemplo
+  locked: i === 2
 }));
 
 export function LiveViewer({ 
@@ -220,6 +222,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const isYouTube = live.video.includes('youtube.com') || live.video.includes('youtu.be');
+
   const gifts = [
     { name: "Bio-Seed", icon: Leaf, cost: 50, color: "text-green-400" },
     { name: "Cyber-Spark", icon: Sparkles, cost: 150, color: "text-primary" },
@@ -233,7 +237,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       setLikes(prev => prev + 1);
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const clientX = e.clientX || e.touches?.[0]?.clientX || rect.width / 2;
+      const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : rect.width / 2);
       const constrainedX = Math.max(40, Math.min(clientX - rect.left, 460));
       const newHeart = { id: Date.now(), x: constrainedX };
       setHearts(prev => [...prev, newHeart]);
@@ -281,15 +285,23 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   return (
     <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col">
       <div className="absolute inset-0 z-0 cursor-pointer" onClick={handleTikiTiki}>
-        <video 
-          ref={videoRef}
-          src={live.video} 
-          className="h-full w-full object-cover opacity-90" 
-          autoPlay 
-          muted 
-          loop 
-          playsInline 
-        />
+        {isYouTube ? (
+          <iframe 
+            src={live.video} 
+            className="h-full w-full object-cover opacity-90 pointer-events-none" 
+            allow="autoplay; encrypted-media"
+          />
+        ) : (
+          <video 
+            ref={videoRef}
+            src={live.video} 
+            className="h-full w-full object-cover opacity-90" 
+            autoPlay 
+            muted 
+            loop 
+            playsInline 
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
       </div>
 
