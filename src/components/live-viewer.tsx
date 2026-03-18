@@ -40,12 +40,12 @@ export function LiveViewer({
   ];
 
   const lives = [
-    { id: "1", title: "Amazon Rainforest 4K", category: "Naturaleza", user: "EcoWatcher", watchers: "4.2K", img: "https://picsum.photos/seed/l1/600/1000" },
-    { id: "2", title: "Cyber-Organic Chess", category: "Gaming", user: "GrandMaster", watchers: "1.1K", img: "https://picsum.photos/seed/l2/600/1000" },
-    { id: "3", title: "Secret Lab Stream", category: "Privadas", user: "Unknown", watchers: "0", img: "https://picsum.photos/seed/l3/600/1000", locked: true },
-    { id: "4", title: "Coral Reef Flow", category: "Naturaleza", user: "OceanPulse", watchers: "12K", img: "https://picsum.photos/seed/l4/600/1000" },
-    { id: "5", title: "Cyberpunk City Live", category: "Gaming", user: "NeonRunner", watchers: "3.5K", img: "https://picsum.photos/seed/l5/600/1000" },
-    { id: "6", title: "Organic Lab Synthesis", category: "Naturaleza", user: "BioSynth", watchers: "900", img: "https://picsum.photos/seed/l6/600/1000" },
+    { id: "1", title: "Amazon Rainforest 4K", category: "Naturaleza", user: "EcoWatcher_Environmental_Unit", watchers: "4.2K", img: "https://picsum.photos/seed/l1/600/1000" },
+    { id: "2", title: "Cyber-Organic Chess", category: "Gaming", user: "GrandMaster_Zero_G", watchers: "1.1K", img: "https://picsum.photos/seed/l2/600/1000" },
+    { id: "3", title: "Secret Lab Stream", category: "Privadas", user: "Unknown_Entity_404", watchers: "0", img: "https://picsum.photos/seed/l3/600/1000", locked: true },
+    { id: "4", title: "Coral Reef Flow", category: "Naturaleza", user: "OceanPulse_Deep_Dive", watchers: "12K", img: "https://picsum.photos/seed/l4/600/1000" },
+    { id: "5", title: "Cyberpunk City Live", category: "Gaming", user: "NeonRunner_2077", watchers: "3.5K", img: "https://picsum.photos/seed/l5/600/1000" },
+    { id: "6", title: "Organic Lab Synthesis", category: "Naturaleza", user: "BioSynth_Synthetix_Labs", watchers: "900", img: "https://picsum.photos/seed/l6/600/1000" },
   ];
 
   const filteredLives = activeCategory === "Global" 
@@ -157,7 +157,7 @@ export function LiveViewer({
           </div>
           <div className="space-y-2">
             <h3 className="text-lg text-white font-black italic uppercase tracking-tighter">Sala Privada</h3>
-            <p className="text-[9px] text-white/30 font-black uppercase tracking-widest leading-relaxed">Ingresa la clave de acceso neural para @{selectedLive?.user}</p>
+            <p className="text-[9px] text-white/30 font-black uppercase tracking-widest leading-relaxed truncate">Ingresa la clave de acceso neural para @{selectedLive?.user}</p>
           </div>
           <Input 
             type="password" 
@@ -187,8 +187,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [messages, setMessages] = useState<any[]>([
-    { id: 1, user: "BioEntity_02", text: "Increíble la calidad 🌿" },
-    { id: 2, user: "CyberFan", text: "¡Bio-luz!" },
+    { id: 1, user: "BioEntity_Alpha_Centauri", text: "Increíble la calidad 🌿" },
+    { id: 2, user: "CyberFan_Zero_One", text: "¡Bio-luz!" },
   ]);
   const [inputText, setInputText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -268,15 +268,15 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
       </div>
 
       <div className="relative z-40 px-6 py-10 flex items-center justify-between">
-        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10">
+        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10 min-w-0 max-w-[70%]">
           <div 
-            className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer"
+            className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer shrink-0"
             onClick={() => { onBack(); onProfileClick(live.user); }}
           >
             <Image src={`https://picsum.photos/seed/${live.user}/100/100`} fill alt="Avatar" className="object-cover" />
           </div>
-          <div className="cursor-pointer" onClick={() => { onBack(); onProfileClick(live.user); }}>
-            <h4 className="text-[10px] font-black italic text-white uppercase leading-none mb-1">@{live.user}</h4>
+          <div className="cursor-pointer min-w-0 flex-1" onClick={() => { onBack(); onProfileClick(live.user); }}>
+            <h4 className="text-[10px] font-black italic text-white uppercase leading-none mb-1 truncate">@{live.user}</h4>
             <div className="flex items-center gap-1.5">
               <Users size={10} className="text-primary" />
               <span className="text-[8px] font-black text-white/70 uppercase">{live.watchers}</span>
@@ -285,7 +285,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
           <button 
             onClick={handleFollow}
             className={cn(
-              "ml-2 h-7 px-3 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all",
+              "ml-2 h-7 px-3 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all shrink-0",
               isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg"
             )}
           >
@@ -315,8 +315,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
         <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mb-3">
           {messages.map((msg) => (
             <div key={msg.id} className="text-left animate-in fade-in slide-in-from-left-2">
-              <span className={cn("text-[8px] font-black uppercase italic", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
-              <p className={cn("text-[10px] backdrop-blur-md px-3 py-1.5 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[85%]", msg.isSpecial ? "bg-primary/20 text-primary" : "bg-black/60 text-white/90")}>{msg.text}</p>
+              <span className={cn("text-[9px] font-black uppercase italic tracking-widest block truncate", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
+              <p className={cn("text-[10px] backdrop-blur-md px-3 py-1.5 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[85%] leading-relaxed", msg.isSpecial ? "bg-primary/20 text-primary" : "bg-black/60 text-white/90")}>{msg.text}</p>
             </div>
           ))}
         </div>

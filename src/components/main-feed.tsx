@@ -26,7 +26,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       id: "1", 
       type: "live",
       title: "Amazon Canopy Node", 
-      user: "BioGuardian", 
+      user: "BioGuardian_Alpha_Centauri", 
       viewers: "12.4K",
       thumbnail: "https://picsum.photos/seed/bio3/1280/720",
       filter: "Para ti"
@@ -35,7 +35,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       id: "2", 
       type: "reel",
       title: "Neon Spore Synthesis", 
-      user: "NeonBot", 
+      user: "NeonBot_Synthetix", 
       viewers: "45K",
       thumbnail: "https://picsum.photos/seed/bio1/1080/1920",
       filter: "Para ti"
@@ -44,7 +44,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       id: "3", 
       type: "live",
       title: "Arctic Algae Flow", 
-      user: "FrostWatcher", 
+      user: "FrostWatcher_Extreme", 
       viewers: "8.1K",
       thumbnail: "https://picsum.photos/seed/bio4/1280/720",
       filter: "Siguiendo"
@@ -116,14 +116,14 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
               <div 
                 key={id} 
                 onClick={() => setSelectedStoryIndex(index)}
-                className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform snap-center"
+                className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform snap-center w-16"
               >
                 <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent group-hover:rotate-12 transition-transform">
                   <div className="w-full h-full rounded-full bg-black border-2 border-[#020503] overflow-hidden relative">
                     <Image src={`https://picsum.photos/seed/u${id}/100/100`} fill alt="User" className="object-cover" />
                   </div>
                 </div>
-                <span className="text-[7px] font-black uppercase text-white/30 tracking-widest">Bio_{id}</span>
+                <span className="text-[7px] font-black uppercase text-white/30 tracking-widest truncate w-full text-center">Bio_{id}_Entity</span>
               </div>
             ))}
           </div>
@@ -155,21 +155,21 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
               <div className="absolute bottom-8 left-8 right-8 z-10">
                  <div className="flex items-center justify-between mb-4">
                     <div 
-                      className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                      className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1 mr-4"
                       onClick={(e) => { e.stopPropagation(); onProfileClick(item.user); }}
                     >
-                      <div className="h-8 w-8 rounded-xl bg-white/10 border border-white/20 overflow-hidden relative">
+                      <div className="h-8 w-8 rounded-xl bg-white/10 border border-white/20 overflow-hidden relative shrink-0">
                          <Image src={`https://picsum.photos/seed/${item.user}/50/50`} fill alt="Avatar" className="object-cover" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none">@{item.user}</span>
-                        <span className="text-[6px] font-bold text-white/30 uppercase tracking-[0.2em] mt-1">Bio-Entity OS</span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none truncate">@{item.user}</span>
+                        <span className="text-[6px] font-bold text-white/30 uppercase tracking-[0.2em] mt-1 truncate">Bio-Entity OS</span>
                       </div>
                     </div>
                     <button 
                       onClick={(e) => toggleFollow(item.user, e)}
                       className={cn(
-                        "h-8 px-4 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                        "h-8 px-4 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shrink-0",
                         following[item.user] 
                           ? "bg-white/10 text-white/40 border border-white/5" 
                           : "bg-primary text-black shadow-[0_0_15px_rgba(204,255,0,0.3)] hover:scale-105"
@@ -189,7 +189,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                     </button>
                  </div>
                  <div className="pointer-events-none space-y-2">
-                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-tight drop-shadow-lg">{item.title}</h2>
+                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-tight drop-shadow-lg truncate">{item.title}</h2>
                    <div className="flex items-center gap-2">
                       <div className="h-1 w-1 rounded-full bg-primary animate-pulse"></div>
                       <p className="text-[9px] text-white/50 font-black uppercase tracking-widest">{item.viewers} Sincronizados</p>
@@ -213,16 +213,16 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
 
               <div className="absolute bottom-10 left-8 right-8 flex items-end justify-between z-10">
                  <div 
-                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}`); }}
+                  className="cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1 mr-4"
+                  onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}_Long_Entity_Handle`); }}
                  >
-                   <p className="text-white font-black italic text-base">@Bio_{id}</p>
-                   <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #0{id}</p>
+                   <p className="text-white font-black italic text-base uppercase tracking-tighter truncate">@Bio_{id}_Long_Entity_Handle</p>
+                   <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest truncate">Protocolo de supervivencia #0{id}</p>
                  </div>
                  <button 
                   onClick={() => toggleStoryLike(id)}
                   className={cn(
-                    "h-12 w-12 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all active:scale-75",
+                    "h-12 w-12 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all active:scale-75 shrink-0",
                     likedStories[id] 
                       ? "bg-red-500/20 border-red-500/40 text-red-500" 
                       : "bg-white/10 border-white/10 text-white/60"

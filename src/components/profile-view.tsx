@@ -15,7 +15,7 @@ import { ProtocolWindow } from "@/components/protocol-window";
 import { Input } from "@/components/ui/input";
 
 export function ProfileView({ 
-  username = "BioEntity_01", 
+  username = "BioEntity_01_Official_Handle", 
   isOwnProfile = true,
   onBack
 }: { 
@@ -78,7 +78,7 @@ export function ProfileView({
 
       <div className="px-8 -mt-12 space-y-6">
         <div className="flex items-end justify-between">
-          <div className="relative group">
+          <div className="relative group shrink-0">
             <div className="h-24 w-24 rounded-[2rem] border-4 border-[#020503] bg-white/5 overflow-hidden shadow-2xl relative">
               <Image 
                 src={isOwnProfile ? (avatarUrl || "") : `https://picsum.photos/seed/${profileName}/200/200`} 
@@ -100,7 +100,7 @@ export function ProfileView({
             </div>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-2">
             {isOwnProfile ? (
               <Button 
                 onClick={() => setIsEditing(true)}
@@ -114,7 +114,7 @@ export function ProfileView({
               <>
                 <Button 
                   onClick={() => toast({ title: "Canal Seguro", description: "Abriendo chat encriptado..." })}
-                  className="rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 h-10 w-10 p-0"
+                  className="rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 h-10 w-10 p-0 shrink-0"
                 >
                   <Send size={16} />
                 </Button>
@@ -133,10 +133,10 @@ export function ProfileView({
           </div>
         </div>
 
-        <div className="space-y-1">
-          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{profileName}</h2>
-          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
-          <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-[80%]">
+        <div className="space-y-1 min-w-0">
+          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none truncate">{profileName}</h2>
+          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest truncate">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
+          <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-[90%] line-clamp-2">
             {isOwnProfile 
               ? "Explorador de biomas digitales y coleccionista de señales orgánicas. 🌱⚡ #BioCyber #NatureTech"
               : "Creador de contenido neural. Generando esporas de información 24/7. #BioLive #PublicSignal"}
@@ -147,7 +147,7 @@ export function ProfileView({
           {stats.map((stat) => (
             <div key={stat.label} className="flex flex-col">
               <span className="text-lg font-black text-white italic leading-none tracking-tight">{stat.value}</span>
-              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1">{stat.label}</span>
+              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1 whitespace-nowrap">{stat.label}</span>
             </div>
           ))}
         </div>
@@ -184,14 +184,14 @@ export function ProfileView({
         <TabsContent value="music" className="p-6 space-y-4 animate-in fade-in duration-500">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all group cursor-pointer active:bg-white/10">
-              <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+              <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shrink-0">
                 <Music size={20} />
               </div>
-              <div className="flex-1">
-                <h4 className="text-[11px] font-black text-white uppercase italic tracking-tight">Signal Mix #0{i}</h4>
-                <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest">Deep Forest Techno</p>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-[11px] font-black text-white uppercase italic tracking-tight truncate">Signal Mix #0{i} Deep Forest</h4>
+                <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest truncate">Deep Forest Techno Protocol</p>
               </div>
-              <Button size="icon" variant="ghost" className="text-white/20 group-hover:text-primary">
+              <Button size="icon" variant="ghost" className="text-white/20 group-hover:text-primary shrink-0">
                 <Play size={18} />
               </Button>
             </div>
