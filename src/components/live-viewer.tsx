@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -214,7 +213,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -239,13 +238,15 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          if (!isYouTube) videoRef.current?.play().catch(() => {});
+          if (!isYouTube) {
+            videoRef.current?.play().catch(() => {});
+            setIsMuted(false);
+          }
         } else {
           if (!isYouTube) {
             videoRef.current?.pause();
-            if (videoRef.current) videoRef.current.muted = true;
+            setIsMuted(true);
           }
-          setIsMuted(true);
         }
       },
       { threshold: 0.8 }
@@ -270,6 +271,12 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       const newHeart = { id: Date.now(), x: constrainedX };
       setHearts(prev => [...prev, newHeart]);
       setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
+      
+      // Auto-unmute on first interaction if possible
+      if (isMuted && videoRef.current) {
+        setIsMuted(false);
+        videoRef.current.muted = false;
+      }
     });
   };
 
@@ -306,16 +313,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     });
   };
 
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const newMuteStatus = !isMuted;
-    setIsMuted(newMuteStatus);
-    if(videoRef.current) videoRef.current.muted = newMuteStatus;
-    if (!newMuteStatus) {
-      window.dispatchEvent(new CustomEvent('bio-video-playing'));
-    }
-  };
-
   return (
     <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col" onClick={handleTikiTiki}>
       <div className="absolute inset-0 z-0">
@@ -338,15 +335,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60 pointer-events-none"></div>
       </div>
-
-      {!isYouTube && (
-         <button 
-          onClick={toggleMute}
-          className="absolute top-12 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
-         >
-           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-         </button>
-      )}
 
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
         {hearts.map(h => (
