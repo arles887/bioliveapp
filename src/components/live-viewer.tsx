@@ -407,20 +407,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       <div className="flex-1"></div>
 
-      <div className="absolute bottom-[230px] right-3 flex flex-col items-center gap-8 z-50 pointer-events-auto">
-        <div 
-          onClick={(e) => { e.stopPropagation(); handleTikiTiki(e); }}
-          className="flex flex-col items-center gap-2 group cursor-pointer"
-        >
-          <div className={cn(
-            "h-14 w-14 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center transition-all active:scale-75 shadow-2xl text-white group-hover:text-primary"
-          )}>
-            <Heart size={28} />
-          </div>
-          <span className="text-[10px] font-black text-white/60 tracking-widest">{likes}</span>
-        </div>
-      </div>
-
       <div className={cn("relative z-40 px-6 pb-12 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
           {messages.map((msg) => (
