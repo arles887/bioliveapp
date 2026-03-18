@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -18,6 +19,34 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+
+const VIDEO_SOURCES = [
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+];
+
+const INITIAL_LIVES = Array.from({ length: 25 }, (_, i) => ({
+  id: `live-${i}`,
+  title: [
+    "Amazon Rainforest 4K", 
+    "Cyber-Organic Chess", 
+    "Coral Reef Flow", 
+    "Arctic Bio-Node", 
+    "Desert Winds Live", 
+    "Bioluminescent Cave"
+  ][i % 6],
+  category: ["Naturaleza", "Gaming", "Trending", "Naturaleza", "Global", "Trending"][i % 6],
+  user: `Watcher_${i + 50}`,
+  watchers: `${(Math.random() * 10 + 1).toFixed(1)}K`,
+  img: `https://picsum.photos/seed/live${i}/600/1000`,
+  video: VIDEO_SOURCES[i % VIDEO_SOURCES.length],
+  locked: i === 2 // Una bloqueada como ejemplo
+}));
 
 export function LiveViewer({ 
   onToggleFullScreen,
@@ -41,16 +70,9 @@ export function LiveViewer({
     { id: "Trending", icon: Flame }
   ];
 
-  const lives = [
-    { id: "1", title: "Amazon Rainforest 4K", category: "Naturaleza", user: "EcoWatcher_Environmental_Unit", watchers: "4.2K", img: "https://picsum.photos/seed/l1/600/1000" },
-    { id: "2", title: "Cyber-Organic Chess", category: "Gaming", user: "GrandMaster_Zero_G", watchers: "1.1K", img: "https://picsum.photos/seed/l2/600/1000" },
-    { id: "3", title: "Secret Lab Stream", category: "Privadas", user: "Unknown_Entity_404", watchers: "0", img: "https://picsum.photos/seed/l3/600/1000", locked: true },
-    { id: "4", title: "Coral Reef Flow", category: "Naturaleza", user: "OceanPulse_Deep_Dive", watchers: "12K", img: "https://picsum.photos/seed/l4/600/1000" }
-  ];
-
   const filteredLives = activeCategory === "Global" 
-    ? lives 
-    : lives.filter(live => live.category === activeCategory);
+    ? INITIAL_LIVES 
+    : INITIAL_LIVES.filter(live => live.category === activeCategory || (activeCategory === "Privadas" && live.locked));
 
   const handleAccess = () => {
     if (password === "2025") {
@@ -78,7 +100,7 @@ export function LiveViewer({
   if (viewingMode) {
     return (
       <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-[100] bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar border-x border-white/5">
-        {lives.filter(l => !l.locked).map((live) => (
+        {INITIAL_LIVES.filter(l => !l.locked).map((live) => (
           <div key={live.id} className="h-full w-full snap-start shrink-0">
             <LiveStreamRoom 
               live={live} 
@@ -196,6 +218,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   const [inputText, setInputText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const gifts = [
     { name: "Bio-Seed", icon: Leaf, cost: 50, color: "text-green-400" },
@@ -210,7 +233,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       setLikes(prev => prev + 1);
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const clientX = e.clientX || e.touches[0].clientX;
+      const clientX = e.clientX || e.touches?.[0]?.clientX || rect.width / 2;
       const constrainedX = Math.max(40, Math.min(clientX - rect.left, 460));
       const newHeart = { id: Date.now(), x: constrainedX };
       setHearts(prev => [...prev, newHeart]);
@@ -258,7 +281,15 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   return (
     <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col">
       <div className="absolute inset-0 z-0 cursor-pointer" onClick={handleTikiTiki}>
-        <Image src={live.img} fill alt="Live" className="object-cover opacity-90" priority />
+        <video 
+          ref={videoRef}
+          src={live.video} 
+          className="h-full w-full object-cover opacity-90" 
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
       </div>
 
@@ -284,7 +315,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
             className="h-9 w-9 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer shrink-0"
             onClick={() => { onBack(); onProfileClick(live.user); }}
           >
-            <Image src={`https://picsum.photos/seed/${live.user}/100/100`} fill alt="Avatar" className="object-cover" />
+            <img src={`https://picsum.photos/seed/${live.user}/100/100`} className="object-cover h-full w-full" alt="Avatar" />
           </div>
           <div className="cursor-pointer min-w-0 flex-1" onClick={() => { onBack(); onProfileClick(live.user); }}>
             <h4 className="text-[9px] font-black italic text-white uppercase leading-none mb-0.5 truncate">@{live.user}</h4>

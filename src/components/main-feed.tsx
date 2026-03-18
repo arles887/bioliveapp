@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -10,6 +11,23 @@ import { Badge } from "@/components/ui/badge";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { ReelsViewer } from "@/components/reels-viewer";
 import { toast } from "@/hooks/use-toast";
+
+const INITIAL_CONTENT = Array.from({ length: 25 }, (_, i) => ({
+  id: `content-${i}`,
+  type: i % 2 === 0 ? "live" : "reel",
+  title: [
+    "Amazon Canopy Node", 
+    "Neon Spore Synthesis", 
+    "Arctic Algae Flow", 
+    "Cyber Jungle Walk", 
+    "Bioluminescent Reef",
+    "Deep Tech Farming"
+  ][i % 6],
+  user: `BioEntity_${i + 10}`,
+  viewers: `${(Math.random() * 50).toFixed(1)}K`,
+  thumbnail: `https://picsum.photos/seed/bio${i}/1280/720`,
+  filter: ["Para ti", "Siguiendo", "Temáticas"][i % 3]
+}));
 
 export function MainFeed({ 
   onProfileClick,
@@ -27,55 +45,7 @@ export function MainFeed({
   const storiesScrollRef = useRef<HTMLDivElement>(null);
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
-  const storyIds = Array.from({ length: 12 }, (_, i) => i + 1);
-
-  const contentItems = [
-    { 
-      id: "1", 
-      type: "live",
-      title: "Amazon Canopy Node", 
-      user: "BioGuardian_Alpha", 
-      viewers: "12.4K",
-      thumbnail: "https://picsum.photos/seed/bio3/1280/720",
-      filter: "Para ti"
-    },
-    { 
-      id: "2", 
-      type: "reel",
-      title: "Neon Spore Synthesis", 
-      user: "NeonBot_Synthetix", 
-      viewers: "45K",
-      thumbnail: "https://picsum.photos/seed/bio1/1080/1920",
-      filter: "Para ti"
-    },
-    { 
-      id: "3", 
-      type: "live",
-      title: "Arctic Algae Flow", 
-      user: "FrostWatcher", 
-      viewers: "8.1K",
-      thumbnail: "https://picsum.photos/seed/bio4/1280/720",
-      filter: "Siguiendo"
-    },
-    { 
-      id: "4", 
-      type: "reel",
-      title: "Cyber Jungle Walk", 
-      user: "GreenRunner_88", 
-      viewers: "12K",
-      thumbnail: "https://picsum.photos/seed/bio9/1080/1920",
-      filter: "Para ti"
-    },
-    { 
-      id: "5", 
-      type: "live",
-      title: "Bioluminescent Reef", 
-      user: "DeepDive_Eco", 
-      viewers: "22K",
-      thumbnail: "https://picsum.photos/seed/bio6/1280/720",
-      filter: "Para ti"
-    }
-  ];
+  const storyIds = Array.from({ length: 15 }, (_, i) => i + 1);
 
   useEffect(() => {
     if (selectedStoryIndex !== null) {
@@ -116,8 +86,8 @@ export function MainFeed({
   };
 
   const filteredItems = activeFilter === "Para ti" 
-    ? contentItems 
-    : contentItems.filter(item => item.filter === activeFilter);
+    ? INITIAL_CONTENT 
+    : INITIAL_CONTENT.filter(item => item.filter === activeFilter);
 
   if (activeReelMode) {
     return (
