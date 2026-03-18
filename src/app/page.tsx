@@ -3,17 +3,17 @@
 import { useState, useEffect, useRef } from "react";
 import { LoadingScreen } from "@/components/loading-screen";
 import { TopBar } from "@/components/top-bar";
-import { BottomNav } from "@/components/bottom-nav";
+import { BottomNav, type NavItem } from "@/components/bottom-nav";
 import { MainFeed } from "@/components/main-feed";
-import { ReelsViewer } from "@/components/reels-viewer";
-import { ChatList } from "@/components/chat-list";
+import { LiveViewer } from "@/components/live-viewer";
+import { NotificationCenter } from "@/components/notification-center";
 import { AuthModal } from "@/components/auth-modal";
 import { MusicHub } from "@/components/music-hub";
 import { Toaster } from "@/components/ui/toaster";
 
 export default function Home() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"home" | "reels" | "upload" | "chat" | "profile">("home");
+  const [activeTab, setActiveTab] = useState<NavItem>("inicio");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -40,20 +40,17 @@ export default function Home() {
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden font-body">
-      {/* Marco de Dispositivo Android */}
       <div className="relative w-full h-full max-w-[420px] bg-[#020503] flex flex-col overflow-hidden ring-1 ring-white/5 shadow-[0_0_80px_rgba(0,0,0,1)]">
         
-        {/* Capa de fondo para el Feed - Ocupa todo el espacio */}
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
-          {/* Padding superior para no chocar con la TopBar fija */}
           <div className="pt-20 pb-32">
-            {activeTab === "home" && <MainFeed />}
-            {activeTab === "reels" && <ReelsViewer />}
-            {activeTab === "chat" && <ChatList />}
+            {activeTab === "inicio" && <MainFeed />}
+            {activeTab === "live" && <LiveViewer />}
+            {activeTab === "notifications" && <NotificationCenter />}
             
             {activeTab === "profile" && (
               <div className="flex flex-col items-center justify-center min-h-[70vh] p-10 text-center space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -83,7 +80,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Componentes de Interfaz Flotantes (Z-Index alto) */}
         <TopBar onAuthClick={() => setIsAuthModalOpen(true)} />
         <MusicHub isVisible={isNavVisible} />
         <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} isVisible={isNavVisible} />
