@@ -206,7 +206,9 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
     const clientX = 'clientX' in e ? (e as React.MouseEvent).clientX : (e as any).touches[0].clientX;
     const x = clientX - rect.left;
     
-    const newHeart = { id: Date.now(), x };
+    // Garantizar que el corazón nazca dentro del contenedor visual (500px)
+    const constrainedX = Math.max(20, Math.min(x, 480));
+    const newHeart = { id: Date.now(), x: constrainedX };
     setHearts(prev => [...prev, newHeart]);
     setTimeout(() => {
       setHearts(prev => prev.filter(h => h.id !== newHeart.id));
@@ -299,7 +301,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           <div 
             key={heart.id}
             className="absolute bottom-20 animate-heart-float text-primary"
-            style={{ left: `${Math.max(20, Math.min(heart.x - 12, 480))}px` }}
+            style={{ left: `${heart.x}px` }}
           >
             <Heart fill="currentColor" size={24} />
           </div>
@@ -315,10 +317,11 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         ))}
       </div>
 
-      {/* Header Room Mejorado */}
-      <div className="relative z-20 px-4 py-6 flex items-start justify-between">
-        <div className="flex items-center gap-3 bg-black/60 backdrop-blur-xl px-3 py-1.5 rounded-[1.25rem] border border-white/10 shadow-2xl">
-          <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary shrink-0">
+      {/* Header Room - Rediseñado y Simetrizado */}
+      <div className="relative z-40 px-6 py-8 flex items-center justify-between pointer-events-none">
+        {/* Creator Profile - Left */}
+        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl px-3 py-2 rounded-[1.5rem] border border-white/10 pointer-events-auto">
+          <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary/50 shrink-0">
             <Image src={`https://picsum.photos/seed/${live.user}/100/100`} width={40} height={40} alt="Avatar" />
           </div>
           <div className="pr-2">
@@ -330,30 +333,27 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <div className="h-10 px-4 bg-primary/20 backdrop-blur-xl rounded-[1.25rem] flex items-center gap-2 border border-primary/30 shadow-2xl">
-            <Zap size={14} className="text-primary fill-primary animate-pulse" />
-            <span className="text-[10px] font-black text-primary uppercase tracking-widest">{espBalance} ESP</span>
-          </div>
+        {/* Actions - Right */}
+        <div className="flex items-center gap-2 pointer-events-auto">
           <button 
             onClick={() => setIsChatVisible(!isChatVisible)}
-            className="h-10 w-10 bg-black/60 backdrop-blur-xl rounded-[1.25rem] flex items-center justify-center text-white border border-white/10 hover:border-primary/50 transition-all active:scale-90"
+            className="h-11 w-11 bg-black/40 backdrop-blur-2xl rounded-[1.25rem] flex items-center justify-center text-white border border-white/10 hover:border-primary/50 transition-all active:scale-90"
           >
             {isChatVisible ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
           <button 
             onClick={onBack} 
-            className="h-10 w-10 bg-black/60 backdrop-blur-xl rounded-[1.25rem] flex items-center justify-center text-white border border-white/10 hover:bg-red-500/20 hover:border-red-500/50 transition-all active:scale-90"
+            className="h-11 w-11 bg-black/40 backdrop-blur-2xl rounded-[1.25rem] flex items-center justify-center text-white border border-white/10 hover:bg-red-500/20 hover:border-red-500/50 transition-all active:scale-90"
           >
-            <X size={20} />
+            <X size={22} />
           </button>
         </div>
       </div>
 
-      <div className="relative z-20 mt-[-10px] px-6">
-        <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full border border-primary/30">
+      <div className="relative z-20 px-6 -mt-4">
+        <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-primary/30">
           <Heart size={10} fill="currentColor" className="text-primary" />
-          <span className="text-[8px] font-black text-primary uppercase tracking-widest">{likes}K</span>
+          <span className="text-[9px] font-black text-primary uppercase tracking-widest">{likes}K</span>
         </div>
       </div>
 
@@ -361,21 +361,21 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       {/* Chat HUD */}
       <div className={cn(
-        "relative z-20 px-4 pb-8 transition-all duration-500 transform",
+        "relative z-40 px-6 pb-10 transition-all duration-500 transform",
         isChatVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
       )}>
-        <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mask-fade-top mb-3">
+        <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-3 mask-fade-top mb-5">
           {messages.map((msg) => (
             <div key={msg.id} className="flex flex-col gap-0 animate-in fade-in slide-in-from-left-1 duration-300">
               <span className={cn(
-                "text-[8px] font-black uppercase tracking-widest italic",
+                "text-[8px] font-black uppercase tracking-widest italic mb-0.5",
                 msg.isSpecial ? "text-primary" : "text-primary/70"
               )}>
                 {msg.user}
               </span>
               <p className={cn(
-                "text-[10px] backdrop-blur-md px-3 py-1 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[80%] shadow-lg",
-                msg.isSpecial ? "bg-primary/20 text-primary border-primary/20 font-bold" : "bg-black/40 text-white/90"
+                "text-[10px] backdrop-blur-md px-4 py-2 rounded-2xl rounded-tl-none border border-white/5 inline-block max-w-[85%] shadow-lg",
+                msg.isSpecial ? "bg-primary/20 text-primary border-primary/20 font-bold" : "bg-black/50 text-white/90"
               )}>
                 {msg.text}
               </p>
@@ -383,68 +383,76 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="h-12 w-12 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 hover:bg-primary hover:text-black transition-all shadow-2xl">
-                <Gift size={22} />
+              <button className="h-14 w-14 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 hover:bg-primary hover:text-black transition-all shadow-2xl active:scale-90">
+                <Gift size={24} />
               </button>
             </PopoverTrigger>
             <PopoverContent 
               side="top"
               align="start"
-              className="w-[280px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-4 mb-4"
+              className="w-[300px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-5 mb-5 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
             >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Bio-Gifts Shop</span>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 rounded-full">
-                    <Zap size={10} className="text-primary fill-primary" />
-                    <span className="text-[9px] font-black text-primary">{espBalance}</span>
+              <div className="space-y-5">
+                {/* Bio-Wallet Section */}
+                <div className="flex flex-col gap-1 p-4 rounded-3xl bg-primary/10 border border-primary/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">Bio-Wallet</span>
+                    <Zap size={14} className="text-primary fill-primary" />
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-white italic tracking-tighter">{espBalance}</span>
+                    <span className="text-[10px] font-black text-primary uppercase tracking-widest">ESP Tokens</span>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-2">
-                  {gifts.map((gift) => (
-                    <button
-                      key={gift.name}
-                      onClick={() => handleSendGift(gift)}
-                      className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 group transition-all"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={cn("p-2 rounded-xl bg-white/5 group-hover:bg-primary/10 transition-colors", gift.color)}>
-                          <gift.icon size={16} />
+
+                <div className="space-y-3">
+                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest ml-2">Eco-Gifts Shop</span>
+                  <div className="grid grid-cols-1 gap-2">
+                    {gifts.map((gift) => (
+                      <button
+                        key={gift.name}
+                        onClick={() => handleSendGift(gift)}
+                        className="flex items-center justify-between p-3.5 rounded-[1.5rem] bg-white/5 border border-white/5 hover:border-primary/40 group transition-all"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={cn("p-2.5 rounded-xl bg-white/5 group-hover:bg-primary/10 transition-colors", gift.color)}>
+                            <gift.icon size={18} />
+                          </div>
+                          <div className="text-left">
+                            <p className="text-[11px] font-black text-white uppercase italic">{gift.name}</p>
+                            <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest">Inyectar Bio-Señal</p>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <p className="text-[10px] font-black text-white uppercase italic">{gift.name}</p>
-                          <p className="text-[8px] text-white/40 font-bold uppercase">Eco-Supporter</p>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-xl">
+                          <span className="text-[10px] font-black text-primary">{gift.cost}</span>
+                          <Zap size={10} className="text-primary" />
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-xl">
-                        <span className="text-[9px] font-black text-primary">{gift.cost}</span>
-                        <Zap size={10} className="text-primary" />
-                      </div>
-                    </button>
-                  ))}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </PopoverContent>
           </Popover>
 
-          <form onSubmit={handleSendMessage} className="flex-1 flex gap-2">
+          <form onSubmit={handleSendMessage} className="flex-1 flex gap-3">
             <div className="relative flex-1">
-              <MessageCircle size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />
+              <MessageCircle size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/60" />
               <input 
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Inject signal..." 
-                className="w-full h-12 bg-black/50 backdrop-blur-3xl border border-white/10 rounded-2xl pl-11 pr-4 text-[11px] text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
+                className="w-full h-14 bg-black/60 backdrop-blur-3xl border border-white/10 rounded-[1.5rem] pl-14 pr-6 text-[11px] text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
               />
             </div>
             <button 
               type="submit"
-              className="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center text-black shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all"
+              className="h-14 w-14 bg-primary rounded-[1.5rem] flex items-center justify-center text-black shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all"
             >
-              <Send size={20} fill="currentColor" />
+              <Send size={22} fill="currentColor" />
             </button>
           </form>
         </div>
@@ -452,7 +460,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       <style jsx>{`
         .mask-fade-top {
-          mask-image: linear-gradient(to bottom, transparent, black 15%);
+          mask-image: linear-gradient(to bottom, transparent, black 20%);
         }
       `}</style>
     </div>
