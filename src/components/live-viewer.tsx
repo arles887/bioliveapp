@@ -7,12 +7,14 @@ import {
   Gamepad2, Leaf, Globe, 
   Search, Lock, Zap, Flame, Key,
   X, Users, Heart, Send, Eye, EyeOff,
-  Gift, Sparkles, Trophy, Gem, Dna, UserPlus, Check
+  Gift, Sparkles, Trophy, Gem, Dna, UserPlus, Check,
+  Volume2, VolumeX, Play, Pause, FastForward, Rewind
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "@/hooks/use-toast";
 import { 
   Popover,
@@ -21,8 +23,8 @@ import {
 } from "@/components/ui/popover";
 
 const VIDEO_SOURCES = [
-  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=0&loop=1&playlist=gCsemG6ip54&controls=1&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=0&loop=1&playlist=VAuMrxuGlQw&controls=1&modestbranding=1&rel=0",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
@@ -213,6 +215,9 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const [progress, setProgress] = useState(0);
   const [messages, setMessages] = useState<any[]>([
     { id: 1, user: "BioEntity_Alpha_Centauri", text: "Increíble la calidad 🌿" },
     { id: 2, user: "CyberFan_Zero_One", text: "¡Bio-luz!" },
@@ -232,6 +237,20 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     { name: "DNA-Helix", icon: Dna, cost: 2500, color: "text-primary" },
   ];
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || isYouTube) return;
+
+    const updateProgress = () => {
+      if (video.duration) {
+        setProgress((video.currentTime / video.duration) * 100);
+      }
+    };
+
+    video.addEventListener('timeupdate', updateProgress);
+    return () => video.removeEventListener('timeupdate', updateProgress);
+  }, [isYouTube]);
+
   const handleTikiTiki = (e: any) => {
     requireAuth(() => {
       setLikes(prev => prev + 1);
@@ -243,6 +262,44 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       setHearts(prev => [...prev, newHeart]);
       setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
     });
+  };
+
+  const handlePlayPause = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isYouTube) return;
+    if (videoRef.current) {
+      if (isPlaying) videoRef.current.pause();
+      else videoRef.current.play();
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleMuteToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isYouTube) return;
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleSeek = (value: number[]) => {
+    if (isYouTube || !videoRef.current) return;
+    const time = (value[0] / 100) * videoRef.current.duration;
+    videoRef.current.currentTime = time;
+    setProgress(value[0]);
+  };
+
+  const handleFastForward = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isYouTube || !videoRef.current) return;
+    videoRef.current.currentTime = Math.min(videoRef.current.duration, videoRef.current.currentTime + 5);
+  };
+
+  const handleRewind = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isYouTube || !videoRef.current) return;
+    videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5);
   };
 
   const handleSendGift = (gift: any) => {
@@ -288,7 +345,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         {isYouTube ? (
           <iframe 
             src={live.video} 
-            className="h-full w-full object-cover opacity-90 pointer-events-none" 
+            className="h-full w-full object-cover opacity-90 pointer-events-auto" 
             allow="autoplay; encrypted-media"
           />
         ) : (
@@ -297,12 +354,12 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
             src={live.video} 
             className="h-full w-full object-cover opacity-90" 
             autoPlay 
-            muted 
+            muted={isMuted}
             loop 
             playsInline 
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60 pointer-events-none"></div>
       </div>
 
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
@@ -363,6 +420,41 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       </div>
 
       <div className="flex-1"></div>
+
+      {/* Media Controls Bar */}
+      <div className="relative z-[60] px-6 mb-4">
+        {!isYouTube && (
+          <div className="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-2xl p-4 space-y-3">
+             <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                   <button onClick={handleRewind} className="p-2 text-white hover:text-primary transition-colors">
+                      <Rewind size={18} fill="currentColor" />
+                   </button>
+                   <button onClick={handlePlayPause} className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-black shadow-lg active:scale-90 transition-all">
+                      {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+                   </button>
+                   <button onClick={handleFastForward} className="p-2 text-white hover:text-primary transition-colors">
+                      <FastForward size={18} fill="currentColor" />
+                   </button>
+                </div>
+                
+                <button onClick={handleMuteToggle} className="p-2 text-primary hover:scale-110 transition-all">
+                   {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                </button>
+             </div>
+             
+             <div className="px-1">
+                <Slider 
+                  value={[progress]} 
+                  max={100} 
+                  step={0.1} 
+                  onValueChange={handleSeek}
+                  className="[&>[data-slot=slider-range]]:bg-primary [&>[data-slot=slider-thumb]]:border-primary"
+                />
+             </div>
+          </div>
+        )}
+      </div>
 
       <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div ref={scrollRef} className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
