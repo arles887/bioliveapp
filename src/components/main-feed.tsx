@@ -9,10 +9,12 @@ import {
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ProtocolWindow } from "@/components/protocol-window";
+import { ReelsViewer } from "@/components/reels-viewer";
 
 export function MainFeed() {
   const [activeFilter, setActiveFilter] = useState("Para ti");
   const [selectedStory, setSelectedStory] = useState<number | null>(null);
+  const [activeReelMode, setActiveReelMode] = useState(false);
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
 
@@ -50,6 +52,20 @@ export function MainFeed() {
     ? contentItems 
     : contentItems.filter(item => item.filter === activeFilter);
 
+  if (activeReelMode) {
+    return (
+      <div className="fixed inset-0 z-[80] bg-black">
+        <button 
+          onClick={() => setActiveReelMode(false)}
+          className="absolute top-8 left-6 z-[100] h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl flex items-center justify-center text-white border border-white/10"
+        >
+          <X size={20} />
+        </button>
+        <ReelsViewer />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full h-full relative">
       <div className="sticky top-0 z-20 bg-[#020503]/80 backdrop-blur-md py-4 border-b border-white/5">
@@ -72,17 +88,18 @@ export function MainFeed() {
       </div>
 
       <div className="flex-1 p-6 space-y-8 no-scrollbar">
+        {/* Historias - Desplazamiento Horizontal con Snap */}
         <section className="space-y-4">
           <div className="flex items-center justify-between px-2">
              <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 italic">Nodos Cercanos</h3>
              <Users size={12} className="text-primary/40" />
           </div>
-          <div className="flex gap-4 overflow-x-auto no-scrollbar">
-            {[1, 2, 3, 4, 5].map((i) => (
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div 
                 key={i} 
                 onClick={() => setSelectedStory(i)}
-                className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform"
+                className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform snap-center"
               >
                 <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent group-hover:rotate-12 transition-transform">
                   <div className="w-full h-full rounded-full bg-black border-2 border-[#020503] overflow-hidden">
@@ -95,34 +112,36 @@ export function MainFeed() {
           </div>
         </section>
 
+        {/* Feed Vertical */}
         <section className="grid grid-cols-1 gap-6">
           {filteredItems.length > 0 ? filteredItems.map((item) => (
             <div 
               key={item.id} 
+              onClick={() => item.type === 'reel' ? setActiveReelMode(true) : null}
               className={cn(
-                "group relative rounded-[2rem] overflow-hidden bg-white/2 border border-white/5 cursor-pointer hover:border-primary/20 transition-all",
-                item.type === "reel" ? "aspect-[9/16] sm:aspect-video" : "aspect-video"
+                "group relative rounded-[2.5rem] overflow-hidden bg-white/2 border border-white/5 cursor-pointer hover:border-primary/20 transition-all shadow-xl",
+                item.type === "reel" ? "aspect-[4/5]" : "aspect-video"
               )}
             >
               <Image src={item.thumbnail} fill alt={item.title} className="object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#020503] via-transparent to-transparent"></div>
               
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-6 right-6">
                 <Badge className={cn(
-                  "text-[8px] font-black tracking-widest px-3 border-none",
+                  "text-[8px] font-black tracking-widest px-4 h-6 border-none flex items-center",
                   item.type === "live" ? "bg-red-500 text-white" : "bg-primary text-black"
                 )}>
                   {item.type === "live" ? "LIVE" : "REEL"}
                 </Badge>
               </div>
 
-              <div className="absolute bottom-6 left-6 right-6">
-                 <div className="flex items-center gap-2 mb-1">
-                    <div className="h-4 w-4 rounded-full bg-white/10 border border-white/20"></div>
-                    <span className="text-[8px] font-black text-primary uppercase tracking-widest italic">@{item.user}</span>
+              <div className="absolute bottom-8 left-8 right-8">
+                 <div className="flex items-center gap-2 mb-2">
+                    <div className="h-5 w-5 rounded-full bg-white/10 border border-white/20"></div>
+                    <span className="text-[9px] font-black text-primary uppercase tracking-widest italic">@{item.user}</span>
                  </div>
-                 <h2 className="text-xl font-black italic uppercase text-white tracking-tighter leading-none">{item.title}</h2>
-                 <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-2">{item.viewers} Sincronizados</p>
+                 <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{item.title}</h2>
+                 <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-2">{item.viewers} Sincronizados</p>
               </div>
             </div>
           )) : (
@@ -135,16 +154,16 @@ export function MainFeed() {
       </div>
 
       <ProtocolWindow isOpen={!!selectedStory} onClose={() => setSelectedStory(null)} title="Bio-Story">
-        <div className="relative aspect-[9/16] w-full bg-black rounded-3xl overflow-hidden border border-white/10">
+        <div className="relative aspect-[9/16] w-full bg-black rounded-[2.5rem] overflow-hidden border border-white/10">
           {selectedStory && (
             <>
               <Image src={`https://picsum.photos/seed/story${selectedStory}/1080/1920`} fill alt="Story" className="object-cover" />
-              <div className="absolute top-4 left-4 right-4 h-1 bg-white/10 rounded-full overflow-hidden">
+              <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full bg-primary animate-[progress_5s_linear_infinite]" style={{ width: '100%' }}></div>
               </div>
-              <div className="absolute bottom-10 left-6">
-                 <p className="text-white font-black italic text-sm">@Bio_{selectedStory}</p>
-                 <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #01</p>
+              <div className="absolute bottom-10 left-8">
+                 <p className="text-white font-black italic text-base">@Bio_{selectedStory}</p>
+                 <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #0{selectedStory}</p>
               </div>
             </>
           )}
