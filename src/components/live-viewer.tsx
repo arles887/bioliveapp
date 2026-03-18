@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -267,90 +268,89 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
         ))}
       </div>
 
-      {/* Header Corregido con Espaciado Simétrico */}
-      <div className="relative z-40 px-6 py-10 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 flex-1 min-w-0 bg-transparent backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10">
+      {/* Header Corregido con Espaciado Simétrico y Equidistante */}
+      <div className="relative z-40 px-6 py-10 flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-1 min-w-0 bg-transparent backdrop-blur-2xl p-1.5 pr-3 rounded-2xl border border-white/10">
           <div 
-            className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer shrink-0"
+            className="h-9 w-9 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer shrink-0"
             onClick={() => { onBack(); onProfileClick(live.user); }}
           >
             <Image src={`https://picsum.photos/seed/${live.user}/100/100`} fill alt="Avatar" className="object-cover" />
           </div>
           <div className="cursor-pointer min-w-0 flex-1" onClick={() => { onBack(); onProfileClick(live.user); }}>
-            <h4 className="text-[10px] font-black italic text-white uppercase leading-none mb-1 truncate">@{live.user}</h4>
-            <div className="flex items-center gap-1.5">
-              <Users size={10} className="text-primary" />
-              <span className="text-[8px] font-black text-white/70 uppercase">{live.watchers}</span>
+            <h4 className="text-[9px] font-black italic text-white uppercase leading-none mb-0.5 truncate">@{live.user}</h4>
+            <div className="flex items-center gap-1">
+              <Users size={8} className="text-primary" />
+              <span className="text-[7px] font-black text-white/70 uppercase">{live.watchers}</span>
             </div>
           </div>
           <button 
             onClick={handleFollow}
             className={cn(
-              "ml-2 h-7 px-3 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all shrink-0",
+              "ml-1 h-6 px-2.5 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all shrink-0",
               isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg"
             )}
           >
-            {isFollowing ? <Check size={10} /> : <UserPlus size={10} />}
+            {isFollowing ? <Check size={8} /> : <UserPlus size={8} />}
           </button>
         </div>
         
-        <div className="flex items-center gap-2 shrink-0">
-          <button 
-            onClick={(e) => { e.stopPropagation(); setIsChatVisible(!isChatVisible); }} 
-            className="h-11 w-11 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-primary/40 transition-all"
-          >
-            {isChatVisible ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-          <button 
-            onClick={(e) => { e.stopPropagation(); onBack(); }} 
-            className="h-11 w-11 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-red-500/40 transition-all"
-          >
-            <X size={20} />
-          </button>
-        </div>
+        <button 
+          onClick={(e) => { e.stopPropagation(); setIsChatVisible(!isChatVisible); }} 
+          className="h-10 w-10 shrink-0 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-primary/40 transition-all"
+        >
+          {isChatVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+        
+        <button 
+          onClick={(e) => { e.stopPropagation(); onBack(); }} 
+          className="h-10 w-10 shrink-0 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-red-500/40 transition-all"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       <div className="flex-1"></div>
 
-      {/* Chat HUD Corregido */}
+      {/* Chat HUD Corregido - Barra Inferior Compacta y Centrada */}
       <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
-        <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mb-3">
+        <div ref={scrollRef} className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
           {messages.map((msg) => (
             <div key={msg.id} className="text-left animate-in fade-in slide-in-from-left-2">
-              <span className={cn("text-[9px] font-black uppercase italic tracking-widest block truncate", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
-              <p className={cn("text-[10px] backdrop-blur-md px-3 py-1.5 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[85%] leading-relaxed", msg.isSpecial ? "bg-primary/20 text-primary" : "bg-black/60 text-white/90")}>{msg.text}</p>
+              <span className={cn("text-[8px] font-black uppercase italic tracking-widest block truncate", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
+              <p className={cn("text-[9px] backdrop-blur-md px-2.5 py-1 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[85%] leading-relaxed", msg.isSpecial ? "bg-primary/20 text-primary" : "bg-black/60 text-white/90")}>{msg.text}</p>
             </div>
           ))}
         </div>
 
-        <div className="flex items-center gap-2 h-14 w-full">
+        <div className="flex items-center gap-2 h-11 w-full">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="h-14 w-14 shrink-0 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 shadow-2xl active:scale-90 transition-all overflow-hidden">
-                <Gift size={24} />
+              <button className="h-11 w-11 shrink-0 bg-white/10 backdrop-blur-3xl rounded-xl flex items-center justify-center text-white border border-white/10 shadow-2xl active:scale-90 transition-all overflow-hidden">
+                <Gift size={18} />
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="start" className="w-[340px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-6 z-[9999] shadow-[0_0_50px_rgba(0,0,0,1)]">
-              <div className="space-y-5">
-                <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-between">
+            <PopoverContent side="top" align="start" className="w-[300px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2rem] p-5 z-[9999] shadow-[0_0_50px_rgba(0,0,0,1)]">
+              <div className="space-y-4">
+                <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <span className="text-[9px] font-black text-primary uppercase italic tracking-widest">Bio-Wallet</span>
-                    <div className="text-xl font-black text-white italic leading-none">{espBalance} <span className="text-[10px] text-primary">ESP</span></div>
+                    <span className="text-[8px] font-black text-primary uppercase italic tracking-widest">Bio-Wallet</span>
+                    <div className="text-lg font-black text-white italic leading-none">{espBalance} <span className="text-[9px] text-primary">ESP</span></div>
                   </div>
-                  <Zap size={16} className="text-primary animate-pulse" />
+                  <Zap size={14} className="text-primary animate-pulse" />
                 </div>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-1.5">
                   {gifts.map(g => (
                     <button 
                       key={g.name} 
                       onClick={() => handleSendGift(g)} 
-                      className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/40 group transition-all"
+                      className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/40 group transition-all"
                     >
-                      <div className="flex items-center gap-3">
-                        <g.icon size={20} className={g.color} />
-                        <span className="text-[11px] font-black text-white italic uppercase">{g.name}</span>
+                      <div className="flex items-center gap-2.5">
+                        <g.icon size={16} className={g.color} />
+                        <span className="text-[10px] font-black text-white italic uppercase">{g.name}</span>
                       </div>
-                      <span className="text-[10px] text-primary font-black uppercase">{g.cost} ESP</span>
+                      <span className="text-[9px] text-primary font-black uppercase">{g.cost} ESP</span>
                     </button>
                   ))}
                 </div>
@@ -363,13 +363,13 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
               value={inputText} 
               onChange={(e) => setInputText(e.target.value)} 
               placeholder="Inyectar señal..." 
-              className="flex-1 h-full bg-black/60 backdrop-blur-3xl border border-white/10 rounded-2xl px-5 text-[11px] text-white focus:outline-none focus:border-primary/50" 
+              className="flex-1 h-full bg-black/60 backdrop-blur-3xl border border-white/10 rounded-xl px-4 text-[10px] text-white focus:outline-none focus:border-primary/40" 
             />
             <button 
               type="submit" 
-              className="h-14 w-14 shrink-0 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="h-11 w-11 shrink-0 bg-primary rounded-xl flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
-              <Send size={22} fill="currentColor" />
+              <Send size={18} fill="currentColor" />
             </button>
           </form>
         </div>
