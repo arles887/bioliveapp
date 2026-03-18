@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -13,10 +14,11 @@ import { ReelsViewer } from "@/components/reels-viewer";
 
 export function MainFeed() {
   const [activeFilter, setActiveFilter] = useState("Para ti");
-  const [selectedStory, setSelectedStory] = useState<number | null>(null);
+  const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
   const [activeReelMode, setActiveReelMode] = useState(false);
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
+  const storyIds = [1, 2, 3, 4, 5, 6, 7, 8];
 
   const contentItems = [
     { 
@@ -95,18 +97,18 @@ export function MainFeed() {
              <Users size={12} className="text-primary/40" />
           </div>
           <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            {storyIds.map((id, index) => (
               <div 
-                key={i} 
-                onClick={() => setSelectedStory(i)}
+                key={id} 
+                onClick={() => setSelectedStoryIndex(index)}
                 className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform snap-center"
               >
                 <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent group-hover:rotate-12 transition-transform">
                   <div className="w-full h-full rounded-full bg-black border-2 border-[#020503] overflow-hidden">
-                    <Image src={`https://picsum.photos/seed/u${i}/100/100`} width={64} height={64} alt="User" className="object-cover" />
+                    <Image src={`https://picsum.photos/seed/u${id}/100/100`} width={64} height={64} alt="User" className="object-cover" />
                   </div>
                 </div>
-                <span className="text-[7px] font-black uppercase text-white/30 tracking-widest">Bio_{i}</span>
+                <span className="text-[7px] font-black uppercase text-white/30 tracking-widest">Bio_{id}</span>
               </div>
             ))}
           </div>
@@ -153,20 +155,20 @@ export function MainFeed() {
         </section>
       </div>
 
-      <ProtocolWindow isOpen={!!selectedStory} onClose={() => setSelectedStory(null)} title="Bio-Story">
-        <div className="relative aspect-[9/16] w-full bg-black rounded-[2.5rem] overflow-hidden border border-white/10">
-          {selectedStory && (
-            <>
-              <Image src={`https://picsum.photos/seed/story${selectedStory}/1080/1920`} fill alt="Story" className="object-cover" />
+      <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
+        <div className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex">
+          {storyIds.map((id) => (
+            <div key={id} className="relative aspect-[9/16] w-full shrink-0 snap-center bg-black rounded-[2.5rem] overflow-hidden border border-white/10">
+              <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
               <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden">
                 <div className="h-full bg-primary animate-[progress_5s_linear_infinite]" style={{ width: '100%' }}></div>
               </div>
               <div className="absolute bottom-10 left-8">
-                 <p className="text-white font-black italic text-base">@Bio_{selectedStory}</p>
-                 <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #0{selectedStory}</p>
+                 <p className="text-white font-black italic text-base">@Bio_{id}</p>
+                 <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #0{id}</p>
               </div>
-            </>
-          )}
+            </div>
+          ))}
         </div>
       </ProtocolWindow>
     </div>
