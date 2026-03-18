@@ -34,70 +34,58 @@ export function AuthModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[420px] rounded-[3rem] bg-[#050906] border-white/10 p-8">
-        <DialogHeader className="flex flex-col items-center pb-6">
-          <div className="h-16 w-16 rounded-[1.8rem] bg-primary flex items-center justify-center text-black mb-6 shadow-[0_0_30px_rgba(204,255,0,0.5)] animate-float">
-            <Zap size={32} fill="black" strokeWidth={3} />
+      <DialogContent className="w-[90vw] max-w-[380px] rounded-[2.5rem] bg-[#050906] border-white/10 p-6 z-[100] shadow-[0_0_50px_rgba(0,0,0,1)]">
+        <DialogHeader className="flex flex-col items-center pb-4">
+          <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center text-black mb-4 shadow-[0_0_20px_rgba(204,255,0,0.3)]">
+            <Zap size={24} fill="black" strokeWidth={3} />
           </div>
-          <DialogTitle className="text-3xl font-black tracking-tighter text-white uppercase italic">Bio-Cyber <span className="text-primary">Sync</span></DialogTitle>
-          <DialogDescription className="text-white/40 font-bold uppercase tracking-widest text-[10px] mt-2">Harmonizing Identity with Nature</DialogDescription>
+          <DialogTitle className="text-2xl font-black tracking-tighter text-white uppercase italic">Bio-Cyber <span className="text-primary">Sync</span></DialogTitle>
+          <DialogDescription className="text-white/40 font-bold uppercase tracking-widest text-[8px] mt-1">Identidad Digital Orgánica</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white/5 rounded-[1.5rem] h-14 p-1.5 mb-6">
-            <TabsTrigger value="login" className="rounded-[1.2rem] data-[state=active]:bg-primary data-[state=active]:text-black font-black uppercase tracking-widest text-[10px]">Signal In</TabsTrigger>
-            <TabsTrigger value="register" className="rounded-[1.2rem] data-[state=active]:bg-primary data-[state=active]:text-black font-black uppercase tracking-widest text-[10px]">Create ID</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-white/5 rounded-2xl h-12 p-1 mb-4">
+            <TabsTrigger value="login" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-black font-black uppercase tracking-widest text-[9px]">Entrar</TabsTrigger>
+            <TabsTrigger value="register" className="rounded-xl data-[state=active]:bg-primary data-[state=active]:text-black font-black uppercase tracking-widest text-[9px]">Crear ID</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="login" className="space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-2">Email Address</Label>
-                <Input id="email" type="email" placeholder="user@biolive.cyber" className="rounded-[1.5rem] h-14 bg-white/5 border-white/10 focus-visible:ring-primary text-white" required />
+          <TabsContent value="login" className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Input type="email" placeholder="user@biolive.cyber" className="rounded-xl h-12 bg-white/5 border-white/10 text-white text-xs" required />
               </div>
-              <div className="space-y-3">
-                <Label htmlFor="password" name="password" className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-2">Secure Pulse</Label>
-                <Input id="password" type="password" className="rounded-[1.5rem] h-14 bg-white/5 border-white/10 focus-visible:ring-primary text-white" required />
+              <div className="space-y-2">
+                <Input type="password" placeholder="Secure Pulse" className="rounded-xl h-12 bg-white/5 border-white/10 text-white text-xs" required />
               </div>
-              <Button type="submit" className="w-full rounded-[1.5rem] h-14 bg-primary text-black font-black uppercase tracking-[0.3em] italic text-xs shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all mt-4" disabled={loading}>
-                {loading ? "Synchronizing..." : "Initiate Signal"}
+              <Button type="submit" className="w-full rounded-xl h-12 bg-primary text-black font-black uppercase tracking-widest italic text-[10px]" disabled={loading}>
+                {loading ? "Sincronizando..." : "Iniciar Señal"}
               </Button>
             </form>
           </TabsContent>
 
-          <TabsContent value="register" className="space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-3">
-                <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-2">Display Name</Label>
-                <Input id="name" placeholder="BioEntity_01" className="rounded-[1.5rem] h-14 bg-white/5 border-white/10 focus-visible:ring-primary text-white" required />
+          <TabsContent value="register" className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Input placeholder="BioEntity_01" className="rounded-xl h-12 bg-white/5 border-white/10 text-white text-xs" required />
               </div>
-              <div className="space-y-3">
-                <Label htmlFor="reg-email" className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-2">Email</Label>
-                <Input id="reg-email" type="email" placeholder="entity@biolive.cyber" className="rounded-[1.5rem] h-14 bg-white/5 border-white/10 focus-visible:ring-primary text-white" required />
+              <div className="space-y-2">
+                <Input type="email" placeholder="email@biolive.cyber" className="rounded-xl h-12 bg-white/5 border-white/10 text-white text-xs" required />
               </div>
-              <div className="space-y-3">
-                <Label htmlFor="reg-password" name="reg-password" className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-2">New Pulse</Label>
-                <Input id="reg-password" type="password" className="rounded-[1.5rem] h-14 bg-white/5 border-white/10 focus-visible:ring-primary text-white" required />
-              </div>
-              <Button type="submit" className="w-full rounded-[1.5rem] h-14 bg-primary text-black font-black uppercase tracking-[0.3em] italic text-xs shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all mt-4" disabled={loading}>
-                {loading ? "Evolving..." : "Join Ecosystem"}
+              <Button type="submit" className="w-full rounded-xl h-12 bg-primary text-black font-black uppercase tracking-widest italic text-[10px]" disabled={loading}>
+                {loading ? "Evolucionando..." : "Unirse"}
               </Button>
             </form>
           </TabsContent>
         </Tabs>
 
-        <div className="flex flex-col gap-6 pt-8">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-white/10"></span></div>
-            <div className="relative flex justify-center text-[9px] uppercase tracking-[0.4em] font-black text-white/20"><span className="bg-[#050906] px-4">Bio-Pass Access</span></div>
+        <div className="pt-6 border-t border-white/5 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="rounded-xl h-10 bg-white/5 border-white/10 text-white/50 text-[9px] uppercase font-black tracking-widest">Google</Button>
+            <Button variant="outline" className="rounded-xl h-10 bg-white/5 border-white/10 text-white/50 text-[9px] uppercase font-black tracking-widest">Apple</Button>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="rounded-[1.2rem] h-12 bg-white/5 border-white/10 text-white/60 font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-black hover:border-primary transition-all">Google</Button>
-            <Button variant="outline" className="rounded-[1.2rem] h-12 bg-white/5 border-white/10 text-white/60 font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-black hover:border-primary transition-all">Apple</Button>
-          </div>
-          <div className="flex items-center justify-center gap-2 text-white/20 mt-2">
-            <ShieldCheck size={14} />
-            <span className="text-[8px] font-black uppercase tracking-widest">Quantum Encryption Enabled</span>
+          <div className="flex items-center justify-center gap-2 text-white/20">
+            <ShieldCheck size={12} />
+            <span className="text-[7px] font-black uppercase tracking-widest">Encriptación Quantum Activa</span>
           </div>
         </div>
       </DialogContent>

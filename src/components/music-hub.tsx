@@ -1,32 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Music, Play, SkipForward, Maximize2 } from "lucide-react";
+import { Music, Play, SkipForward, Pause } from "lucide-react";
 
 export function MusicHub() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
-    <div className="fixed bottom-28 left-1/2 -translate-x-1/2 w-[85%] z-[90]">
-      <div className="glass-panel rounded-2xl p-3 flex items-center gap-4 border-primary/20 bg-black/60 shadow-2xl animate-in slide-in-from-bottom-10 duration-700">
-        <div className="h-10 w-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary relative overflow-hidden group">
-          <div className="absolute inset-0 bg-primary/20 animate-pulse"></div>
-          <Music size={18} className="relative z-10" />
+    <div className="absolute bottom-24 left-0 right-0 px-8 z-40">
+      <div className="h-12 glass-panel rounded-full px-4 flex items-center gap-3 border-white/10 bg-black/40 backdrop-blur-md">
+        <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-primary animate-pulse">
+          <Music size={14} />
         </div>
         
         <div className="flex-1 min-w-0">
-          <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] truncate">Biosynthesis v2.1</h4>
-          <p className="text-[8px] text-white/40 uppercase tracking-widest font-bold">Ambient Neural Waves</p>
+          <h4 className="text-[9px] font-black text-primary uppercase tracking-widest truncate">Neural Waves v.01</h4>
+          <div className="flex gap-1 h-1 items-end mt-0.5">
+            {[1, 2, 3, 4, 3, 2].map((h, i) => (
+              <div key={i} className="w-0.5 bg-primary/40 rounded-full" style={{ height: isPlaying ? `${h * 4}px` : '2px' }}></div>
+            ))}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button 
             onClick={() => setIsPlaying(!isPlaying)}
-            className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-black transition-all"
+            className="h-8 w-8 rounded-full flex items-center justify-center text-white/80 hover:text-primary transition-all"
           >
-            <Play size={14} fill={isPlaying ? "currentColor" : "none"} />
+            {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
           </button>
-          <button className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-all">
+          <button className="h-8 w-8 rounded-full flex items-center justify-center text-white/30">
             <SkipForward size={14} />
           </button>
         </div>
