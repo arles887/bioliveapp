@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -6,17 +5,29 @@ import Image from "next/image";
 import { 
   Gamepad2, Leaf, Globe, 
   Search, Lock, Zap, Flame, Key,
-  X, Users, Heart, Send, MessageCircle, Eye, EyeOff
+  X, Users, Heart, Send, MessageCircle, Eye, EyeOff,
+  Gift, Sparkles, Trophy, Gem, Dna
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface HeartAnimation {
   id: number;
   x: number;
+}
+
+interface GiftAnimation {
+  id: number;
+  icon: any;
+  color: string;
 }
 
 export function LiveViewer({ 
@@ -167,6 +178,8 @@ export function LiveViewer({
 function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   const [likes, setLikes] = useState(1420);
   const [hearts, setHearts] = useState<HeartAnimation[]>([]);
+  const [activeGifts, setActiveGifts] = useState<GiftAnimation[]>([]);
+  const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [messages, setMessages] = useState<any[]>([
     { id: 1, user: "BioEntity_02", text: "Increíble la calidad de la señal 🌿" },
@@ -176,17 +189,56 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   const [inputText, setInputText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const gifts = [
+    { name: "Bio-Seed", icon: Leaf, cost: 50, color: "text-green-400" },
+    { name: "Cyber-Spark", icon: Sparkles, cost: 150, color: "text-primary" },
+    { name: "Eco-Trophy", icon: Trophy, cost: 500, color: "text-yellow-400" },
+    { name: "Gaia-Gem", icon: Gem, cost: 1200, color: "text-accent" },
+    { name: "DNA-Helix", icon: Dna, cost: 2500, color: "text-purple-400" },
+  ];
+
   const handleTikiTiki = (e: React.MouseEvent | React.TouchEvent) => {
     setLikes(prev => prev + 1);
     const clientX = 'clientX' in e ? (e as React.MouseEvent).clientX : (e as any).touches[0].clientX;
-    const newHeart = {
-      id: Date.now(),
-      x: clientX
-    };
+    const newHeart = { id: Date.now(), x: clientX };
     setHearts(prev => [...prev, newHeart]);
     setTimeout(() => {
       setHearts(prev => prev.filter(h => h.id !== newHeart.id));
     }, 1000);
+  };
+
+  const handleSendGift = (gift: any) => {
+    if (espBalance < gift.cost) {
+      toast({ 
+        variant: "destructive", 
+        title: "Tokens Insuficientes", 
+        description: "Necesitas más tokens ESP para este regalo." 
+      });
+      return;
+    }
+
+    setEspBalance(prev => prev - gift.cost);
+    
+    // Animación dinámica
+    const newGiftAnim = { id: Date.now(), icon: gift.icon, color: gift.color };
+    setActiveGifts(prev => [...prev, newGiftAnim]);
+    setTimeout(() => {
+      setActiveGifts(prev => prev.filter(g => g.id !== newGiftAnim.id));
+    }, 2000);
+
+    // Mensaje en chat
+    const newMessage = {
+      id: Date.now(),
+      user: "SISTEMA",
+      text: `🎁 ¡Has enviado un ${gift.name}!`,
+      isSpecial: true
+    };
+    setMessages(prev => [...prev, newMessage]);
+
+    toast({ 
+      title: "Regalo Enviado", 
+      description: `Has apoyado a @${live.user} con un ${gift.name}.` 
+    });
   };
 
   useEffect(() => {
@@ -224,10 +276,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black animate-in slide-in-from-bottom duration-500 flex flex-col max-w-[420px] mx-auto overflow-hidden">
-      <div 
-        className="absolute inset-0 z-0 cursor-pointer"
-        onClick={handleTikiTiki}
-      >
+      <div className="absolute inset-0 z-0 cursor-pointer" onClick={handleTikiTiki}>
         <Image 
           src={live.img} 
           fill 
@@ -251,6 +300,16 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         ))}
       </div>
 
+      {/* Capa de Regalos Dinámicos */}
+      <div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center">
+        {activeGifts.map(gift => (
+          <div key={gift.id} className={cn("animate-gift-bounce flex flex-col items-center", gift.color)}>
+            <gift.icon size={120} strokeWidth={1} className="drop-shadow-[0_0_30px_rgba(204,255,0,0.5)]" />
+            <span className="text-xl font-black italic uppercase tracking-widest mt-4">Gift Sent!</span>
+          </div>
+        ))}
+      </div>
+
       {/* Header del Live */}
       <div className="relative z-20 p-6 flex items-center justify-between">
         <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
@@ -267,17 +326,17 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         </div>
         
         <div className="flex gap-2">
+          <div className="h-10 px-4 bg-primary/10 backdrop-blur-md rounded-xl flex items-center gap-2 border border-primary/20">
+            <Zap size={14} className="text-primary fill-primary" />
+            <span className="text-[10px] font-black text-primary">{espBalance} ESP</span>
+          </div>
           <button 
             onClick={() => setIsChatVisible(!isChatVisible)}
-            className="h-10 w-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/10 transition-all hover:bg-primary hover:text-black"
-            title={isChatVisible ? "Ocultar Chat" : "Mostrar Chat"}
+            className="h-10 w-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/10"
           >
             {isChatVisible ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
-          <button 
-            onClick={onBack}
-            className="h-10 w-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/10 transition-all hover:bg-destructive"
-          >
+          <button onClick={onBack} className="h-10 w-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/10">
             <X size={20} />
           </button>
         </div>
@@ -293,42 +352,91 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       <div className="flex-1"></div>
 
-      {/* Contenedor del Chat Compacto y Bajo */}
+      {/* Contenedor del Chat y Regalos */}
       <div className={cn(
         "relative z-20 px-4 pb-6 transition-all duration-500 transform",
         isChatVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
       )}>
-        <div 
-          ref={scrollRef}
-          className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mask-fade-top mb-3"
-        >
+        <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mask-fade-top mb-3">
           {messages.map((msg) => (
             <div key={msg.id} className="flex flex-col gap-0 animate-in fade-in slide-in-from-left-1 duration-300">
-              <span className="text-[8px] font-black text-primary/70 uppercase tracking-widest italic">{msg.user}</span>
-              <p className="text-[10px] text-white/90 bg-black/40 backdrop-blur-md px-3 py-1 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[80%] shadow-lg">
+              <span className={cn(
+                "text-[8px] font-black uppercase tracking-widest italic",
+                msg.isSpecial ? "text-primary" : "text-primary/70"
+              )}>
+                {msg.user}
+              </span>
+              <p className={cn(
+                "text-[10px] backdrop-blur-md px-3 py-1 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[80%] shadow-lg",
+                msg.isSpecial ? "bg-primary/20 text-primary border-primary/20 font-bold" : "bg-black/40 text-white/90"
+              )}>
                 {msg.text}
               </p>
             </div>
           ))}
         </div>
 
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          <div className="relative flex-1">
-            <MessageCircle size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />
-            <input 
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Inject signal..." 
-              className="w-full h-10 bg-black/50 backdrop-blur-3xl border border-white/10 rounded-xl pl-10 pr-4 text-[11px] text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
-            />
-          </div>
-          <button 
-            type="submit"
-            className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center text-black shadow-[0_0_15px_rgba(204,255,0,0.3)] hover:scale-105 active:scale-95 transition-all"
-          >
-            <Send size={16} fill="currentColor" />
-          </button>
-        </form>
+        <div className="flex gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="h-10 w-10 bg-white/10 backdrop-blur-3xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:bg-primary hover:text-black transition-all">
+                <Gift size={18} />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[280px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2rem] p-4 mb-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Bio-Gifts Shop</span>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-primary/10 rounded-full">
+                    <Zap size={10} className="text-primary fill-primary" />
+                    <span className="text-[9px] font-black text-primary">{espBalance}</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {gifts.map((gift) => (
+                    <button
+                      key={gift.name}
+                      onClick={() => handleSendGift(gift)}
+                      className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 group transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={cn("p-2 rounded-xl bg-white/5 group-hover:bg-primary/10 transition-colors", gift.color)}>
+                          <gift.icon size={16} />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-[10px] font-black text-white uppercase italic">{gift.name}</p>
+                          <p className="text-[8px] text-white/40 font-bold uppercase">Eco-Supporter</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-white/5 rounded-xl">
+                        <span className="text-[9px] font-black text-primary">{gift.cost}</span>
+                        <Zap size={10} className="text-primary" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <form onSubmit={handleSendMessage} className="flex-1 flex gap-2">
+            <div className="relative flex-1">
+              <MessageCircle size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />
+              <input 
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Inject signal..." 
+                className="w-full h-10 bg-black/50 backdrop-blur-3xl border border-white/10 rounded-xl pl-10 pr-4 text-[11px] text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
+              />
+            </div>
+            <button 
+              type="submit"
+              className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center text-black shadow-[0_0_15px_rgba(204,255,0,0.3)] hover:scale-105 active:scale-95 transition-all"
+            >
+              <Send size={16} fill="currentColor" />
+            </button>
+          </form>
+        </div>
       </div>
 
       <style jsx>{`
