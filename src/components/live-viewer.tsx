@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -18,7 +19,11 @@ interface HeartAnimation {
   x: number;
 }
 
-export function LiveViewer() {
+export function LiveViewer({ 
+  onToggleFullScreen 
+}: { 
+  onToggleFullScreen: (isFull: boolean) => void 
+}) {
   const [activeCategory, setActiveCategory] = useState("Global");
   const [selectedLive, setSelectedLive] = useState<any>(null);
   const [activeLiveStream, setActiveLiveStream] = useState<any>(null);
@@ -46,9 +51,11 @@ export function LiveViewer() {
   const handleAccess = () => {
     if (password === "2025") {
       toast({ title: "Acceso Concedido", description: "Protocolo de visualización activado." });
-      setActiveLiveStream(selectedLive);
+      const liveToOpen = selectedLive;
       setSelectedLive(null);
       setPassword("");
+      setActiveLiveStream(liveToOpen);
+      onToggleFullScreen(true);
     } else {
       toast({ variant: "destructive", title: "Error de Encriptación", description: "Clave neural incorrecta." });
     }
@@ -59,11 +66,17 @@ export function LiveViewer() {
       setSelectedLive(live);
     } else {
       setActiveLiveStream(live);
+      onToggleFullScreen(true);
     }
   };
 
+  const handleBackFromLive = () => {
+    setActiveLiveStream(null);
+    onToggleFullScreen(false);
+  };
+
   if (activeLiveStream) {
-    return <LiveStreamRoom live={activeLiveStream} onBack={() => setActiveLiveStream(null)} />;
+    return <LiveStreamRoom live={activeLiveStream} onBack={handleBackFromLive} />;
   }
 
   return (
@@ -162,12 +175,12 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   const [inputText, setInputText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Tiki-tiki effect logic
   const handleTikiTiki = (e: React.MouseEvent | React.TouchEvent) => {
     setLikes(prev => prev + 1);
+    const clientX = 'clientX' in e ? e.clientX : (e as any).touches[0].clientX;
     const newHeart = {
       id: Date.now(),
-      x: 'clientX' in e ? e.clientX : (e as any).touches[0].clientX
+      x: clientX
     };
     setHearts(prev => [...prev, newHeart]);
     setTimeout(() => {
@@ -175,7 +188,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
     }, 1000);
   };
 
-  // Simulating dynamic chat
   useEffect(() => {
     const chatInterval = setInterval(() => {
       const fakeUsers = ["BotanyNode", "GaiaWatcher", "NeonExplorer", "PulseX"];
@@ -183,7 +195,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
       const newMessage = {
         id: Date.now(),
         user: fakeUsers[Math.floor(Math.random() * fakeUsers.length)],
-        text: fakeTexts[Math.floor(Math.random() * fakeTexts.texts.length)] || "🌱",
+        text: fakeTexts[Math.floor(Math.random() * fakeTexts.length)],
       };
       setMessages(prev => [...prev.slice(-10), newMessage]);
     }, 4000);
@@ -211,7 +223,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black animate-in slide-in-from-bottom duration-500 flex flex-col max-w-[420px] mx-auto overflow-hidden">
-      {/* Background Stream Video/Image */}
       <div 
         className="absolute inset-0 z-0 cursor-pointer"
         onClick={handleTikiTiki}
@@ -226,7 +237,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
       </div>
 
-      {/* Floating Hearts Container */}
       <div className="absolute inset-0 pointer-events-none z-10">
         {hearts.map(heart => (
           <div 
@@ -239,7 +249,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         ))}
       </div>
 
-      {/* Header HUD */}
       <div className="relative z-20 p-6 flex items-center justify-between">
         <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
           <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary">
@@ -261,7 +270,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         </button>
       </div>
 
-      {/* Stats Overlay */}
       <div className="relative z-20 mt-4 px-6">
         <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full border border-primary/30">
           <Heart size={12} fill="currentColor" className="text-primary" />
@@ -269,10 +277,8 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         </div>
       </div>
 
-      {/* Spacer */}
       <div className="flex-1"></div>
 
-      {/* Dynamic Chat HUD */}
       <div className="relative z-20 px-6 pb-24 space-y-4">
         <div 
           ref={scrollRef}
@@ -288,7 +294,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           ))}
         </div>
 
-        {/* Input Bar */}
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <div className="relative flex-1">
             <MessageCircle size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />

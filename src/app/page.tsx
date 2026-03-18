@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -18,6 +19,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<NavItem>("inicio");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
+  const [isFullScreenMode, setIsFullScreenMode] = useState(false);
   const lastScrollY = useRef(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +29,7 @@ export default function Home() {
   }, []);
 
   const handleScroll = () => {
-    if (!scrollContainerRef.current) return;
+    if (!scrollContainerRef.current || isFullScreenMode) return;
     const currentScrollY = scrollContainerRef.current.scrollTop;
     
     if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
@@ -40,6 +42,9 @@ export default function Home() {
 
   if (!isAppLoaded) return <LoadingScreen />;
 
+  // Los menús solo se muestran si NO estamos en modo pantalla completa (Live activo)
+  const showChrome = isNavVisible && !isFullScreenMode;
+
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden font-body">
       <div className="relative w-full h-full max-w-[420px] bg-[#020503] flex flex-col overflow-hidden ring-1 ring-white/5 shadow-[0_0_80px_rgba(0,0,0,1)]">
@@ -51,16 +56,27 @@ export default function Home() {
         >
           <div className="pt-24 pb-32 px-4">
             {activeTab === "inicio" && <MainFeed />}
-            {activeTab === "live" && <LiveViewer />}
+            {activeTab === "live" && (
+              <LiveViewer onToggleFullScreen={(val) => setIsFullScreenMode(val)} />
+            )}
             {activeTab === "notifications" && <NotificationCenter />}
             {activeTab === "profile" && <ProfileView />}
             {activeTab === "upload" && <CreationHub />}
           </div>
         </div>
 
-        <TopBar onAuthClick={() => setIsAuthModalOpen(true)} isVisible={isNavVisible} />
-        <MusicHub isVisible={isNavVisible} />
-        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} isVisible={isNavVisible} />
+        <TopBar 
+          onAuthClick={() => setIsAuthModalOpen(true)} 
+          isVisible={showChrome} 
+        />
+        
+        <MusicHub isVisible={showChrome} />
+        
+        <BottomNav 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          isVisible={showChrome} 
+        />
         
         <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
         <Toaster />
