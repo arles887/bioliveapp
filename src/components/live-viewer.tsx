@@ -8,7 +8,7 @@ import {
   Search, Lock, Zap, Flame, Key,
   X, Users, Heart, Send, Eye, EyeOff,
   Gift, Sparkles, Trophy, Gem, Dna, UserPlus, Check,
-  Volume2, VolumeX, Play, Pause
+  Volume2, VolumeX
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtocolWindow } from "@/components/protocol-window";
@@ -214,21 +214,10 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [showCenterIcon, setShowCenterIcon] = useState(false);
-  const [isFastForwarding, setIsFastForwarding] = useState(false);
-  const [messages, setMessages] = useState<any[]>([
-    { id: 1, user: "BioEntity_Alpha_Centauri", text: "Increíble la calidad 🌿" },
-    { id: 2, user: "CyberFan_Zero_One", text: "¡Bio-luz!" },
-  ]);
-  const [inputText, setInputText] = useState("");
   
-  const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const ffInterval = useRef<any>(null);
 
   const isYouTube = live.video.includes('youtube.com') || live.video.includes('youtu.be');
 
@@ -240,18 +229,22 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     { name: "DNA-Helix", icon: Dna, cost: 2500, color: "text-primary" },
   ];
 
+  const [messages, setMessages] = useState<any[]>([
+    { id: 1, user: "BioEntity_Alpha_Centauri", text: "Increíble la calidad 🌿" },
+    { id: 2, user: "CyberFan_Zero_One", text: "¡Bio-luz!" },
+  ]);
+  const [inputText, setInputText] = useState("");
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           if (!isYouTube) videoRef.current?.play().catch(() => {});
-          setIsPlaying(true);
         } else {
           if (!isYouTube) {
             videoRef.current?.pause();
             if (videoRef.current) videoRef.current.muted = true;
           }
-          setIsPlaying(false);
           setIsMuted(true);
         }
       },
@@ -262,46 +255,10 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   }, [isYouTube]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || isYouTube) return;
-    const updateProgress = () => {
-      if (video.duration) setProgress((video.currentTime / video.duration) * 100);
-    };
-    video.addEventListener('timeupdate', updateProgress);
-    return () => video.removeEventListener('timeupdate', updateProgress);
-  }, [isYouTube]);
-
-  useEffect(() => {
-    if (!isMuted && isPlaying) {
+    if (!isMuted) {
       window.dispatchEvent(new CustomEvent('bio-video-playing'));
     }
-  }, [isMuted, isPlaying]);
-
-  const handleInteraction = (e: React.MouseEvent) => {
-    if (isYouTube) return;
-    if (videoRef.current) {
-      if (isPlaying) videoRef.current.pause();
-      else videoRef.current.play();
-      setIsPlaying(!isPlaying);
-      setShowCenterIcon(true);
-      setTimeout(() => setShowCenterIcon(false), 800);
-    }
-  };
-
-  const startFastForward = () => {
-    if (isYouTube || !videoRef.current) return;
-    setIsFastForwarding(true);
-    videoRef.current.playbackRate = 2.0;
-    ffInterval.current = setInterval(() => {
-      if (videoRef.current) videoRef.current.currentTime += 0.5;
-    }, 100);
-  };
-
-  const stopFastForward = () => {
-    setIsFastForwarding(false);
-    if (videoRef.current) videoRef.current.playbackRate = 1.0;
-    if (ffInterval.current) clearInterval(ffInterval.current);
-  };
+  }, [isMuted]);
 
   const handleTikiTiki = (e: any) => {
     requireAuth(() => {
@@ -360,17 +317,11 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   };
 
   return (
-    <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col">
-      <div className="absolute inset-0 z-0 cursor-pointer" 
-           onMouseDown={startFastForward}
-           onMouseUp={stopFastForward}
-           onMouseLeave={stopFastForward}
-           onTouchStart={startFastForward}
-           onTouchEnd={stopFastForward}
-           onClick={handleInteraction}>
+    <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col" onClick={handleTikiTiki}>
+      <div className="absolute inset-0 z-0">
         {isYouTube ? (
           <iframe 
-            src={live.video} 
+            src={`${live.video}&controls=0`} 
             className="h-full w-full object-cover opacity-90 pointer-events-none" 
             allow="autoplay; encrypted-media"
           />
@@ -389,24 +340,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       </div>
 
       {!isYouTube && (
-        <div className="absolute top-8 left-0 right-0 px-6 z-50 flex gap-1 items-center justify-center pointer-events-none">
-          {Array.from({ length: 15 }).map((_, i) => {
-            const segmentProgress = (i + 1) * (100 / 15);
-            const isActive = progress >= segmentProgress - (100/15);
-            return (
-              <div 
-                key={i} 
-                className={cn(
-                  "h-1 flex-1 rounded-full transition-all duration-300",
-                  isActive ? "bg-primary shadow-[0_0_8px_rgba(204,255,0,0.6)]" : "bg-white/10"
-                )}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {!isYouTube && (
          <button 
           onClick={toggleMute}
           className="absolute top-12 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
@@ -415,22 +348,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
          </button>
       )}
 
-      {showCenterIcon && !isYouTube && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
-          <div className="h-10 w-10 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
-            {isPlaying ? <Play size={20} fill="currentColor" className="ml-0.5" /> : <Pause size={20} fill="currentColor" />}
-          </div>
-        </div>
-      )}
-
-      {isFastForwarding && (
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 z-50 px-6 py-2 bg-primary/20 backdrop-blur-xl border border-primary/40 rounded-full flex items-center gap-3 animate-pulse">
-          <Zap size={14} className="text-primary" fill="currentColor" />
-          <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">2x Bio-Speed</span>
-        </div>
-      )}
-
-      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden" onClick={handleTikiTiki}>
+      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
         {hearts.map(h => (
           <div key={h.id} className="absolute bottom-24 animate-heart-float text-primary" style={{ left: `${h.x}px` }}>
             <Heart fill="currentColor" size={28} />
@@ -450,11 +368,11 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         <div className="flex items-center gap-2 flex-1 min-w-0 bg-transparent backdrop-blur-2xl p-1.5 pr-3 rounded-2xl border border-white/10">
           <div 
             className="h-9 w-9 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer shrink-0"
-            onClick={() => { onBack(); onProfileClick(live.user); }}
+            onClick={(e) => { e.stopPropagation(); onBack(); onProfileClick(live.user); }}
           >
             <img src={`https://picsum.photos/seed/${live.user}/100/100`} className="object-cover h-full w-full" alt="Avatar" />
           </div>
-          <div className="cursor-pointer min-w-0 flex-1" onClick={() => { onBack(); onProfileClick(live.user); }}>
+          <div className="cursor-pointer min-w-0 flex-1" onClick={(e) => { e.stopPropagation(); onBack(); onProfileClick(live.user); }}>
             <h4 className="text-[9px] font-black italic text-white uppercase leading-none mb-0.5 truncate">@{live.user}</h4>
             <div className="flex items-center gap-1">
               <Users size={8} className="text-primary" />
@@ -489,10 +407,10 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       <div className="flex-1"></div>
 
-      <div className="absolute bottom-[230px] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
+      <div className="absolute bottom-[230px] right-3 flex flex-col items-center gap-8 z-50 pointer-events-auto">
         <div 
           onClick={(e) => { e.stopPropagation(); handleTikiTiki(e); }}
-          className="flex flex-col items-center gap-2 group cursor-pointer pointer-events-auto"
+          className="flex flex-col items-center gap-2 group cursor-pointer"
         >
           <div className={cn(
             "h-14 w-14 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center transition-all active:scale-75 shadow-2xl text-white group-hover:text-primary"
@@ -504,7 +422,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       </div>
 
       <div className={cn("relative z-40 px-6 pb-12 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
-        <div ref={scrollRef} className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
+        <div className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
           {messages.map((msg) => (
             <div key={msg.id} className="text-left animate-in fade-in slide-in-from-left-2">
               <span className={cn("text-[8px] font-black uppercase italic tracking-widest block truncate", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
@@ -513,7 +431,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
           ))}
         </div>
 
-        <div className="flex items-center gap-2 h-11 w-full">
+        <div className="flex items-center gap-2 h-11 w-full" onClick={(e) => e.stopPropagation()}>
           <Popover>
             <PopoverTrigger asChild>
               <button className="h-11 w-11 shrink-0 bg-white/10 backdrop-blur-3xl rounded-xl flex items-center justify-center text-white border border-white/10 shadow-2xl active:scale-90 transition-all overflow-hidden">
@@ -567,4 +485,3 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     </div>
   );
 }
-
