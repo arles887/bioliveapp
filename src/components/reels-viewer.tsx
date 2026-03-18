@@ -15,6 +15,10 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
     { id: "4", user: "OceanPulse_Deep_Dive", description: "Deep sea bio-luminescence discovery. Amazing colors! 🌊", likes: 512, comments: 64, video: "https://picsum.photos/seed/reel4/1080/1920", liked: false, following: false },
     { id: "5", user: "SkyHigh_Gaia_Unit", description: "AERIAL VIEW: The green wall architecture is evolving. #green #city", likes: 342, comments: 21, video: "https://picsum.photos/seed/reel5/1080/1920", liked: false, following: false },
     { id: "6", user: "Solaris_Energy_Network", description: "Harnessing the sun with organic solar cells. ☀️🌿", likes: 198, comments: 15, video: "https://picsum.photos/seed/reel6/1080/1920", liked: false, following: false },
+    { id: "7", user: "BioSynth_Synthetix_Labs", description: "New organic polymer synthesis. Faster than silicon. #tech #bio", likes: 120, comments: 5, video: "https://picsum.photos/seed/reel7/1080/1920", liked: false, following: false },
+    { id: "8", user: "Jungle_Navigator_Zero", description: "Deep canopy exploration. Sector 9 is breathing. #jungle #life", likes: 450, comments: 88, video: "https://picsum.photos/seed/reel8/1080/1920", liked: false, following: false },
+    { id: "9", user: "WaterWatcher_Flow", description: "Crystal clear bio-filtered water streams. #pure #water", likes: 210, comments: 14, video: "https://picsum.photos/seed/reel9/1080/1920", liked: false, following: false },
+    { id: "10", user: "Aurora_Bio_Labs", description: "Simulating aurora borealis in a petri dish. #lab #aurora", likes: 670, comments: 120, video: "https://picsum.photos/seed/reel10/1080/1920", liked: false, following: false },
   ]);
 
   const toggleLike = (id: string) => {
@@ -53,7 +57,7 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
             
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none"></div>
             
-            <div className="absolute bottom-12 left-8 right-20 space-y-5">
+            <div className="absolute bottom-12 left-8 right-16 space-y-5">
               <div className="flex items-center gap-4 min-w-0">
                 <div 
                   className="h-12 w-12 rounded-full border-2 border-primary overflow-hidden shadow-2xl cursor-pointer shrink-0"
@@ -88,8 +92,8 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
               </div>
             </div>
 
-            {/* BOTONES DE INTERACCIÓN: Elevados ~20% */}
-            <div className="absolute bottom-60 right-6 flex flex-col items-center gap-8 z-50">
+            {/* BOTONES DE INTERACCIÓN: Más a la derecha y sin etiquetas de texto largas */}
+            <div className="absolute bottom-60 right-3 flex flex-col items-center gap-8 z-50">
               <div 
                 onClick={() => toggleLike(reel.id)}
                 className="flex flex-col items-center gap-2 group cursor-pointer"
@@ -120,7 +124,6 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
                 <div className="h-14 w-14 glass-panel rounded-full flex items-center justify-center text-white group-hover:text-primary transition-all shadow-2xl">
                   <Share2 size={28} />
                 </div>
-                <span className="text-[10px] font-black text-white/60 tracking-widest">Retransmisión</span>
               </div>
             </div>
           </div>
