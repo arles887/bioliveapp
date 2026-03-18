@@ -11,7 +11,13 @@ import { ProtocolWindow } from "@/components/protocol-window";
 import { ReelsViewer } from "@/components/reels-viewer";
 import { toast } from "@/hooks/use-toast";
 
-export function MainFeed({ onProfileClick }: { onProfileClick: (username: string) => void }) {
+export function MainFeed({ 
+  onProfileClick,
+  requireAuth
+}: { 
+  onProfileClick: (username: string) => void;
+  requireAuth: (cb: () => void) => void;
+}) {
   const [activeFilter, setActiveFilter] = useState("Para ti");
   const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
   const [activeReelMode, setActiveReelMode] = useState(false);
@@ -68,24 +74,6 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       viewers: "22K",
       thumbnail: "https://picsum.photos/seed/bio6/1280/720",
       filter: "Para ti"
-    },
-    { 
-      id: "6", 
-      type: "reel",
-      title: "Fungi Communication Neural", 
-      user: "Mycelium_Mind", 
-      viewers: "88K",
-      thumbnail: "https://picsum.photos/seed/bio11/1080/1920",
-      filter: "Para ti"
-    },
-    { 
-      id: "7", 
-      type: "video",
-      title: "Bio-Engineering 101", 
-      user: "LabEntity_01", 
-      viewers: "5.5K",
-      thumbnail: "https://picsum.photos/seed/bio7/1280/720",
-      filter: "Temáticas"
     }
   ];
 
@@ -110,17 +98,21 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
 
   const toggleFollow = (user: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFollowing(prev => ({ ...prev, [user]: !prev[user] }));
-    if (!following[user]) {
-      toast({ 
-        title: "Protocolo Sincronizado", 
-        description: `Conexión establecida con @${user}` 
-      });
-    }
+    requireAuth(() => {
+      setFollowing(prev => ({ ...prev, [user]: !prev[user] }));
+      if (!following[user]) {
+        toast({ 
+          title: "Protocolo Sincronizado", 
+          description: `Conexión establecida con @${user}` 
+        });
+      }
+    });
   };
 
   const toggleStoryLike = (id: number) => {
-    setLikedStories(prev => ({ ...prev, [id]: !prev[id] }));
+    requireAuth(() => {
+      setLikedStories(prev => ({ ...prev, [id]: !prev[id] }));
+    });
   };
 
   const filteredItems = activeFilter === "Para ti" 
@@ -136,7 +128,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
         >
           <X size={24} />
         </button>
-        <ReelsViewer onProfileClick={onProfileClick} />
+        <ReelsViewer onProfileClick={onProfileClick} requireAuth={requireAuth} />
       </div>
     );
   }
@@ -253,7 +245,6 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
         </section>
       </div>
 
-      {/* Visor de Historias Inmersivo */}
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
         <div 
           ref={storiesScrollRef}
@@ -267,12 +258,10 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
               <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[340px] bg-black rounded-[3.5rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)]">
                 <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" priority />
                 
-                {/* HUD Superior: Barra de Progreso */}
                 <div className="absolute top-6 left-8 right-8 h-1 bg-white/10 rounded-full overflow-hidden z-20">
                   <div className="h-full bg-primary animate-[story-progress_5s_linear_forwards]"></div>
                 </div>
 
-                {/* HUD Superior: Información de Perfil */}
                 <div className="absolute top-10 left-8 flex items-center gap-3 z-20">
                    <div 
                     className="h-10 w-10 rounded-full border border-primary/40 overflow-hidden relative cursor-pointer"
@@ -289,7 +278,6 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                    </div>
                 </div>
 
-                {/* HUD Inferior: Interacciones */}
                 <div className="absolute bottom-10 left-8 right-8 flex items-center gap-4 z-20">
                    <button 
                     onClick={() => toggleStoryLike(id)}
@@ -303,13 +291,15 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                       <Heart size={24} fill={likedStories[id] ? "currentColor" : "none"} />
                    </button>
                    <div className="flex-1">
-                      <div className="h-14 w-full bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center px-4">
+                      <div 
+                        onClick={() => requireAuth(() => {})}
+                        className="h-14 w-full bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center px-4 cursor-pointer"
+                      >
                          <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Inyectar respuesta...</span>
                       </div>
                    </div>
                 </div>
 
-                {/* Gradiente Inmersivo */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"></div>
               </div>
             </div>

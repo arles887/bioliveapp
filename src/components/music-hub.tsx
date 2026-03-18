@@ -1,25 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Music, Pause, SkipForward, SkipBack } from "lucide-react";
+import { Music, Pause, SkipForward, Music2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
-export function MusicHub({ isVisible }: { isVisible: boolean }) {
+export function MusicHub({ 
+  isVisible,
+  requireAuth
+}: { 
+  isVisible: boolean;
+  requireAuth: (cb: () => void) => void;
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(4);
 
   const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying) {
-      toast({ title: "Inyectando Señal", description: `Reproduciendo Neural Mix #0${currentTrack}` });
-    }
+    requireAuth(() => {
+      setIsPlaying(!isPlaying);
+      if (!isPlaying) {
+        toast({ title: "Inyectando Señal", description: `Reproduciendo Neural Mix #0${currentTrack}` });
+      }
+    });
   };
 
   const nextTrack = () => {
-    const next = (currentTrack % 9) + 1;
-    setCurrentTrack(next);
-    toast({ title: "Nueva Frecuencia", description: `Cambiando a Mix #0${next}` });
+    requireAuth(() => {
+      const next = (currentTrack % 9) + 1;
+      setCurrentTrack(next);
+      toast({ title: "Nueva Frecuencia", description: `Cambiando a Mix #0${next}` });
+    });
   };
 
   return (

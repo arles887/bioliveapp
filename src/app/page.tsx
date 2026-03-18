@@ -12,11 +12,13 @@ import { MusicHub } from "@/components/music-hub";
 import { Toaster } from "@/components/ui/toaster";
 import { ProfileView } from "@/components/profile-view";
 import { CreationHub } from "@/components/creation-hub";
+import { toast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<NavItem>("inicio");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isFullScreenMode, setIsFullScreenMode] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
@@ -41,6 +43,19 @@ export default function Home() {
     lastScrollY.current = currentScrollY;
   };
 
+  const requireAuth = (callback: () => void) => {
+    if (!isLoggedIn) {
+      setIsAuthModalOpen(true);
+      toast({
+        title: "Acceso Restringido",
+        description: "Inicia sesión para interactuar con la red BioLive.",
+        variant: "destructive"
+      });
+      return;
+    }
+    callback();
+  };
+
   const navigateToProfile = (username: string) => {
     setSelectedUser(username);
     setActiveTab("profile");
@@ -63,48 +78,96 @@ export default function Home() {
         >
           <div className="pt-24 pb-32">
             {activeTab === "inicio" && (
-              <MainFeed onProfileClick={navigateToProfile} />
+              <MainFeed 
+                onProfileClick={navigateToProfile} 
+                requireAuth={requireAuth}
+              />
             )}
             {activeTab === "live" && (
               <LiveViewer 
                 onToggleFullScreen={(val) => setIsFullScreenMode(val)} 
                 onProfileClick={navigateToProfile}
+                requireAuth={requireAuth}
               />
             )}
-            {activeTab === "notifications" && <NotificationCenter />}
+            {activeTab === "notifications" && (
+              <NotificationCenter />
+            )}
             {activeTab === "profile" && (
               <ProfileView 
                 username={selectedUser || "BioEntity_01"} 
                 isOwnProfile={!selectedUser || selectedUser === "BioEntity_01"}
                 onBack={() => setSelectedUser(null)}
+                requireAuth={requireAuth}
               />
             )}
-            {activeTab === "upload" && <CreationHub />}
+            {activeTab === "upload" && (
+              isLoggedIn ? (
+                <CreationHub />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-[60vh] p-8 text-center space-y-6">
+                   <div className="h-20 w-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_30px_rgba(204,255,0,0.2)]">
+                      <Lock className="w-10 h-10" />
+                   </div>
+                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter">Nodo <span className="text-primary">Bloqueado</span></h2>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-white/30 leading-relaxed">Debes sincronizar tu identidad digital para inyectar nuevas señales en la red.</p>
+                   <Button 
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="h-14 px-8 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl"
+                   >
+                     Iniciar Sincronización
+                   </Button>
+                </div>
+              )
+            )}
           </div>
         </div>
 
         <TopBar 
           onAuthClick={() => {
-            setSelectedUser(null);
-            setIsAuthModalOpen(true);
+            if (!isLoggedIn) {
+              setIsAuthModalOpen(true);
+            } else {
+              navigateToProfile("BioEntity_01");
+            }
           }} 
           isVisible={showChrome} 
+          isLoggedIn={isLoggedIn}
         />
         
-        <MusicHub isVisible={showChrome} />
+        <MusicHub isVisible={showChrome} requireAuth={requireAuth} />
         
         <BottomNav 
           activeTab={activeTab} 
           setActiveTab={(tab) => {
-            if (tab !== "profile") setSelectedUser(null);
-            setActiveTab(tab);
+            if (tab === "upload" || tab === "notifications") {
+              requireAuth(() => {
+                if (tab !== "profile") setSelectedUser(null);
+                setActiveTab(tab);
+              });
+            } else {
+              if (tab !== "profile") setSelectedUser(null);
+              setActiveTab(tab);
+            }
           }} 
           isVisible={showChrome} 
         />
         
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+        <AuthModal 
+          isOpen={isAuthModalOpen} 
+          onClose={() => setIsAuthModalOpen(false)} 
+          onAuthSuccess={() => {
+            setIsLoggedIn(true);
+            toast({
+              title: "Sincronización Exitosa",
+              description: "Bienvenido a la red neural de BioLive."
+            });
+          }}
+        />
         <Toaster />
       </div>
     </main>
   );
 }
+
+import { Lock } from "lucide-react";

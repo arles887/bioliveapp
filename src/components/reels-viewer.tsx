@@ -6,40 +6,50 @@ import { Heart, MessageCircle, Share2, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
-export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) => void }) {
+export function ReelsViewer({ 
+  onProfileClick,
+  requireAuth
+}: { 
+  onProfileClick: (u: string) => void,
+  requireAuth: (cb: () => void) => void
+}) {
   const [reels, setReels] = useState([
     { id: "1", user: "EcoExplorer_Gaia", description: "Las cascadas ocultas del Nodo 04. #nature #bio", likes: 124, comments: 12, video: "https://picsum.photos/seed/reel1/1080/1920", liked: false, following: false },
     { id: "2", user: "CyberBotany_Lab", description: "Síntesis de algas bioluminiscentes completada. #cyber #science", likes: 89, comments: 8, video: "https://picsum.photos/seed/reel2/1080/1920", liked: false, following: false },
-    { id: "3", user: "NeonPulse_Drive", description: "Vibras nocturnas en el bio-domo. 🌱⚡", likes: 256, comments: 42, video: "https://picsum.photos/seed/reel3/1080/1920", liked: false, following: false },
-    { id: "4", user: "OceanDeep_Watcher", description: "Descubrimiento de bio-luminiscencia en el abismo. 🌊", likes: 512, comments: 64, video: "https://picsum.photos/seed/reel4/1080/1920", liked: false, following: false },
-    { id: "5", user: "SkyHigh_Unit", description: "VISTA AÉREA: La arquitectura verde evoluciona. #green #city", likes: 342, comments: 21, video: "https://picsum.photos/seed/reel5/1080/1920", liked: false, following: false },
+    { id: "3", user: "NeonPulse_Drive", description: "Vibras nocturnas en el bio-domo. 🌱⚡", likes: 256, comments: 42, video: "https://picsum.photos/seed/reel3/1080/1920", liked: false, following: false }
   ]);
 
   const toggleLike = (id: string) => {
-    setReels(reels.map(reel => {
-      if (reel.id === id) {
-        return { 
-          ...reel, 
-          liked: !reel.liked, 
-          likes: reel.liked ? reel.likes - 1 : reel.likes + 1 
-        };
-      }
-      return reel;
-    }));
+    requireAuth(() => {
+      setReels(reels.map(reel => {
+        if (reel.id === id) {
+          return { 
+            ...reel, 
+            liked: !reel.liked, 
+            likes: reel.liked ? reel.likes - 1 : reel.likes + 1 
+          };
+        }
+        return reel;
+      }));
+    });
   };
 
   const toggleFollow = (id: string) => {
-    setReels(reels.map(reel => {
-      if (reel.id === id) {
-        if (!reel.following) toast({ title: "Sincronización Exitosa", description: `Siguiendo a @${reel.user}` });
-        return { ...reel, following: !reel.following };
-      }
-      return reel;
-    }));
+    requireAuth(() => {
+      setReels(reels.map(reel => {
+        if (reel.id === id) {
+          if (!reel.following) toast({ title: "Sincronización Exitosa", description: `Siguiendo a @${reel.user}` });
+          return { ...reel, following: !reel.following };
+        }
+        return reel;
+      }));
+    });
   };
 
   const handleShare = (user: string) => {
-    toast({ title: "Enlace Copiado", description: `Señal de @${user} lista para compartir.` });
+    requireAuth(() => {
+      toast({ title: "Enlace Copiado", description: `Señal de @${user} lista para compartir.` });
+    });
   };
 
   return (
@@ -84,7 +94,6 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
               </div>
             </div>
 
-            {/* BOTONES DE INTERACCIÓN: Elevados 20% y pegados a la derecha */}
             <div className="absolute bottom-60 right-3 flex flex-col items-center gap-8 z-50">
               <div 
                 onClick={() => toggleLike(reel.id)}
@@ -100,7 +109,7 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
               </div>
 
               <div 
-                onClick={() => toast({ title: "Signal Chat", description: "Bandeja de comentarios protegida." })}
+                onClick={() => requireAuth(() => toast({ title: "Signal Chat", description: "Bandeja de comentarios protegida." }))}
                 className="flex flex-col items-center gap-2 cursor-pointer group"
               >
                 <div className="h-14 w-14 glass-panel rounded-full flex items-center justify-center text-white group-hover:text-primary transition-all shadow-2xl">
@@ -116,7 +125,6 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
                 <div className="h-14 w-14 glass-panel rounded-full flex items-center justify-center text-white group-hover:text-primary transition-all shadow-2xl">
                   <Share2 size={28} />
                 </div>
-                {/* Palabra 'Retransmisión' quitada como se solicitó */}
               </div>
             </div>
           </div>

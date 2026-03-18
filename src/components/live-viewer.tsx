@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -22,10 +21,12 @@ import {
 
 export function LiveViewer({ 
   onToggleFullScreen,
-  onProfileClick
+  onProfileClick,
+  requireAuth
 }: { 
   onToggleFullScreen: (isFull: boolean) => void,
-  onProfileClick: (username: string) => void
+  onProfileClick: (username: string) => void,
+  requireAuth: (cb: () => void) => void
 }) {
   const [activeCategory, setActiveCategory] = useState("Global");
   const [selectedLive, setSelectedLive] = useState<any>(null);
@@ -44,11 +45,7 @@ export function LiveViewer({
     { id: "1", title: "Amazon Rainforest 4K", category: "Naturaleza", user: "EcoWatcher_Environmental_Unit", watchers: "4.2K", img: "https://picsum.photos/seed/l1/600/1000" },
     { id: "2", title: "Cyber-Organic Chess", category: "Gaming", user: "GrandMaster_Zero_G", watchers: "1.1K", img: "https://picsum.photos/seed/l2/600/1000" },
     { id: "3", title: "Secret Lab Stream", category: "Privadas", user: "Unknown_Entity_404", watchers: "0", img: "https://picsum.photos/seed/l3/600/1000", locked: true },
-    { id: "4", title: "Coral Reef Flow", category: "Naturaleza", user: "OceanPulse_Deep_Dive", watchers: "12K", img: "https://picsum.photos/seed/l4/600/1000" },
-    { id: "5", title: "Cyberpunk City Live", category: "Gaming", user: "NeonRunner_2077", watchers: "3.5K", img: "https://picsum.photos/seed/l5/600/1000" },
-    { id: "6", title: "Organic Lab Synthesis", category: "Naturaleza", user: "BioSynth_Synthetix_Labs", watchers: "900", img: "https://picsum.photos/seed/l6/600/1000" },
-    { id: "7", title: "Arctic Expedition", category: "Naturaleza", user: "Frost_Explorer", watchers: "2.1K", img: "https://picsum.photos/seed/l7/600/1000" },
-    { id: "8", title: "Retro Tech Gaming", category: "Gaming", user: "Pixel_Master", watchers: "5.5K", img: "https://picsum.photos/seed/l8/600/1000" },
+    { id: "4", title: "Coral Reef Flow", category: "Naturaleza", user: "OceanPulse_Deep_Dive", watchers: "12K", img: "https://picsum.photos/seed/l4/600/1000" }
   ];
 
   const filteredLives = activeCategory === "Global" 
@@ -69,7 +66,9 @@ export function LiveViewer({
 
   const handleLiveClick = (live: any) => {
     if (live.locked) {
-      setSelectedLive(live);
+      requireAuth(() => {
+        setSelectedLive(live);
+      });
     } else {
       setViewingMode(true);
       onToggleFullScreen(true);
@@ -85,6 +84,7 @@ export function LiveViewer({
               live={live} 
               onBack={() => { setViewingMode(false); onToggleFullScreen(false); }} 
               onProfileClick={onProfileClick}
+              requireAuth={requireAuth}
             />
           </div>
         ))}
@@ -182,7 +182,7 @@ export function LiveViewer({
   );
 }
 
-function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: () => void; onProfileClick: (u: string) => void }) {
+function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: any; onBack: () => void; onProfileClick: (u: string) => void; requireAuth: (cb: () => void) => void }) {
   const [likes, setLikes] = useState(1420);
   const [hearts, setHearts] = useState<any[]>([]);
   const [activeGifts, setActiveGifts] = useState<any[]>([]);
@@ -206,34 +206,40 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
   ];
 
   const handleTikiTiki = (e: any) => {
-    setLikes(prev => prev + 1);
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const clientX = e.clientX || e.touches[0].clientX;
-    const constrainedX = Math.max(40, Math.min(clientX - rect.left, 460));
-    const newHeart = { id: Date.now(), x: constrainedX };
-    setHearts(prev => [...prev, newHeart]);
-    setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
+    requireAuth(() => {
+      setLikes(prev => prev + 1);
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const clientX = e.clientX || e.touches[0].clientX;
+      const constrainedX = Math.max(40, Math.min(clientX - rect.left, 460));
+      const newHeart = { id: Date.now(), x: constrainedX };
+      setHearts(prev => [...prev, newHeart]);
+      setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
+    });
   };
 
   const handleSendGift = (gift: any) => {
-    if (espBalance < gift.cost) {
-      toast({ variant: "destructive", title: "Balance Insuficiente", description: "Inyecta más tokens ESP." });
-      return;
-    }
-    setEspBalance(prev => prev - gift.cost);
-    const newGiftAnim = { id: Date.now(), icon: gift.icon, color: gift.color };
-    setActiveGifts(prev => [...prev, newGiftAnim]);
-    setTimeout(() => setActiveGifts(prev => prev.filter(g => g.id !== newGiftAnim.id)), 2000);
-    setMessages(prev => [...prev, { id: Date.now(), user: "SISTEMA", text: `🎁 Enviado: ${gift.name}`, isSpecial: true }]);
+    requireAuth(() => {
+      if (espBalance < gift.cost) {
+        toast({ variant: "destructive", title: "Balance Insuficiente", description: "Inyecta más tokens ESP." });
+        return;
+      }
+      setEspBalance(prev => prev - gift.cost);
+      const newGiftAnim = { id: Date.now(), icon: gift.icon, color: gift.color };
+      setActiveGifts(prev => [...prev, newGiftAnim]);
+      setTimeout(() => setActiveGifts(prev => prev.filter(g => g.id !== newGiftAnim.id)), 2000);
+      setMessages(prev => [...prev, { id: Date.now(), user: "SISTEMA", text: `🎁 Enviado: ${gift.name}`, isSpecial: true }]);
+    });
   };
 
   const handleFollow = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsFollowing(!isFollowing);
-    if (!isFollowing) {
-      toast({ title: "Sincronizado", description: `Siguiendo a @${live.user}` });
-    }
+    requireAuth(() => {
+      setIsFollowing(!isFollowing);
+      if (!isFollowing) {
+        toast({ title: "Sincronizado", description: `Siguiendo a @${live.user}` });
+      }
+    });
   };
 
   useEffect(() => {
@@ -243,8 +249,10 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
-    setMessages(prev => [...prev, { id: Date.now(), user: "Tú", text: inputText }]);
-    setInputText("");
+    requireAuth(() => {
+      setMessages(prev => [...prev, { id: Date.now(), user: "Tú", text: inputText }]);
+      setInputText("");
+    });
   };
 
   return (
