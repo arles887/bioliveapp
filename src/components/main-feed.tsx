@@ -53,7 +53,6 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
     }
   ];
 
-  // Auto-scroll to selected story when modal opens
   useEffect(() => {
     if (selectedStoryIndex !== null) {
       const timer = setTimeout(() => {
@@ -226,14 +225,14 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
         <div 
           ref={storiesScrollRef}
-          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-black/60 pt-20"
+          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-black/60 pt-10"
         >
           {storyIds.map((id) => (
             <div 
               key={id} 
-              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-6"
+              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-4"
             >
-              <div className="relative aspect-[9/16] h-[70vh] w-full max-w-[340px] bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]">
+              <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[340px] bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]">
                 <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
                 
                 {/* HUD Superior: Progress Bar */}
