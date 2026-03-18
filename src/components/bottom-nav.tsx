@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Home, Play, Plus, MessageSquare, User } from "lucide-react";
@@ -25,11 +24,11 @@ export function BottomNav({
 
   return (
     <div className={cn(
-      "absolute bottom-8 left-0 right-0 px-8 z-[60] transition-all duration-700 ease-in-out",
+      "absolute bottom-8 left-0 right-0 px-6 z-[60] transition-all duration-700 ease-in-out pointer-events-none",
       isVisible ? "translate-y-0 opacity-100" : "translate-y-32 opacity-0"
     )}>
-      {/* Barra ultra-transparente con desenfoque extremo */}
-      <nav className="h-16 bg-white/[0.03] backdrop-blur-2xl rounded-[2rem] flex items-center justify-between px-6 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      {/* Barra de navegación flotante con desenfoque extremo y transparencia real */}
+      <nav className="h-16 bg-white/[0.04] backdrop-blur-3xl rounded-[2rem] flex items-center justify-between px-6 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.6)] pointer-events-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
