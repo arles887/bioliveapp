@@ -241,7 +241,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
     e.preventDefault();
     if (!inputText.trim()) return;
     setMessages(prev => [...prev, { id: Date.now(), user: "Tú", text: inputText }]);
-    setInputText("");
+    inputText("");
   };
 
   return (
@@ -268,7 +268,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
       </div>
 
       <div className="relative z-40 px-6 py-10 flex items-center justify-between">
-        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10 min-w-0 max-w-[70%]">
+        <div className="flex items-center gap-3 bg-transparent backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10 min-w-0 max-w-[70%]">
           <div 
             className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer shrink-0"
             onClick={() => { onBack(); onProfileClick(live.user); }}
@@ -296,13 +296,13 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
         <div className="flex items-center gap-2">
           <button 
             onClick={(e) => { e.stopPropagation(); setIsChatVisible(!isChatVisible); }} 
-            className="h-11 w-11 bg-black/40 backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-primary/40 transition-all"
+            className="h-11 w-11 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-primary/40 transition-all"
           >
             {isChatVisible ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
           <button 
             onClick={(e) => { e.stopPropagation(); onBack(); }} 
-            className="h-11 w-11 bg-black/40 backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-red-500/40 transition-all"
+            className="h-11 w-11 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-red-500/40 transition-all"
           >
             <X size={20} />
           </button>
