@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Home, Play, Plus, MessageSquare, User } from "lucide-react";
