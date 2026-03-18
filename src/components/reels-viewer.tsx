@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -11,6 +12,9 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
     { id: "1", user: "EcoExplorer_Extreme_Nature", description: "The hidden waterfalls of Gaia Node 04 #nature #bio", likes: 124, comments: 12, video: "https://picsum.photos/seed/reel1/1080/1920", liked: false, following: false },
     { id: "2", user: "CyberBotany_Laboratory_Units", description: "Bioluminescent algae synthesis complete. #cyber #science", likes: 89, comments: 8, video: "https://picsum.photos/seed/reel2/1080/1920", liked: false, following: false },
     { id: "3", user: "NeonPulse_Hyper_Drive", description: "Night vibes in the bio-dome. 🌱⚡", likes: 256, comments: 42, video: "https://picsum.photos/seed/reel3/1080/1920", liked: false, following: false },
+    { id: "4", user: "OceanPulse_Deep_Dive", description: "Deep sea bio-luminescence discovery. Amazing colors! 🌊", likes: 512, comments: 64, video: "https://picsum.photos/seed/reel4/1080/1920", liked: false, following: false },
+    { id: "5", user: "SkyHigh_Gaia_Unit", description: "AERIAL VIEW: The green wall architecture is evolving. #green #city", likes: 342, comments: 21, video: "https://picsum.photos/seed/reel5/1080/1920", liked: false, following: false },
+    { id: "6", user: "Solaris_Energy_Network", description: "Harnessing the sun with organic solar cells. ☀️🌿", likes: 198, comments: 15, video: "https://picsum.photos/seed/reel6/1080/1920", liked: false, following: false },
   ]);
 
   const toggleLike = (id: string) => {
@@ -45,7 +49,7 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
       {reels.map((reel) => (
         <div key={reel.id} className="relative h-full w-full snap-start shrink-0 flex flex-col items-center justify-center">
           <div className="relative w-full h-full max-w-[500px]">
-            <Image src={reel.video} fill alt="Reel" className="object-cover opacity-80" />
+            <Image src={reel.video} fill alt="Reel" className="object-cover opacity-80" priority={reel.id === "1"} />
             
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none"></div>
             
@@ -84,7 +88,7 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
               </div>
             </div>
 
-            {/* BOTONES DE INTERACCIÓN: Elevados ~20% (de bottom-44 a bottom-60) */}
+            {/* BOTONES DE INTERACCIÓN: Elevados ~20% */}
             <div className="absolute bottom-60 right-6 flex flex-col items-center gap-8 z-50">
               <div 
                 onClick={() => toggleLike(reel.id)}

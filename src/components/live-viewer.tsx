@@ -47,6 +47,8 @@ export function LiveViewer({
     { id: "4", title: "Coral Reef Flow", category: "Naturaleza", user: "OceanPulse_Deep_Dive", watchers: "12K", img: "https://picsum.photos/seed/l4/600/1000" },
     { id: "5", title: "Cyberpunk City Live", category: "Gaming", user: "NeonRunner_2077", watchers: "3.5K", img: "https://picsum.photos/seed/l5/600/1000" },
     { id: "6", title: "Organic Lab Synthesis", category: "Naturaleza", user: "BioSynth_Synthetix_Labs", watchers: "900", img: "https://picsum.photos/seed/l6/600/1000" },
+    { id: "7", title: "Arctic Expedition", category: "Naturaleza", user: "Frost_Explorer", watchers: "2.1K", img: "https://picsum.photos/seed/l7/600/1000" },
+    { id: "8", title: "Retro Tech Gaming", category: "Gaming", user: "Pixel_Master", watchers: "5.5K", img: "https://picsum.photos/seed/l8/600/1000" },
   ];
 
   const filteredLives = activeCategory === "Global" 
@@ -268,7 +270,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
         ))}
       </div>
 
-      {/* Header Corregido con Espaciado Simétrico y Equidistante */}
       <div className="relative z-40 px-6 py-10 flex items-center gap-3">
         <div className="flex items-center gap-2 flex-1 min-w-0 bg-transparent backdrop-blur-2xl p-1.5 pr-3 rounded-2xl border border-white/10">
           <div 
@@ -312,7 +313,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
 
       <div className="flex-1"></div>
 
-      {/* Chat HUD Corregido - Barra Inferior Compacta y Centrada */}
       <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div ref={scrollRef} className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
           {messages.map((msg) => (

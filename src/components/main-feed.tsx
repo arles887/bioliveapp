@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -21,7 +22,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
   const storiesScrollRef = useRef<HTMLDivElement>(null);
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
-  const storyIds = [1, 2, 3, 4, 5, 6, 7, 8];
+  const storyIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const contentItems = [
     { 
@@ -50,6 +51,33 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       viewers: "8.1K",
       thumbnail: "https://picsum.photos/seed/bio4/1280/720",
       filter: "Siguiendo"
+    },
+    { 
+      id: "4", 
+      type: "reel",
+      title: "Cyber Jungle Walk", 
+      user: "GreenRunner_88", 
+      viewers: "12K",
+      thumbnail: "https://picsum.photos/seed/bio9/1080/1920",
+      filter: "Para ti"
+    },
+    { 
+      id: "5", 
+      type: "live",
+      title: "Deep Sea Bio-Network", 
+      user: "Abyssal_Watcher", 
+      viewers: "3.2K",
+      thumbnail: "https://picsum.photos/seed/bio10/1280/720",
+      filter: "Para ti"
+    },
+    { 
+      id: "6", 
+      type: "reel",
+      title: "Sustainable Tech 2025", 
+      user: "Future_Gaia", 
+      viewers: "88K",
+      thumbnail: "https://picsum.photos/seed/bio11/1080/1920",
+      filter: "Temáticas"
     }
   ];
 

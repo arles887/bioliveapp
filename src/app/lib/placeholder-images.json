@@ -14,6 +14,18 @@
       "imageHint": "sustainable living"
     },
     {
+      "id": "reel-3",
+      "description": "Bioluminescent algae synthesis",
+      "imageUrl": "https://picsum.photos/seed/bio5/1080/1920",
+      "imageHint": "neon plants"
+    },
+    {
+      "id": "reel-4",
+      "description": "Cyber-ocean exploration",
+      "imageUrl": "https://picsum.photos/seed/bio6/1080/1920",
+      "imageHint": "underwater technology"
+    },
+    {
       "id": "live-1",
       "description": "Live organic cooking show",
       "imageUrl": "https://picsum.photos/seed/bio3/1280/720",
@@ -24,6 +36,18 @@
       "description": "Wilderness exploration live",
       "imageUrl": "https://picsum.photos/seed/bio4/1280/720",
       "imageHint": "wilderness hiking"
+    },
+    {
+      "id": "live-3",
+      "description": "Techno-organic lab session",
+      "imageUrl": "https://picsum.photos/seed/bio7/1280/720",
+      "imageHint": "science laboratory"
+    },
+    {
+      "id": "live-4",
+      "description": "Amazon Canopy Stream",
+      "imageUrl": "https://picsum.photos/seed/bio8/1280/720",
+      "imageHint": "jungle canopy"
     },
     {
       "id": "user-1",
