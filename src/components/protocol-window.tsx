@@ -29,7 +29,7 @@ export function ProtocolWindow({
             <p className="text-[7px] font-black uppercase tracking-[0.4em] text-primary/60">System Protocol Active</p>
           </div>
         </DialogHeader>
-        <div className="animate-in fade-in zoom-in-95 duration-500 h-full max-h-[70vh]">
+        <div className="animate-in fade-in zoom-in-95 duration-500 h-full max-h-[85vh]">
           {children}
         </div>
       </DialogContent>
