@@ -5,17 +5,20 @@ import { useState } from "react";
 import Image from "next/image";
 import { 
   Zap, Globe, Play, Users, 
-  Flame, Hash, Star, LayoutGrid, X
+  Flame, Hash, Star, LayoutGrid, X, Heart, UserPlus, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { ReelsViewer } from "@/components/reels-viewer";
+import { toast } from "@/hooks/use-toast";
 
 export function MainFeed() {
   const [activeFilter, setActiveFilter] = useState("Para ti");
   const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
   const [activeReelMode, setActiveReelMode] = useState(false);
+  const [following, setFollowing] = useState<Record<string, boolean>>({});
+  const [likedStories, setLikedStories] = useState<Record<number, boolean>>({});
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
   const storyIds = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -49,6 +52,18 @@ export function MainFeed() {
       filter: "Siguiendo"
     }
   ];
+
+  const toggleFollow = (user: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFollowing(prev => ({ ...prev, [user]: !prev[user] }));
+    if (!following[user]) {
+      toast({ title: "Protocolo de Seguimiento", description: `Sincronizado con el nodo de @${user}` });
+    }
+  };
+
+  const toggleStoryLike = (id: number) => {
+    setLikedStories(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const filteredItems = activeFilter === "Para ti" 
     ? contentItems 
@@ -90,7 +105,7 @@ export function MainFeed() {
       </div>
 
       <div className="flex-1 p-6 space-y-8 no-scrollbar">
-        {/* Historias - Desplazamiento Horizontal con Snap */}
+        {/* Historias */}
         <section className="space-y-4">
           <div className="flex items-center justify-between px-2">
              <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 italic">Nodos Cercanos</h3>
@@ -138,11 +153,26 @@ export function MainFeed() {
               </div>
 
               <div className="absolute bottom-8 left-8 right-8">
-                 <div className="flex items-center gap-2 mb-2">
-                    <div className="h-5 w-5 rounded-full bg-white/10 border border-white/20"></div>
-                    <span className="text-[9px] font-black text-primary uppercase tracking-widest italic">@{item.user}</span>
+                 <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-white/10 border border-white/20 overflow-hidden relative">
+                         <Image src={`https://picsum.photos/seed/${item.user}/50/50`} fill alt="Avatar" className="object-cover" />
+                      </div>
+                      <span className="text-[9px] font-black text-primary uppercase tracking-widest italic">@{item.user}</span>
+                    </div>
+                    <button 
+                      onClick={(e) => toggleFollow(item.user, e)}
+                      className={cn(
+                        "h-8 px-4 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all",
+                        following[item.user] 
+                          ? "bg-white/10 text-white/40 border border-white/5" 
+                          : "bg-primary text-black shadow-lg"
+                      )}
+                    >
+                      {following[item.user] ? "Siguiendo" : "Seguir"}
+                    </button>
                  </div>
-                 <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{item.title}</h2>
+                 <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none mt-3">{item.title}</h2>
                  <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-2">{item.viewers} Sincronizados</p>
               </div>
             </div>
@@ -160,13 +190,29 @@ export function MainFeed() {
           {storyIds.map((id) => (
             <div key={id} className="relative aspect-[9/16] w-full shrink-0 snap-center bg-black rounded-[2.5rem] overflow-hidden border border-white/10">
               <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
-              <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden">
+              
+              <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden z-10">
                 <div className="h-full bg-primary animate-[progress_5s_linear_infinite]" style={{ width: '100%' }}></div>
               </div>
-              <div className="absolute bottom-10 left-8">
-                 <p className="text-white font-black italic text-base">@Bio_{id}</p>
-                 <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #0{id}</p>
+
+              <div className="absolute bottom-10 left-8 right-8 flex items-end justify-between z-10">
+                 <div>
+                   <p className="text-white font-black italic text-base">@Bio_{id}</p>
+                   <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #0{id}</p>
+                 </div>
+                 <button 
+                  onClick={() => toggleStoryLike(id)}
+                  className={cn(
+                    "h-12 w-12 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all active:scale-75",
+                    likedStories[id] 
+                      ? "bg-red-500/20 border-red-500/40 text-red-500" 
+                      : "bg-white/10 border-white/10 text-white/60"
+                  )}
+                 >
+                    <Heart size={20} fill={likedStories[id] ? "currentColor" : "none"} />
+                 </button>
               </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40"></div>
             </div>
           ))}
         </div>

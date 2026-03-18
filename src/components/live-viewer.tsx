@@ -7,7 +7,7 @@ import {
   Gamepad2, Leaf, Globe, 
   Search, Lock, Zap, Flame, Key,
   X, Users, Heart, Send, Eye, EyeOff,
-  Gift, Sparkles, Trophy, Gem, Dna
+  Gift, Sparkles, Trophy, Gem, Dna, UserPlus, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtocolWindow } from "@/components/protocol-window";
@@ -191,6 +191,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   const [activeGifts, setActiveGifts] = useState<GiftAnimation[]>([]);
   const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [messages, setMessages] = useState<any[]>([
     { id: 1, user: "BioEntity_02", text: "Increíble la calidad 🌿" },
     { id: 2, user: "CyberFan", text: "¡Bio-luz!" },
@@ -230,6 +231,13 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
     setMessages(prev => [...prev, { id: Date.now(), user: "SISTEMA", text: `🎁 Enviado: ${gift.name}`, isSpecial: true }]);
   };
 
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    if (!isFollowing) {
+      toast({ title: "Sincronizado", description: `Siguiendo a @${live.user}` });
+    }
+  };
+
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
@@ -264,19 +272,28 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         ))}
       </div>
 
-      {/* Header HUD - Perfeccionado */}
+      {/* Header HUD */}
       <div className="relative z-40 px-6 py-10 flex items-center justify-between pointer-events-none">
-        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 rounded-2xl border border-white/10 pointer-events-auto">
+        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10 pointer-events-auto">
           <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative">
             <Image src={`https://picsum.photos/seed/${live.user}/100/100`} fill alt="Avatar" className="object-cover" />
           </div>
-          <div className="pr-2">
+          <div>
             <h4 className="text-[10px] font-black italic text-white uppercase leading-none mb-1">@{live.user}</h4>
             <div className="flex items-center gap-1.5">
               <Users size={10} className="text-primary" />
               <span className="text-[8px] font-black text-white/70 uppercase">{live.watchers}</span>
             </div>
           </div>
+          <button 
+            onClick={handleFollow}
+            className={cn(
+              "ml-2 h-7 px-3 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all",
+              isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg"
+            )}
+          >
+            {isFollowing ? <Check size={10} /> : <UserPlus size={10} />}
+          </button>
         </div>
         
         <div className="flex items-center gap-2 pointer-events-auto">
@@ -297,7 +314,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       <div className="flex-1"></div>
 
-      {/* Footer HUD - Chat y Regalos */}
+      {/* Footer HUD */}
       <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mb-3">
           {messages.map((msg) => (
@@ -362,4 +379,3 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
     </div>
   );
 }
-
