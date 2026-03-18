@@ -299,7 +299,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           <div 
             key={heart.id}
             className="absolute bottom-20 animate-heart-float text-primary"
-            style={{ left: `${Math.max(20, Math.min(heart.x - 12, 460))}px` }}
+            style={{ left: `${Math.max(20, Math.min(heart.x - 12, 480))}px` }}
           >
             <Heart fill="currentColor" size={24} />
           </div>
@@ -315,38 +315,42 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         ))}
       </div>
 
-      <div className="relative z-20 p-6 flex items-center justify-between">
-        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
-          <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary">
+      {/* Header Room Mejorado */}
+      <div className="relative z-20 px-4 py-6 flex items-start justify-between">
+        <div className="flex items-center gap-3 bg-black/60 backdrop-blur-xl px-3 py-1.5 rounded-[1.25rem] border border-white/10 shadow-2xl">
+          <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary shrink-0">
             <Image src={`https://picsum.photos/seed/${live.user}/100/100`} width={40} height={40} alt="Avatar" />
           </div>
-          <div>
-            <h4 className="text-xs font-black italic text-white uppercase tracking-tight">@{live.user}</h4>
+          <div className="pr-2">
+            <h4 className="text-[11px] font-black italic text-white uppercase tracking-tight leading-none mb-1">@{live.user}</h4>
             <div className="flex items-center gap-1.5">
               <Users size={10} className="text-primary" />
-              <span className="text-[8px] font-bold text-white/70 uppercase">{live.watchers}</span>
+              <span className="text-[9px] font-black text-white/70 uppercase tracking-widest">{live.watchers}</span>
             </div>
           </div>
         </div>
         
-        <div className="flex gap-2">
-          <div className="h-10 px-4 bg-primary/10 backdrop-blur-md rounded-xl flex items-center gap-2 border border-primary/20">
-            <Zap size={14} className="text-primary fill-primary" />
-            <span className="text-[10px] font-black text-primary">{espBalance} ESP</span>
+        <div className="flex items-center gap-2">
+          <div className="h-10 px-4 bg-primary/20 backdrop-blur-xl rounded-[1.25rem] flex items-center gap-2 border border-primary/30 shadow-2xl">
+            <Zap size={14} className="text-primary fill-primary animate-pulse" />
+            <span className="text-[10px] font-black text-primary uppercase tracking-widest">{espBalance} ESP</span>
           </div>
           <button 
             onClick={() => setIsChatVisible(!isChatVisible)}
-            className="h-10 w-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/10"
+            className="h-10 w-10 bg-black/60 backdrop-blur-xl rounded-[1.25rem] flex items-center justify-center text-white border border-white/10 hover:border-primary/50 transition-all active:scale-90"
           >
             {isChatVisible ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
-          <button onClick={onBack} className="h-10 w-10 bg-black/40 backdrop-blur-md rounded-xl flex items-center justify-center text-white border border-white/10">
+          <button 
+            onClick={onBack} 
+            className="h-10 w-10 bg-black/60 backdrop-blur-xl rounded-[1.25rem] flex items-center justify-center text-white border border-white/10 hover:bg-red-500/20 hover:border-red-500/50 transition-all active:scale-90"
+          >
             <X size={20} />
           </button>
         </div>
       </div>
 
-      <div className="relative z-20 mt-2 px-6">
+      <div className="relative z-20 mt-[-10px] px-6">
         <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full border border-primary/30">
           <Heart size={10} fill="currentColor" className="text-primary" />
           <span className="text-[8px] font-black text-primary uppercase tracking-widest">{likes}K</span>
@@ -355,8 +359,9 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       <div className="flex-1"></div>
 
+      {/* Chat HUD */}
       <div className={cn(
-        "relative z-20 px-4 pb-6 transition-all duration-500 transform",
+        "relative z-20 px-4 pb-8 transition-all duration-500 transform",
         isChatVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
       )}>
         <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mask-fade-top mb-3">
@@ -381,14 +386,14 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         <div className="flex gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="h-10 w-10 bg-white/10 backdrop-blur-3xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:bg-primary hover:text-black transition-all">
-                <Gift size={18} />
+              <button className="h-12 w-12 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 hover:bg-primary hover:text-black transition-all shadow-2xl">
+                <Gift size={22} />
               </button>
             </PopoverTrigger>
             <PopoverContent 
               side="top"
               align="start"
-              className="w-[280px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2rem] p-4 mb-4"
+              className="w-[280px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-4 mb-4"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-white/5 pb-2">
@@ -427,19 +432,19 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
           <form onSubmit={handleSendMessage} className="flex-1 flex gap-2">
             <div className="relative flex-1">
-              <MessageCircle size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />
+              <MessageCircle size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />
               <input 
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Inject signal..." 
-                className="w-full h-10 bg-black/50 backdrop-blur-3xl border border-white/10 rounded-xl pl-10 pr-4 text-[11px] text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
+                className="w-full h-12 bg-black/50 backdrop-blur-3xl border border-white/10 rounded-2xl pl-11 pr-4 text-[11px] text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
               />
             </div>
             <button 
               type="submit"
-              className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center text-black shadow-[0_0_15px_rgba(204,255,0,0.3)] hover:scale-105 active:scale-95 transition-all"
+              className="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center text-black shadow-[0_0_20px_rgba(204,255,0,0.4)] hover:scale-105 active:scale-95 transition-all"
             >
-              <Send size={16} fill="currentColor" />
+              <Send size={20} fill="currentColor" />
             </button>
           </form>
         </div>
