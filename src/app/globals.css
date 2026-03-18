@@ -24,7 +24,7 @@
     --border: 150 20% 10%;
     --input: 150 20% 10%;
     --ring: 74 100% 50%;
-    --radius: 2rem;
+    --radius: 1.5rem;
   }
 }
 
@@ -37,7 +37,7 @@
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 .glass-panel {
-  @apply bg-black/40 backdrop-blur-2xl border border-white/5;
+  @apply bg-white/[0.03] backdrop-blur-2xl border border-white/5;
 }
 
 .text-shadow-glow {
@@ -46,16 +46,16 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  animation: float 5s ease-in-out infinite;
 }
 
 @keyframes pulse-gentle {
   0%, 100% { opacity: 0.3; transform: scaleY(1); }
-  50% { opacity: 1; transform: scaleY(1.5); }
+  50% { opacity: 1; transform: scaleY(1.4); }
 }
 .animate-pulse-gentle {
-  animation: pulse-gentle 1s ease-in-out infinite;
+  animation: pulse-gentle 1.2s ease-in-out infinite;
 }

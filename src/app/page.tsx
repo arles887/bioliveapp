@@ -29,9 +29,10 @@ export default function Home() {
     if (!scrollContainerRef.current) return;
     const currentScrollY = scrollContainerRef.current.scrollTop;
     
-    if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+    // Sensibilidad del scroll para ocultar/mostrar la navegación
+    if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
       setIsNavVisible(false);
-    } else {
+    } else if (currentScrollY < lastScrollY.current) {
       setIsNavVisible(true);
     }
     lastScrollY.current = currentScrollY;
@@ -41,60 +42,59 @@ export default function Home() {
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden font-body">
-      {/* Contenedor Estricto Android */}
-      <div className="relative w-full h-full max-w-[420px] bg-[#020503] flex flex-col shadow-2xl border-x border-white/5 overflow-hidden ring-1 ring-white/10">
+      {/* Marco de Dispositivo Android Refinado */}
+      <div className="relative w-full h-full max-w-[420px] bg-black flex flex-col overflow-hidden ring-1 ring-white/5 shadow-[0_0_80px_rgba(0,0,0,1)]">
         
-        {/* Capas de Brillo de Fondo */}
-        <div className="absolute top-[-10%] left-[-20%] w-[140%] h-[40%] bg-primary/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+        {/* Luces de ambiente sutiles */}
+        <div className="absolute top-[-5%] left-[-10%] w-[120%] h-[30%] bg-primary/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
         
         <TopBar onAuthClick={() => setIsAuthModalOpen(true)} />
 
-        {/* Área de Contenido Principal - Scrollable */}
+        {/* Área de Contenido - Fluye por debajo de la navegación */}
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto relative z-10 no-scrollbar pb-32"
+          className="flex-1 overflow-y-auto relative z-10 no-scrollbar pb-10"
         >
           {activeTab === "home" && <MainFeed />}
           {activeTab === "reels" && <ReelsViewer />}
           {activeTab === "chat" && <ChatList />}
           
           {activeTab === "profile" && (
-             <div className="flex flex-col items-center justify-center min-h-[80vh] p-8 text-center space-y-8 animate-in fade-in duration-500">
-               <div className="relative w-28 h-28 rounded-[2.5rem] bg-primary/10 border border-primary/30 flex items-center justify-center overflow-hidden">
-                  <span className="text-3xl font-black italic text-primary relative z-10">BIO</span>
+             <div className="flex flex-col items-center justify-center min-h-[70vh] p-10 text-center space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+               <div className="relative w-32 h-32 rounded-[3rem] bg-white/[0.03] border border-white/5 flex items-center justify-center overflow-hidden">
+                  <span className="text-3xl font-black italic text-primary relative z-10 tracking-tighter">BIO</span>
+                  <div className="absolute inset-0 bg-primary/5 animate-pulse"></div>
                </div>
-               <div className="space-y-2">
-                <h2 className="text-2xl font-black tracking-tighter text-white uppercase italic text-shadow-glow">Bio<span className="text-primary">Entity</span></h2>
-                <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Protocolo Desconectado</p>
+               <div className="space-y-3">
+                <h2 className="text-2xl font-black tracking-tighter text-white uppercase italic">Bio<span className="text-primary">Entity</span></h2>
+                <p className="text-[9px] text-white/20 uppercase tracking-[0.4em] font-bold">Signal Disconnected</p>
                </div>
-               <button onClick={() => setIsAuthModalOpen(true)} className="w-full max-w-[200px] py-4 bg-primary text-black rounded-2xl font-black text-[10px] uppercase tracking-widest italic shadow-xl shadow-primary/20 active:scale-95 transition-all">Sincronizar Protocolo</button>
+               <button onClick={() => setIsAuthModalOpen(true)} className="w-full max-w-[220px] py-4 bg-primary text-black rounded-2xl font-black text-[10px] uppercase tracking-widest italic shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Sincronizar Nodo</button>
              </div>
           )}
 
           {activeTab === "upload" && (
-            <div className="flex flex-col items-center justify-center min-h-[80vh] p-8 text-center space-y-8">
-               <h2 className="text-3xl font-black tracking-tighter text-primary uppercase italic">Transmisión</h2>
-               <div className="grid grid-cols-1 gap-4 w-full">
-                  <div className="p-10 glass-panel rounded-[2.5rem] flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-primary/40 transition-all group">
-                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg group-hover:scale-110 transition-transform"><span className="font-black italic">LIVE</span></div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary italic">Iniciar Nodo Neuronal</span>
+            <div className="flex flex-col items-center justify-center min-h-[70vh] p-10 text-center space-y-10 animate-in fade-in duration-700">
+               <h2 className="text-3xl font-black tracking-tighter text-primary uppercase italic leading-none">Nueva<br/>Transmisión</h2>
+               <div className="grid grid-cols-1 gap-5 w-full">
+                  <div className="p-12 bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[3rem] flex flex-col items-center justify-center gap-5 cursor-pointer hover:border-primary/30 transition-all group shadow-2xl">
+                    <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg group-hover:rotate-12 transition-transform"><span className="font-black italic text-xl">LIVE</span></div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-primary italic">Activar Sensor Neural</span>
                   </div>
-                  <div className="p-8 glass-panel border-dashed border-white/10 rounded-[2.5rem] flex flex-col items-center justify-center gap-4 cursor-pointer opacity-50">
-                     <span className="text-[9px] font-black uppercase tracking-widest text-white/20">Cargar Secuencia DNA</span>
+                  <div className="p-10 border border-dashed border-white/10 rounded-[3rem] flex flex-col items-center justify-center gap-4 opacity-30">
+                     <span className="text-[8px] font-black uppercase tracking-widest text-white">Subir Secuencia DNA</span>
                   </div>
                </div>
             </div>
           )}
         </div>
 
-        {/* Music Orb Flotante (Botón Compacto) */}
+        {/* Capas Flotantes Transparentes */}
         <MusicHub isVisible={isNavVisible} />
-
-        {/* Navegación Inferior Flotante Dinámica */}
         <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} isVisible={isNavVisible} />
         
-        {/* Modales */}
+        {/* Modales de Sistema */}
         <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
         <Toaster />
       </div>

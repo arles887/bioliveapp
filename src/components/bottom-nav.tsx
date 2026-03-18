@@ -25,10 +25,11 @@ export function BottomNav({
 
   return (
     <div className={cn(
-      "absolute bottom-6 left-0 right-0 px-6 z-[60] transition-all duration-500 ease-in-out",
-      isVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0"
+      "absolute bottom-8 left-0 right-0 px-8 z-[60] transition-all duration-700 ease-in-out",
+      isVisible ? "translate-y-0 opacity-100" : "translate-y-32 opacity-0"
     )}>
-      <nav className="h-16 glass-panel rounded-full flex items-center justify-between px-4 border border-white/10 shadow-[0_15px_40px_rgba(0,0,0,0.8)]">
+      {/* Barra ultra-transparente con desenfoque extremo */}
+      <nav className="h-16 bg-white/[0.03] backdrop-blur-2xl rounded-[2rem] flex items-center justify-between px-6 border border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -38,7 +39,7 @@ export function BottomNav({
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as NavItem)}
-                className="relative h-12 w-12 flex items-center justify-center rounded-full bg-primary text-black shadow-[0_0_25px_rgba(204,255,0,0.5)] transition-all hover:scale-110 active:scale-90"
+                className="relative h-12 w-12 flex items-center justify-center rounded-2xl bg-primary text-black shadow-[0_0_30px_rgba(204,255,0,0.4)] transition-all hover:scale-110 active:scale-95"
               >
                 <Icon size={24} strokeWidth={3} />
               </button>
@@ -50,13 +51,13 @@ export function BottomNav({
               key={item.id}
               onClick={() => setActiveTab(item.id as NavItem)}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-all px-2 outline-none",
-                isActive ? "text-primary scale-105" : "text-white/20 hover:text-white/40"
+                "flex flex-col items-center justify-center gap-1 transition-all outline-none",
+                isActive ? "text-primary scale-110" : "text-white/30 hover:text-white/60"
               )}
             >
               <Icon size={20} strokeWidth={isActive ? 3 : 2} />
               <span className={cn(
-                "text-[7px] font-black tracking-widest uppercase",
+                "text-[7px] font-black tracking-[0.2em] uppercase",
                 isActive ? "opacity-100" : "hidden"
               )}>
                 {item.label}
