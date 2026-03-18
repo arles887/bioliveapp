@@ -14,7 +14,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
-  const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || "";
+  const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
   const stats = [
     { label: "Seguidores", value: "12.4K" },
@@ -30,7 +30,7 @@ export function ProfileView() {
   ];
 
   return (
-    <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       {/* Header / Cover Area */}
       <div className="relative h-32 w-full bg-gradient-to-b from-primary/20 to-transparent">
         <div className="absolute top-6 right-6 flex gap-3">
@@ -48,7 +48,13 @@ export function ProfileView() {
         <div className="flex items-end justify-between">
           <div className="relative group">
             <div className="h-24 w-24 rounded-[2rem] border-4 border-[#020503] bg-white/5 overflow-hidden shadow-2xl relative">
-              <Image src={avatarUrl} fill alt="Avatar" className="object-cover" />
+              {avatarUrl ? (
+                <Image src={avatarUrl} fill alt="Avatar" className="object-cover" />
+              ) : (
+                <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-black uppercase italic tracking-tighter text-xl">
+                  BIO
+                </div>
+              )}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                 <Camera size={20} className="text-white" />
               </div>
