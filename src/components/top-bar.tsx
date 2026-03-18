@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, Bell, Zap, Cpu } from "lucide-react";
+import { Search, Zap, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -28,10 +28,6 @@ export function TopBar({ onAuthClick }: { onAuthClick: () => void }) {
         
         <Button variant="ghost" size="icon" className="h-9 w-9 text-white/30 hover:text-primary transition-all">
           <Search size={18} />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-9 w-9 text-white/30 hover:text-primary transition-all relative">
-          <Bell size={18} />
-          <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-primary rounded-full"></span>
         </Button>
         
         <Avatar className="h-9 w-9 ring-1 ring-white/10 ml-2 cursor-pointer hover:ring-primary transition-all" onClick={onAuthClick}>
