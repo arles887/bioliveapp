@@ -64,6 +64,7 @@ export function LiveViewer({
   const [selectedLive, setSelectedLive] = useState<any>(null);
   const [viewingMode, setViewingMode] = useState(false);
   const [password, setPassword] = useState("");
+  const [globalMuted, setGlobalMuted] = useState(true);
   
   const categories = [
     { id: "Global", icon: Globe },
@@ -107,6 +108,8 @@ export function LiveViewer({
           <div key={live.id} className="h-full w-full snap-start shrink-0">
             <LiveStreamRoom 
               live={live} 
+              globalMuted={globalMuted}
+              setGlobalMuted={setGlobalMuted}
               onBack={() => { setViewingMode(false); onToggleFullScreen(false); }} 
               onProfileClick={onProfileClick}
               requireAuth={requireAuth}
@@ -207,14 +210,27 @@ export function LiveViewer({
   );
 }
 
-function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: any; onBack: () => void; onProfileClick: (u: string) => void; requireAuth: (cb: () => void) => void }) {
+function LiveStreamRoom({ 
+  live, 
+  globalMuted, 
+  setGlobalMuted, 
+  onBack, 
+  onProfileClick, 
+  requireAuth 
+}: { 
+  live: any; 
+  globalMuted: boolean;
+  setGlobalMuted: (m: boolean) => void;
+  onBack: () => void; 
+  onProfileClick: (u: string) => void; 
+  requireAuth: (cb: () => void) => void 
+}) {
   const [hearts, setHearts] = useState<any[]>([]);
   const [activeGifts, setActiveGifts] = useState<any[]>([]);
   const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isActive, setIsActive] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -248,10 +264,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
   useEffect(() => {
     if (!isActive) {
-      setIsMuted(true);
       if (!isYouTube && videoRef.current) {
         videoRef.current.pause();
-        videoRef.current.muted = true;
       }
     } else {
       if (!isYouTube && videoRef.current) {
@@ -261,10 +275,10 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   }, [isActive, isYouTube]);
 
   useEffect(() => {
-    if (!isMuted && isActive) {
+    if (!globalMuted && isActive) {
       window.dispatchEvent(new CustomEvent('bio-video-playing'));
     }
-  }, [isMuted, isActive]);
+  }, [globalMuted, isActive]);
 
   const handleTikiTiki = (e: any) => {
     requireAuth(() => {
@@ -276,12 +290,16 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       setHearts(prev => [...prev, newHeart]);
       setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
       
-      // Auto-unmute on first interaction within room if user wants
-      if (isMuted && !isYouTube && videoRef.current) {
-        setIsMuted(false);
-        videoRef.current.muted = false;
+      // Auto-unmute on first interaction within room if user hasn't unmuted yet
+      if (globalMuted) {
+        setGlobalMuted(false);
       }
     });
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setGlobalMuted(!globalMuted);
   };
 
   const handleSendGift = (gift: any) => {
@@ -320,8 +338,10 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   const getYouTubeSrc = () => {
     if (!isYouTube) return "";
     let url = live.video;
+    // Silencio estricto si no es el activo o si el feed está silenciado
+    const finalMute = !isActive || globalMuted;
     url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
-    url = url.replace(/mute=[01]/, `mute=${isMuted ? 1 : 0}`);
+    url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
     return url;
   };
 
@@ -340,7 +360,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
             src={live.video} 
             className="h-full w-full object-cover opacity-90" 
             autoPlay 
-            muted={isMuted}
+            muted={!isActive || globalMuted}
             loop 
             playsInline 
           />
@@ -389,6 +409,13 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
             {isFollowing ? <Check size={8} /> : <UserPlus size={8} />}
           </button>
         </div>
+
+        <button 
+          onClick={toggleMute}
+          className="h-10 w-10 shrink-0 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-primary border border-white/10 hover:border-primary/40 transition-all"
+        >
+          {globalMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
         
         <button 
           onClick={(e) => { e.stopPropagation(); setIsChatVisible(!isChatVisible); }} 

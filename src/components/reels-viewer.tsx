@@ -40,6 +40,7 @@ export function ReelsViewer({
   requireAuth: (cb: () => void) => void
 }) {
   const [reels, setReels] = useState(INITIAL_REELS);
+  const [globalMuted, setGlobalMuted] = useState(true);
 
   const toggleLike = (id: string) => {
     requireAuth(() => {
@@ -80,6 +81,8 @@ export function ReelsViewer({
         <ReelItem 
           key={reel.id} 
           reel={reel} 
+          globalMuted={globalMuted}
+          setGlobalMuted={setGlobalMuted}
           onProfileClick={onProfileClick} 
           toggleLike={toggleLike}
           toggleFollow={toggleFollow}
@@ -91,13 +94,21 @@ export function ReelsViewer({
   );
 }
 
-function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare, requireAuth }: any) {
+function ReelItem({ 
+  reel, 
+  globalMuted, 
+  setGlobalMuted, 
+  onProfileClick, 
+  toggleLike, 
+  toggleFollow, 
+  handleShare, 
+  requireAuth 
+}: any) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
   const [isActive, setIsActive] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   const [showCenterIcon, setShowCenterIcon] = useState(false);
   const [isFastForwarding, setIsFastForwarding] = useState(false);
@@ -120,10 +131,8 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
   useEffect(() => {
     if (!isActive) {
       setIsPlaying(false);
-      setIsMuted(true);
       if (!isYouTube && videoRef.current) {
         videoRef.current.pause();
-        videoRef.current.muted = true;
       }
     } else {
       setIsPlaying(true);
@@ -132,6 +141,12 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
       }
     }
   }, [isActive, isYouTube]);
+
+  useEffect(() => {
+    if (!globalMuted && isPlaying && isActive) {
+      window.dispatchEvent(new CustomEvent('bio-video-playing'));
+    }
+  }, [globalMuted, isPlaying, isActive]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -146,12 +161,6 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
     video.addEventListener('timeupdate', updateProgress);
     return () => video.removeEventListener('timeupdate', updateProgress);
   }, [isYouTube]);
-
-  useEffect(() => {
-    if (!isMuted && isPlaying && isActive) {
-      window.dispatchEvent(new CustomEvent('bio-video-playing'));
-    }
-  }, [isMuted, isPlaying, isActive]);
 
   const handleInteraction = (e: React.MouseEvent) => {
     if (isYouTube) return;
@@ -187,22 +196,19 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (videoRef.current) {
-      const newMuteStatus = !isMuted;
-      videoRef.current.muted = newMuteStatus;
-      setIsMuted(newMuteStatus);
-      if (!newMuteStatus) {
-        window.dispatchEvent(new CustomEvent('bio-video-playing'));
-      }
+    setGlobalMuted(!globalMuted);
+    if (!globalMuted) {
+      window.dispatchEvent(new CustomEvent('bio-video-playing'));
     }
   };
 
   const getYouTubeSrc = () => {
     if (!isYouTube) return "";
     let url = reel.video;
-    // Controlamos autoplay y mute basado en isActive e isMuted
+    // Solo reproducir con sonido si está activo Y el globalMuted es falso
+    const finalMute = !isActive || globalMuted;
     url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
-    url = url.replace(/mute=[01]/, `mute=${isMuted ? 1 : 0}`);
+    url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
     return url;
   };
 
@@ -221,7 +227,7 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
             src={reel.video} 
             className="h-full w-full object-cover opacity-80" 
             loop 
-            muted={isMuted}
+            muted={!isActive || globalMuted}
             playsInline
             onMouseDown={startFastForward}
             onMouseUp={stopFastForward}
@@ -267,14 +273,12 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         )}
 
-        {!isYouTube && (
-           <button 
-            onClick={toggleMute}
-            className="absolute top-12 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
-           >
-             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-           </button>
-        )}
+        <button 
+          onClick={toggleMute}
+          className="absolute top-12 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
+        >
+          {globalMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
 
         <div className="absolute bottom-12 left-8 right-20 space-y-5 z-[60]">
           <div className="flex items-center gap-4 min-w-0">
