@@ -59,6 +59,24 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       viewers: "12K",
       thumbnail: "https://picsum.photos/seed/bio9/1080/1920",
       filter: "Para ti"
+    },
+    { 
+      id: "5", 
+      type: "live",
+      title: "Bioluminescent Reef", 
+      user: "DeepDive_Eco", 
+      viewers: "22K",
+      thumbnail: "https://picsum.photos/seed/bio6/1280/720",
+      filter: "Para ti"
+    },
+    { 
+      id: "6", 
+      type: "reel",
+      title: "Fungi Communication Neural", 
+      user: "Mycelium_Mind", 
+      viewers: "88K",
+      thumbnail: "https://picsum.photos/seed/bio11/1080/1920",
+      filter: "Para ti"
     }
   ];
 

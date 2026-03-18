@@ -81,6 +81,7 @@ export function CreationHub() {
 
   if (selectedType) {
     const currentOption = options.find(o => o.id === selectedType);
+    const Icon = currentOption?.icon;
 
     return (
       <div className="flex flex-col w-full min-h-[70vh] animate-in slide-in-from-right duration-500 pb-20">
@@ -98,7 +99,7 @@ export function CreationHub() {
               "h-16 w-16 rounded-[1.5rem] bg-white/[0.03] flex items-center justify-center border border-white/10",
               currentOption?.color
             )}>
-              {currentOption?.icon({ size: 32, strokeWidth: 2.5 })}
+              {Icon && <Icon size={32} strokeWidth={2.5} />}
             </div>
             <div>
               <h2 className="text-3xl font-black italic uppercase text-white tracking-tighter leading-none">
@@ -190,25 +191,28 @@ export function CreationHub() {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {options.map((option) => (
-          <div 
-            key={option.id}
-            onClick={() => setSelectedType(option.id as CreationType)}
-            className="group relative flex items-center gap-6 p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-primary/40 transition-all cursor-pointer overflow-hidden shadow-2xl active:scale-95"
-          >
-            <div className={cn(
-              "h-16 w-16 rounded-[1.5rem] bg-white/5 flex items-center justify-center transition-all group-hover:scale-110",
-              option.color
-            )}>
-              <option.icon size={30} strokeWidth={2.5} />
-            </div>
+        {options.map((option) => {
+          const Icon = option.icon;
+          return (
+            <div 
+              key={option.id}
+              onClick={() => setSelectedType(option.id as CreationType)}
+              className="group relative flex items-center gap-6 p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-primary/40 transition-all cursor-pointer overflow-hidden shadow-2xl active:scale-95"
+            >
+              <div className={cn(
+                "h-16 w-16 rounded-[1.5rem] bg-white/5 flex items-center justify-center transition-all group-hover:scale-110",
+                option.color
+              )}>
+                <Icon size={30} strokeWidth={2.5} />
+              </div>
 
-            <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-black italic uppercase text-white leading-none tracking-tight group-hover:text-primary transition-colors">{option.label}</h3>
-              <p className="text-[9px] font-black uppercase tracking-widest text-white/20 mt-2 truncate">{option.desc}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xl font-black italic uppercase text-white leading-none tracking-tight group-hover:text-primary transition-colors">{option.label}</h3>
+                <p className="text-[9px] font-black uppercase tracking-widest text-white/20 mt-2 truncate">{option.desc}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="mt-12 p-8 rounded-[2.5rem] bg-primary/[0.03] border border-primary/10 flex flex-col gap-3">
