@@ -8,13 +8,12 @@ import {
   Search, Lock, Zap, Flame, Key,
   X, Users, Heart, Send, Eye, EyeOff,
   Gift, Sparkles, Trophy, Gem, Dna, UserPlus, Check,
-  Volume2, VolumeX, Play, Pause, FastForward, Rewind
+  Volume2, VolumeX, Play, Pause
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { toast } from "@/hooks/use-toast";
 import { 
   Popover,
@@ -23,8 +22,8 @@ import {
 } from "@/components/ui/popover";
 
 const VIDEO_SOURCES = [
-  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=0&loop=1&playlist=gCsemG6ip54&controls=1&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=0&loop=1&playlist=VAuMrxuGlQw&controls=1&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=0&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=0&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
@@ -218,14 +217,18 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [showCenterIcon, setShowCenterIcon] = useState(false);
+  const [isFastForwarding, setIsFastForwarding] = useState(false);
   const [messages, setMessages] = useState<any[]>([
     { id: 1, user: "BioEntity_Alpha_Centauri", text: "Increíble la calidad 🌿" },
     { id: 2, user: "CyberFan_Zero_One", text: "¡Bio-luz!" },
   ]);
   const [inputText, setInputText] = useState("");
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ffInterval = useRef<any>(null);
 
   const isYouTube = live.video.includes('youtube.com') || live.video.includes('youtu.be');
 
@@ -238,18 +241,59 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   ];
 
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          if (!isYouTube) videoRef.current?.play().catch(() => {});
+        } else {
+          if (!isYouTube) {
+            videoRef.current?.pause();
+            if (videoRef.current) videoRef.current.muted = true;
+          }
+          setIsMuted(true);
+        }
+      },
+      { threshold: 0.8 }
+    );
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isYouTube]);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video || isYouTube) return;
-
     const updateProgress = () => {
-      if (video.duration) {
-        setProgress((video.currentTime / video.duration) * 100);
-      }
+      if (video.duration) setProgress((video.currentTime / video.duration) * 100);
     };
-
     video.addEventListener('timeupdate', updateProgress);
     return () => video.removeEventListener('timeupdate', updateProgress);
   }, [isYouTube]);
+
+  const handleInteraction = (e: React.MouseEvent) => {
+    if (isYouTube) return;
+    if (videoRef.current) {
+      if (isPlaying) videoRef.current.pause();
+      else videoRef.current.play();
+      setIsPlaying(!isPlaying);
+      setShowCenterIcon(true);
+      setTimeout(() => setShowCenterIcon(false), 800);
+    }
+  };
+
+  const startFastForward = () => {
+    if (isYouTube || !videoRef.current) return;
+    setIsFastForwarding(true);
+    videoRef.current.playbackRate = 2.0;
+    ffInterval.current = setInterval(() => {
+      if (videoRef.current) videoRef.current.currentTime += 0.5;
+    }, 100);
+  };
+
+  const stopFastForward = () => {
+    setIsFastForwarding(false);
+    if (videoRef.current) videoRef.current.playbackRate = 1.0;
+    if (ffInterval.current) clearInterval(ffInterval.current);
+  };
 
   const handleTikiTiki = (e: any) => {
     requireAuth(() => {
@@ -262,44 +306,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       setHearts(prev => [...prev, newHeart]);
       setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
     });
-  };
-
-  const handlePlayPause = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isYouTube) return;
-    if (videoRef.current) {
-      if (isPlaying) videoRef.current.pause();
-      else videoRef.current.play();
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleMuteToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isYouTube) return;
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
-  };
-
-  const handleSeek = (value: number[]) => {
-    if (isYouTube || !videoRef.current) return;
-    const time = (value[0] / 100) * videoRef.current.duration;
-    videoRef.current.currentTime = time;
-    setProgress(value[0]);
-  };
-
-  const handleFastForward = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isYouTube || !videoRef.current) return;
-    videoRef.current.currentTime = Math.min(videoRef.current.duration, videoRef.current.currentTime + 5);
-  };
-
-  const handleRewind = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isYouTube || !videoRef.current) return;
-    videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 5);
   };
 
   const handleSendGift = (gift: any) => {
@@ -326,10 +332,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     });
   };
 
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages]);
-
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
@@ -341,11 +343,17 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
   return (
     <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col">
-      <div className="absolute inset-0 z-0 cursor-pointer" onClick={handleTikiTiki}>
+      <div className="absolute inset-0 z-0 cursor-pointer" 
+           onMouseDown={startFastForward}
+           onMouseUp={stopFastForward}
+           onMouseLeave={stopFastForward}
+           onTouchStart={startFastForward}
+           onTouchEnd={stopFastForward}
+           onClick={handleInteraction}>
         {isYouTube ? (
           <iframe 
             src={live.video} 
-            className="h-full w-full object-cover opacity-90 pointer-events-auto" 
+            className="h-full w-full object-cover opacity-90 pointer-events-none" 
             allow="autoplay; encrypted-media"
           />
         ) : (
@@ -362,7 +370,53 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60 pointer-events-none"></div>
       </div>
 
-      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
+      {/* Segmented Progress Bar - Blurred & Tech Style */}
+      {!isYouTube && (
+        <div className="absolute top-8 left-0 right-0 px-6 z-50 flex gap-1 items-center justify-center pointer-events-none">
+          {Array.from({ length: 15 }).map((_, i) => {
+            const segmentProgress = (i + 1) * (100 / 15);
+            const isActive = progress >= segmentProgress - (100/15);
+            return (
+              <div 
+                key={i} 
+                className={cn(
+                  "h-1 flex-1 rounded-full transition-all duration-300",
+                  isActive ? "bg-primary shadow-[0_0_8px_rgba(204,255,0,0.6)]" : "bg-white/10"
+                )}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Mute Toggle */}
+      {!isYouTube && (
+         <button 
+          onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); if(videoRef.current) videoRef.current.muted = !isMuted; }}
+          className="absolute top-12 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
+         >
+           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+         </button>
+      )}
+
+      {/* Centered Interaction Icon */}
+      {showCenterIcon && !isYouTube && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+          <div className="h-24 w-24 rounded-full bg-black/40 backdrop-blur-3xl border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_50px_rgba(204,255,0,0.3)] animate-in zoom-in fade-in duration-300">
+            {isPlaying ? <Play size={48} fill="currentColor" className="ml-2" /> : <Pause size={48} fill="currentColor" />}
+          </div>
+        </div>
+      )}
+
+      {/* Fast Forward Mode */}
+      {isFastForwarding && (
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 z-50 px-6 py-2 bg-primary/20 backdrop-blur-xl border border-primary/40 rounded-full flex items-center gap-3 animate-pulse">
+          <Zap size={14} className="text-primary" fill="currentColor" />
+          <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">2x Bio-Speed</span>
+        </div>
+      )}
+
+      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden" onClick={handleTikiTiki}>
         {hearts.map(h => (
           <div key={h.id} className="absolute bottom-24 animate-heart-float text-primary" style={{ left: `${h.x}px` }}>
             <Heart fill="currentColor" size={28} />
@@ -378,6 +432,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         ))}
       </div>
 
+      {/* UI Overlay */}
       <div className="relative z-40 px-6 py-10 flex items-center gap-3">
         <div className="flex items-center gap-2 flex-1 min-w-0 bg-transparent backdrop-blur-2xl p-1.5 pr-3 rounded-2xl border border-white/10">
           <div 
@@ -421,42 +476,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       <div className="flex-1"></div>
 
-      {/* Media Controls Bar */}
-      <div className="relative z-[60] px-6 mb-4">
-        {!isYouTube && (
-          <div className="bg-black/40 backdrop-blur-3xl border border-white/10 rounded-2xl p-4 space-y-3">
-             <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                   <button onClick={handleRewind} className="p-2 text-white hover:text-primary transition-colors">
-                      <Rewind size={18} fill="currentColor" />
-                   </button>
-                   <button onClick={handlePlayPause} className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-black shadow-lg active:scale-90 transition-all">
-                      {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
-                   </button>
-                   <button onClick={handleFastForward} className="p-2 text-white hover:text-primary transition-colors">
-                      <FastForward size={18} fill="currentColor" />
-                   </button>
-                </div>
-                
-                <button onClick={handleMuteToggle} className="p-2 text-primary hover:scale-110 transition-all">
-                   {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-                </button>
-             </div>
-             
-             <div className="px-1">
-                <Slider 
-                  value={[progress]} 
-                  max={100} 
-                  step={0.1} 
-                  onValueChange={handleSeek}
-                  className="[&>[data-slot=slider-range]]:bg-primary [&>[data-slot=slider-thumb]]:border-primary"
-                />
-             </div>
-          </div>
-        )}
-      </div>
-
-      <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
+      <div className={cn("relative z-40 px-6 pb-12 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div ref={scrollRef} className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
           {messages.map((msg) => (
             <div key={msg.id} className="text-left animate-in fade-in slide-in-from-left-2">
