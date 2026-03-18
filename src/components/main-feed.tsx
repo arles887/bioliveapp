@@ -202,36 +202,36 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       </div>
 
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
-        <div className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex h-full">
+        <div className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex h-full gap-4">
           {storyIds.map((id) => (
-            <div key={id} className="relative aspect-[9/16] w-full shrink-0 snap-center bg-black rounded-[2.5rem] overflow-hidden border border-white/10">
+            <div key={id} className="relative aspect-[9/16] h-[60vh] shrink-0 snap-center bg-black rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl mx-auto">
               <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
               
-              <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden z-10">
+              <div className="absolute top-4 left-4 right-4 h-1 bg-white/10 rounded-full overflow-hidden z-10">
                 <div className="h-full bg-primary animate-[progress_5s_linear_infinite]" style={{ width: '100%' }}></div>
               </div>
 
-              <div className="absolute bottom-10 left-8 right-8 flex items-end justify-between z-10">
+              <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between z-10">
                  <div 
                   className="cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1 mr-4"
                   onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}_Entity`); }}
                  >
-                   <p className="text-white font-black italic text-base uppercase tracking-tighter truncate">@Bio_{id}_Entity</p>
-                   <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest truncate">Protocolo de supervivencia #0{id}</p>
+                   <p className="text-white font-black italic text-xs uppercase tracking-tighter truncate">@Bio_{id}_Entity</p>
+                   <p className="text-white/60 text-[8px] uppercase font-bold tracking-widest truncate">Protocolo #0{id}</p>
                  </div>
                  <button 
                   onClick={() => toggleStoryLike(id)}
                   className={cn(
-                    "h-12 w-12 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all active:scale-75 shrink-0",
+                    "h-10 w-10 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all active:scale-75 shrink-0",
                     likedStories[id] 
                       ? "bg-red-500/20 border-red-500/40 text-red-500" 
                       : "bg-white/10 border-white/10 text-white/60"
                   )}
                  >
-                    <Heart size={20} fill={likedStories[id] ? "currentColor" : "none"} />
+                    <Heart size={16} fill={likedStories[id] ? "currentColor" : "none"} />
                  </button>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
             </div>
           ))}
         </div>
