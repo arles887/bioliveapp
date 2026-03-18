@@ -369,7 +369,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60 pointer-events-none"></div>
       </div>
 
-      {/* Segmented Progress Bar - Blurred & Tech Style */}
       {!isYouTube && (
         <div className="absolute top-8 left-0 right-0 px-6 z-50 flex gap-1 items-center justify-center pointer-events-none">
           {Array.from({ length: 15 }).map((_, i) => {
@@ -388,7 +387,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         </div>
       )}
 
-      {/* Mute Toggle */}
       {!isYouTube && (
          <button 
           onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); if(videoRef.current) videoRef.current.muted = !isMuted; }}
@@ -398,7 +396,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
          </button>
       )}
 
-      {/* Centered Interaction Icon: Más pequeño, transparente y fluido */}
       {showCenterIcon && !isYouTube && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
           <div className="h-16 w-16 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
@@ -407,7 +404,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         </div>
       )}
 
-      {/* Fast Forward Mode */}
       {isFastForwarding && (
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 z-50 px-6 py-2 bg-primary/20 backdrop-blur-xl border border-primary/40 rounded-full flex items-center gap-3 animate-pulse">
           <Zap size={14} className="text-primary" fill="currentColor" />
@@ -431,7 +427,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
         ))}
       </div>
 
-      {/* UI Overlay */}
       <div className="relative z-40 px-6 py-10 flex items-center gap-3">
         <div className="flex items-center gap-2 flex-1 min-w-0 bg-transparent backdrop-blur-2xl p-1.5 pr-3 rounded-2xl border border-white/10">
           <div 
@@ -475,8 +470,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       <div className="flex-1"></div>
 
-      {/* Right Side Interactions: Elevados un 20% (de bottom-40 a bottom-[52%]) y pegados a la derecha */}
-      <div className="absolute bottom-[52%] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
+      {/* Ajuste de altura: bottom-[42%] (un 10% más equilibrado) */}
+      <div className="absolute bottom-[42%] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
         <div 
           onClick={(e) => { e.stopPropagation(); handleTikiTiki(e); }}
           className="flex flex-col items-center gap-2 group cursor-pointer pointer-events-auto"

@@ -209,7 +209,6 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
         
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none"></div>
         
-        {/* Centered Interaction Icon: Más pequeño, transparente y fluido */}
         {showCenterIcon && !isYouTube && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
             <div className="h-16 w-16 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
@@ -218,7 +217,6 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         )}
 
-        {/* Fast Forward Indicator */}
         {isFastForwarding && (
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 z-50 px-6 py-2 bg-primary/20 backdrop-blur-xl border border-primary/40 rounded-full flex items-center gap-3 animate-pulse">
             <Zap size={14} className="text-primary" fill="currentColor" />
@@ -226,7 +224,6 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         )}
 
-        {/* Segmented Progress Bar */}
         {!isYouTube && (
           <div className="absolute top-8 left-0 right-0 px-6 z-50 flex gap-1 items-center justify-center">
             {Array.from({ length: 15 }).map((_, i) => {
@@ -245,7 +242,6 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         )}
 
-        {/* Mute Toggle Button */}
         {!isYouTube && (
            <button 
             onClick={toggleMute}
@@ -288,8 +284,8 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         </div>
 
-        {/* Right Side Interactions: Elevados un 20% (de bottom-40 a bottom-[52%]) y pegados a la derecha */}
-        <div className="absolute bottom-[52%] right-3 flex flex-col items-center gap-8 z-50">
+        {/* Altura ajustada: bottom-[42%] (10% más arriba que el original, bajado desde el 52%) */}
+        <div className="absolute bottom-[42%] right-3 flex flex-col items-center gap-8 z-50">
           <div 
             onClick={() => toggleLike(reel.id)}
             className="flex flex-col items-center gap-2 group cursor-pointer"
