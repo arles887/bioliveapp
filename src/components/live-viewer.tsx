@@ -398,8 +398,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       {showCenterIcon && !isYouTube && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
-          <div className="h-16 w-16 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
-            {isPlaying ? <Play size={32} fill="currentColor" className="ml-1" /> : <Pause size={32} fill="currentColor" />}
+          <div className="h-12 w-12 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
+            {isPlaying ? <Play size={24} fill="currentColor" className="ml-0.5" /> : <Pause size={24} fill="currentColor" />}
           </div>
         </div>
       )}
@@ -470,8 +470,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       <div className="flex-1"></div>
 
-      {/* Ajuste de altura: bottom-[42%] (un 10% más equilibrado) */}
-      <div className="absolute bottom-[42%] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
+      <div className="absolute bottom-[32%] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
         <div 
           onClick={(e) => { e.stopPropagation(); handleTikiTiki(e); }}
           className="flex flex-col items-center gap-2 group cursor-pointer pointer-events-auto"
