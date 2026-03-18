@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { 
-  Zap, Users, Heart, X
+  Zap, Users, Heart, X, UserPlus, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -55,7 +55,10 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
     e.stopPropagation();
     setFollowing(prev => ({ ...prev, [user]: !prev[user] }));
     if (!following[user]) {
-      toast({ title: "Protocolo de Seguimiento", description: `Sincronizado con el nodo de @${user}` });
+      toast({ 
+        title: "Protocolo Sincronizado", 
+        description: `Conexión establecida con @${user}` 
+      });
     }
   };
 
@@ -116,8 +119,8 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                 className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform snap-center"
               >
                 <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent group-hover:rotate-12 transition-transform">
-                  <div className="w-full h-full rounded-full bg-black border-2 border-[#020503] overflow-hidden">
-                    <Image src={`https://picsum.photos/seed/u${id}/100/100`} width={64} height={64} alt="User" className="object-cover" />
+                  <div className="w-full h-full rounded-full bg-black border-2 border-[#020503] overflow-hidden relative">
+                    <Image src={`https://picsum.photos/seed/u${id}/100/100`} fill alt="User" className="object-cover" />
                   </div>
                 </div>
                 <span className="text-[7px] font-black uppercase text-white/30 tracking-widest">Bio_{id}</span>
@@ -130,10 +133,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
           {filteredItems.map((item) => (
             <div 
               key={item.id} 
-              className={cn(
-                "group relative rounded-[2.5rem] overflow-hidden bg-white/2 border border-white/5 hover:border-primary/20 transition-all shadow-xl",
-                item.type === "reel" ? "aspect-[4/5]" : "aspect-video"
-              )}
+              className="group relative rounded-[2.5rem] overflow-hidden bg-white/2 border border-white/5 hover:border-primary/20 transition-all shadow-xl aspect-[4/5]"
             >
               <div 
                 className="absolute inset-0 cursor-pointer"
@@ -153,31 +153,47 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
               </div>
 
               <div className="absolute bottom-8 left-8 right-8 z-10">
-                 <div className="flex items-center justify-between mb-3">
+                 <div className="flex items-center justify-between mb-4">
                     <div 
-                      className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                      className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
                       onClick={(e) => { e.stopPropagation(); onProfileClick(item.user); }}
                     >
-                      <div className="h-7 w-7 rounded-full bg-white/10 border border-white/20 overflow-hidden relative">
+                      <div className="h-8 w-8 rounded-xl bg-white/10 border border-white/20 overflow-hidden relative">
                          <Image src={`https://picsum.photos/seed/${item.user}/50/50`} fill alt="Avatar" className="object-cover" />
                       </div>
-                      <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">@{item.user}</span>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-widest italic leading-none">@{item.user}</span>
+                        <span className="text-[6px] font-bold text-white/30 uppercase tracking-[0.2em] mt-1">Bio-Entity OS</span>
+                      </div>
                     </div>
                     <button 
                       onClick={(e) => toggleFollow(item.user, e)}
                       className={cn(
-                        "h-8 px-4 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all",
+                        "h-8 px-4 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
                         following[item.user] 
                           ? "bg-white/10 text-white/40 border border-white/5" 
-                          : "bg-primary text-black shadow-lg"
+                          : "bg-primary text-black shadow-[0_0_15px_rgba(204,255,0,0.3)] hover:scale-105"
                       )}
                     >
-                      {following[item.user] ? "Siguiendo" : "Seguir"}
+                      {following[item.user] ? (
+                        <>
+                          <Check size={10} strokeWidth={4} />
+                          Sincronizado
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus size={10} strokeWidth={4} />
+                          Seguir
+                        </>
+                      )}
                     </button>
                  </div>
-                 <div className="pointer-events-none">
-                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{item.title}</h2>
-                   <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-2">{item.viewers} Sincronizados</p>
+                 <div className="pointer-events-none space-y-2">
+                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-tight drop-shadow-lg">{item.title}</h2>
+                   <div className="flex items-center gap-2">
+                      <div className="h-1 w-1 rounded-full bg-primary animate-pulse"></div>
+                      <p className="text-[9px] text-white/50 font-black uppercase tracking-widest">{item.viewers} Sincronizados</p>
+                   </div>
                  </div>
               </div>
             </div>
@@ -186,7 +202,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       </div>
 
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
-        <div className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex">
+        <div className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex h-full">
           {storyIds.map((id) => (
             <div key={id} className="relative aspect-[9/16] w-full shrink-0 snap-center bg-black rounded-[2.5rem] overflow-hidden border border-white/10">
               <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
