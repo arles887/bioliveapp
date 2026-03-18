@@ -225,7 +225,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
         <div 
           ref={storiesScrollRef}
-          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-black/60 pt-10"
+          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-black/60 pt-20 pb-10"
         >
           {storyIds.map((id) => (
             <div 

@@ -24,25 +24,25 @@ export function ProtocolWindow({
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent z-[100]"></div>
         
         {/* BOTÓN DE CERRAR ULTRA-PROMINENTE - Forzado en la capa más alta */}
-        <div className="absolute top-6 right-6 z-[999] pointer-events-auto">
+        <div className="absolute top-10 right-8 z-[999] pointer-events-auto">
           <button 
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onClose();
             }}
-            className="h-14 w-14 bg-primary text-black rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-[0_0_40px_rgba(204,255,0,0.8)] border-2 border-white/20 hover:rotate-90 hover:scale-110"
+            className="h-16 w-16 bg-primary text-black rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-[0_0_50px_rgba(204,255,0,0.9)] border-4 border-white/20 hover:rotate-90 hover:scale-110"
             aria-label="Close Protocol"
           >
-            <X size={32} strokeWidth={4} />
+            <X size={40} strokeWidth={4} />
           </button>
         </div>
 
         {/* Etiqueta de Sistema - Esquina superior izquierda */}
-        <div className="absolute top-8 left-8 z-[200] pointer-events-none opacity-60">
-          <div className="bg-black/60 backdrop-blur-2xl px-4 py-2 rounded-xl border border-white/10 shadow-2xl">
-            <h3 className="text-[10px] font-black tracking-tighter text-white uppercase italic leading-none">{title}</h3>
-            <p className="text-[6px] font-black uppercase tracking-[0.4em] text-primary/80 mt-1">Neural Sync</p>
+        <div className="absolute top-10 left-10 z-[200] pointer-events-none opacity-60">
+          <div className="bg-black/60 backdrop-blur-2xl px-5 py-3 rounded-2xl border border-white/10 shadow-2xl">
+            <h3 className="text-[12px] font-black tracking-tighter text-white uppercase italic leading-none">{title}</h3>
+            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-primary/80 mt-1.5">Neural Sync Active</p>
           </div>
         </div>
 

@@ -84,7 +84,8 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
               </div>
             </div>
 
-            <div className="absolute bottom-44 right-6 flex flex-col items-center gap-8">
+            {/* BOTONES DE INTERACCIÓN: Elevados ~20% (de bottom-44 a bottom-60) */}
+            <div className="absolute bottom-60 right-6 flex flex-col items-center gap-8 z-50">
               <div 
                 onClick={() => toggleLike(reel.id)}
                 className="flex flex-col items-center gap-2 group cursor-pointer"
