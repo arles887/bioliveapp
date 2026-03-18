@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -10,6 +11,7 @@ import { NotificationCenter } from "@/components/notification-center";
 import { AuthModal } from "@/components/auth-modal";
 import { MusicHub } from "@/components/music-hub";
 import { Toaster } from "@/components/ui/toaster";
+import { ProfileView } from "@/components/profile-view";
 
 export default function Home() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
@@ -51,20 +53,7 @@ export default function Home() {
             {activeTab === "inicio" && <MainFeed />}
             {activeTab === "live" && <LiveViewer />}
             {activeTab === "notifications" && <NotificationCenter />}
-            
-            {activeTab === "profile" && (
-              <div className="flex flex-col items-center justify-center min-h-[70vh] p-10 text-center space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="relative w-32 h-32 rounded-[3rem] bg-white/[0.03] border border-white/5 flex items-center justify-center overflow-hidden">
-                    <span className="text-3xl font-black italic text-primary relative z-10 tracking-tighter">BIO</span>
-                    <div className="absolute inset-0 bg-primary/5 animate-pulse"></div>
-                </div>
-                <div className="space-y-3">
-                  <h2 className="text-2xl font-black tracking-tighter text-white uppercase italic">Bio<span className="text-primary">Entity</span></h2>
-                  <p className="text-[9px] text-white/20 uppercase tracking-[0.4em] font-bold">Signal Disconnected</p>
-                </div>
-                <button onClick={() => setIsAuthModalOpen(true)} className="w-full max-w-[220px] py-4 bg-primary text-black rounded-2xl font-black text-[10px] uppercase tracking-widest italic shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">Sincronizar Nodo</button>
-              </div>
-            )}
+            {activeTab === "profile" && <ProfileView />}
 
             {activeTab === "upload" && (
               <div className="flex flex-col items-center justify-center min-h-[70vh] p-10 text-center space-y-10 animate-in fade-in duration-700">
