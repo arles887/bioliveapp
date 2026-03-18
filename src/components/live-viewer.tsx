@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -20,21 +19,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-interface HeartAnimation {
-  id: number;
-  x: number;
-}
-
-interface GiftAnimation {
-  id: number;
-  icon: any;
-  color: string;
-}
-
 export function LiveViewer({ 
-  onToggleFullScreen 
+  onToggleFullScreen,
+  onProfileClick
 }: { 
-  onToggleFullScreen: (isFull: boolean) => void 
+  onToggleFullScreen: (isFull: boolean) => void,
+  onProfileClick: (username: string) => void
 }) {
   const [activeCategory, setActiveCategory] = useState("Global");
   const [selectedLive, setSelectedLive] = useState<any>(null);
@@ -88,7 +78,11 @@ export function LiveViewer({
       <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-[100] bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar border-x border-white/5">
         {lives.filter(l => !l.locked).map((live) => (
           <div key={live.id} className="h-full w-full snap-start shrink-0">
-            <LiveStreamRoom live={live} onBack={() => { setViewingMode(false); onToggleFullScreen(false); }} />
+            <LiveStreamRoom 
+              live={live} 
+              onBack={() => { setViewingMode(false); onToggleFullScreen(false); }} 
+              onProfileClick={onProfileClick}
+            />
           </div>
         ))}
       </div>
@@ -185,10 +179,10 @@ export function LiveViewer({
   );
 }
 
-function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
+function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: () => void; onProfileClick: (u: string) => void }) {
   const [likes, setLikes] = useState(1420);
-  const [hearts, setHearts] = useState<HeartAnimation[]>([]);
-  const [activeGifts, setActiveGifts] = useState<GiftAnimation[]>([]);
+  const [hearts, setHearts] = useState<any[]>([]);
+  const [activeGifts, setActiveGifts] = useState<any[]>([]);
   const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -208,11 +202,11 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
     { name: "DNA-Helix", icon: Dna, cost: 2500, color: "text-primary" },
   ];
 
-  const handleTikiTiki = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleTikiTiki = (e: any) => {
     setLikes(prev => prev + 1);
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const clientX = 'clientX' in e ? (e as React.MouseEvent).clientX : (e as any).touches[0].clientX;
+    const clientX = e.clientX || e.touches[0].clientX;
     const constrainedX = Math.max(40, Math.min(clientX - rect.left, 460));
     const newHeart = { id: Date.now(), x: constrainedX };
     setHearts(prev => [...prev, newHeart]);
@@ -231,7 +225,8 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
     setMessages(prev => [...prev, { id: Date.now(), user: "SISTEMA", text: `🎁 Enviado: ${gift.name}`, isSpecial: true }]);
   };
 
-  const handleFollow = () => {
+  const handleFollow = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsFollowing(!isFollowing);
     if (!isFollowing) {
       toast({ title: "Sincronizado", description: `Siguiendo a @${live.user}` });
@@ -272,13 +267,15 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         ))}
       </div>
 
-      {/* Header HUD */}
-      <div className="relative z-40 px-6 py-10 flex items-center justify-between pointer-events-none">
-        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10 pointer-events-auto">
-          <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative">
+      <div className="relative z-40 px-6 py-10 flex items-center justify-between">
+        <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10">
+          <div 
+            className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer"
+            onClick={() => { onBack(); onProfileClick(live.user); }}
+          >
             <Image src={`https://picsum.photos/seed/${live.user}/100/100`} fill alt="Avatar" className="object-cover" />
           </div>
-          <div>
+          <div className="cursor-pointer" onClick={() => { onBack(); onProfileClick(live.user); }}>
             <h4 className="text-[10px] font-black italic text-white uppercase leading-none mb-1">@{live.user}</h4>
             <div className="flex items-center gap-1.5">
               <Users size={10} className="text-primary" />
@@ -296,15 +293,15 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           </button>
         </div>
         
-        <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="flex items-center gap-2">
           <button 
-            onClick={() => setIsChatVisible(!isChatVisible)} 
+            onClick={(e) => { e.stopPropagation(); setIsChatVisible(!isChatVisible); }} 
             className="h-11 w-11 bg-black/40 backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-primary/40 transition-all"
           >
             {isChatVisible ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
           <button 
-            onClick={onBack} 
+            onClick={(e) => { e.stopPropagation(); onBack(); }} 
             className="h-11 w-11 bg-black/40 backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-red-500/40 transition-all"
           >
             <X size={20} />
@@ -314,7 +311,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       <div className="flex-1"></div>
 
-      {/* Footer HUD */}
       <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mb-3">
           {messages.map((msg) => (

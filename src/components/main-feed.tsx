@@ -1,11 +1,9 @@
-
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import { 
-  Zap, Globe, Play, Users, 
-  Flame, Hash, Star, LayoutGrid, X, Heart, UserPlus, Check
+  Zap, Users, Heart, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +11,7 @@ import { ProtocolWindow } from "@/components/protocol-window";
 import { ReelsViewer } from "@/components/reels-viewer";
 import { toast } from "@/hooks/use-toast";
 
-export function MainFeed() {
+export function MainFeed({ onProfileClick }: { onProfileClick: (username: string) => void }) {
   const [activeFilter, setActiveFilter] = useState("Para ti");
   const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
   const [activeReelMode, setActiveReelMode] = useState(false);
@@ -78,7 +76,7 @@ export function MainFeed() {
         >
           <X size={20} />
         </button>
-        <ReelsViewer />
+        <ReelsViewer onProfileClick={onProfileClick} />
       </div>
     );
   }
@@ -105,7 +103,6 @@ export function MainFeed() {
       </div>
 
       <div className="flex-1 p-6 space-y-8 no-scrollbar">
-        {/* Historias */}
         <section className="space-y-4">
           <div className="flex items-center justify-between px-2">
              <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 italic">Nodos Cercanos</h3>
@@ -129,21 +126,24 @@ export function MainFeed() {
           </div>
         </section>
 
-        {/* Feed Vertical */}
         <section className="grid grid-cols-1 gap-6">
-          {filteredItems.length > 0 ? filteredItems.map((item) => (
+          {filteredItems.map((item) => (
             <div 
               key={item.id} 
-              onClick={() => item.type === 'reel' ? setActiveReelMode(true) : null}
               className={cn(
-                "group relative rounded-[2.5rem] overflow-hidden bg-white/2 border border-white/5 cursor-pointer hover:border-primary/20 transition-all shadow-xl",
+                "group relative rounded-[2.5rem] overflow-hidden bg-white/2 border border-white/5 hover:border-primary/20 transition-all shadow-xl",
                 item.type === "reel" ? "aspect-[4/5]" : "aspect-video"
               )}
             >
-              <Image src={item.thumbnail} fill alt={item.title} className="object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020503] via-transparent to-transparent"></div>
+              <div 
+                className="absolute inset-0 cursor-pointer"
+                onClick={() => item.type === 'reel' ? setActiveReelMode(true) : null}
+              >
+                <Image src={item.thumbnail} fill alt={item.title} className="object-cover opacity-60 group-hover:scale-105 transition-all duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020503] via-transparent to-transparent"></div>
+              </div>
               
-              <div className="absolute top-6 right-6">
+              <div className="absolute top-6 right-6 pointer-events-none">
                 <Badge className={cn(
                   "text-[8px] font-black tracking-widest px-4 h-6 border-none flex items-center",
                   item.type === "live" ? "bg-red-500 text-white" : "bg-primary text-black"
@@ -152,13 +152,16 @@ export function MainFeed() {
                 </Badge>
               </div>
 
-              <div className="absolute bottom-8 left-8 right-8">
-                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 rounded-full bg-white/10 border border-white/20 overflow-hidden relative">
+              <div className="absolute bottom-8 left-8 right-8 z-10">
+                 <div className="flex items-center justify-between mb-3">
+                    <div 
+                      className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={(e) => { e.stopPropagation(); onProfileClick(item.user); }}
+                    >
+                      <div className="h-7 w-7 rounded-full bg-white/10 border border-white/20 overflow-hidden relative">
                          <Image src={`https://picsum.photos/seed/${item.user}/50/50`} fill alt="Avatar" className="object-cover" />
                       </div>
-                      <span className="text-[9px] font-black text-primary uppercase tracking-widest italic">@{item.user}</span>
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest italic">@{item.user}</span>
                     </div>
                     <button 
                       onClick={(e) => toggleFollow(item.user, e)}
@@ -172,16 +175,13 @@ export function MainFeed() {
                       {following[item.user] ? "Siguiendo" : "Seguir"}
                     </button>
                  </div>
-                 <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none mt-3">{item.title}</h2>
-                 <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-2">{item.viewers} Sincronizados</p>
+                 <div className="pointer-events-none">
+                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{item.title}</h2>
+                   <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-2">{item.viewers} Sincronizados</p>
+                 </div>
               </div>
             </div>
-          )) : (
-            <div className="flex flex-col items-center justify-center py-20 text-white/20 space-y-4">
-              <Zap size={40} className="animate-pulse" />
-              <p className="text-[10px] font-black uppercase tracking-[0.3em]">No hay señales en este nodo</p>
-            </div>
-          )}
+          ))}
         </section>
       </div>
 
@@ -196,7 +196,10 @@ export function MainFeed() {
               </div>
 
               <div className="absolute bottom-10 left-8 right-8 flex items-end justify-between z-10">
-                 <div>
+                 <div 
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}`); }}
+                 >
                    <p className="text-white font-black italic text-base">@Bio_{id}</p>
                    <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #0{id}</p>
                  </div>

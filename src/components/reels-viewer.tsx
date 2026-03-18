@@ -6,7 +6,7 @@ import { Heart, MessageCircle, Share2, Music, UserPlus, Check } from "lucide-rea
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
-export function ReelsViewer() {
+export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) => void }) {
   const [reels, setReels] = useState([
     { id: "1", user: "EcoExplorer", description: "The hidden waterfalls of Gaia Node 04 #nature #bio", likes: 124, comments: 12, video: "https://picsum.photos/seed/reel1/1080/1920", liked: false, following: false },
     { id: "2", user: "CyberBotany", description: "Bioluminescent algae synthesis complete. #cyber #science", likes: 89, comments: 8, video: "https://picsum.photos/seed/reel2/1080/1920", liked: false, following: false },
@@ -49,13 +49,15 @@ export function ReelsViewer() {
             
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none"></div>
             
-            {/* Contenido Texto e Info */}
             <div className="absolute bottom-12 left-8 right-20 space-y-5">
               <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full border-2 border-primary overflow-hidden shadow-2xl">
+                <div 
+                  className="h-12 w-12 rounded-full border-2 border-primary overflow-hidden shadow-2xl cursor-pointer"
+                  onClick={() => onProfileClick(reel.user)}
+                >
                   <Image src={`https://picsum.photos/seed/av${reel.id}/100/100`} width={48} height={48} alt="Avatar" />
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col cursor-pointer" onClick={() => onProfileClick(reel.user)}>
                   <span className="text-base font-black text-white italic tracking-tight">@{reel.user}</span>
                   <span className="text-[8px] text-primary font-black uppercase tracking-widest">Protocolo Activo</span>
                 </div>
@@ -82,7 +84,6 @@ export function ReelsViewer() {
               </div>
             </div>
 
-            {/* Acciones Laterales */}
             <div className="absolute bottom-16 right-6 flex flex-col items-center gap-8">
               <div 
                 onClick={() => toggleLike(reel.id)}

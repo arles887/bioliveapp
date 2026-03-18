@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { 
   Settings, Camera, Play, Music, Heart, 
-  Grid, List, Edit3, Share2, Zap, Check
+  Edit3, Share2, Zap, UserPlus, Check, Send, ChevronLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -14,15 +14,25 @@ import { toast } from "@/hooks/use-toast";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { Input } from "@/components/ui/input";
 
-export function ProfileView() {
+export function ProfileView({ 
+  username = "BioEntity_01", 
+  isOwnProfile = true,
+  onBack
+}: { 
+  username?: string;
+  isOwnProfile?: boolean;
+  onBack?: () => void;
+}) {
   const [isEditing, setIsEditing] = useState(false);
-  const [userName, setUserName] = useState("BioEntity_01");
+  const [profileName, setProfileName] = useState(username);
+  const [isFollowing, setIsFollowing] = useState(false);
+  
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
   const stats = [
-    { label: "Seguidores", value: "12.4K" },
-    { label: "Siguiendo", value: "842" },
-    { label: "Amigos", value: "156" }
+    { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
+    { label: "Siguiendo", value: isOwnProfile ? "842" : "120" },
+    { label: "ESP Tokens", value: isOwnProfile ? "2.5K" : "800" }
   ];
 
   const handleUpdateProfile = () => {
@@ -30,21 +40,39 @@ export function ProfileView() {
     toast({ title: "Protocolo Actualizado", description: "Identidad digital guardada correctamente." });
   };
 
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    toast({ 
+      title: isFollowing ? "Sincronización Terminada" : "Sincronizado", 
+      description: isFollowing ? `Has dejado de seguir a @${profileName}` : `Siguiendo a @${profileName}` 
+    });
+  };
+
   return (
     <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="relative h-32 w-full bg-gradient-to-b from-primary/20 to-transparent">
-        <div className="absolute top-6 right-6 flex gap-3">
+        <div className="absolute top-6 left-6 flex gap-3 z-20">
+           {!isOwnProfile && (
+             <button 
+               onClick={onBack}
+               className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
+             >
+                <ChevronLeft size={20} />
+             </button>
+           )}
+        </div>
+        <div className="absolute top-6 right-6 flex gap-3 z-20">
            <button 
-             onClick={() => toast({ title: "Enlace Copiado", description: "Tu nodo perfil está listo para compartir." })}
-             className="h-10 w-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
+             onClick={() => toast({ title: "Enlace Copiado", description: "Nodo perfil listo para compartir." })}
+             className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
            >
               <Share2 size={18} />
            </button>
-           <button 
-             className="h-10 w-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
-           >
-              <Settings size={18} />
-           </button>
+           {isOwnProfile && (
+             <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
+                <Settings size={18} />
+             </button>
+           )}
         </div>
       </div>
 
@@ -52,40 +80,66 @@ export function ProfileView() {
         <div className="flex items-end justify-between">
           <div className="relative group">
             <div className="h-24 w-24 rounded-[2rem] border-4 border-[#020503] bg-white/5 overflow-hidden shadow-2xl relative">
-              {avatarUrl ? (
-                <Image src={avatarUrl} fill alt="Avatar" className="object-cover" />
-              ) : (
-                <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-black uppercase italic tracking-tighter text-xl">
-                  BIO
+              <Image 
+                src={isOwnProfile ? (avatarUrl || "") : `https://picsum.photos/seed/${profileName}/200/200`} 
+                fill 
+                alt="Avatar" 
+                className="object-cover" 
+              />
+              {isOwnProfile && (
+                <div 
+                  onClick={() => toast({ title: "Cámara Activa", description: "Selecciona una nueva imagen de nodo." })}
+                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                >
+                  <Camera size={20} className="text-white" />
                 </div>
               )}
-              <div 
-                onClick={() => toast({ title: "Cámara Activa", description: "Selecciona una nueva imagen de nodo." })}
-                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-              >
-                <Camera size={20} className="text-white" />
-              </div>
             </div>
             <div className="absolute -bottom-1 -right-1 h-6 w-6 bg-primary rounded-lg border-4 border-[#020503] flex items-center justify-center">
                <Zap size={10} fill="black" strokeWidth={3} />
             </div>
           </div>
           
-          <Button 
-            onClick={() => setIsEditing(true)}
-            variant="outline" 
-            className="rounded-2xl border-white/10 bg-white/5 text-[9px] font-black uppercase tracking-widest h-10 px-6 hover:bg-primary hover:text-black transition-all"
-          >
-            <Edit3 size={14} className="mr-2" />
-            Editar Perfil
-          </Button>
+          <div className="flex gap-2">
+            {isOwnProfile ? (
+              <Button 
+                onClick={() => setIsEditing(true)}
+                variant="outline" 
+                className="rounded-2xl border-white/10 bg-white/5 text-[9px] font-black uppercase tracking-widest h-10 px-6 hover:bg-primary hover:text-black transition-all"
+              >
+                <Edit3 size={14} className="mr-2" />
+                Editar Perfil
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  onClick={() => toast({ title: "Canal Seguro", description: "Abriendo chat encriptado..." })}
+                  className="rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 h-10 w-10 p-0"
+                >
+                  <Send size={16} />
+                </Button>
+                <Button 
+                  onClick={handleFollow}
+                  className={cn(
+                    "rounded-2xl text-[9px] font-black uppercase tracking-widest h-10 px-6 transition-all",
+                    isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg"
+                  )}
+                >
+                  {isFollowing ? <Check size={14} className="mr-2" /> : <UserPlus size={14} className="mr-2" />}
+                  {isFollowing ? "Siguiendo" : "Seguir"}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="space-y-1">
-          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{userName}</h2>
-          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">@bio_signal_alpha</p>
+          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{profileName}</h2>
+          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
           <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-[80%]">
-            Explorador de biomas digitales y coleccionista de señales orgánicas. 🌱⚡ #BioCyber #NatureTech
+            {isOwnProfile 
+              ? "Explorador de biomas digitales y coleccionista de señales orgánicas. 🌱⚡ #BioCyber #NatureTech"
+              : "Creador de contenido neural. Generando esporas de información 24/7. #BioLive #PublicSignal"}
           </p>
         </div>
 
@@ -102,20 +156,22 @@ export function ProfileView() {
       <Tabs defaultValue="videos" className="w-full mt-6">
         <TabsList className="flex w-full bg-transparent border-b border-white/5 h-14 px-4 rounded-none gap-4 overflow-x-auto no-scrollbar">
           <TabsTrigger value="videos" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest transition-all">
-            Mis Videos
+            Videos
           </TabsTrigger>
           <TabsTrigger value="music" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest transition-all">
-            Mi Música
+            Música
           </TabsTrigger>
-          <TabsTrigger value="likes" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest transition-all">
-            Favoritos
-          </TabsTrigger>
+          {isOwnProfile && (
+            <TabsTrigger value="likes" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest transition-all">
+              Favoritos
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="videos" className="p-4 grid grid-cols-2 gap-3 animate-in fade-in duration-500">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/5 group cursor-pointer active:scale-95 transition-all">
-              <Image src={`https://picsum.photos/seed/pv${i}/300/400`} fill alt="Video" className="object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
+              <Image src={`https://picsum.photos/seed/pv${profileName}${i}/300/400`} fill alt="Video" className="object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
               <div className="absolute bottom-3 left-3 flex items-center gap-1">
                 <Play size={10} className="text-white/60" />
@@ -159,8 +215,8 @@ export function ProfileView() {
           <div className="space-y-2">
             <label className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 ml-2">Bio-Alias</label>
             <Input 
-              value={userName} 
-              onChange={(e) => setUserName(e.target.value)}
+              value={profileName} 
+              onChange={(e) => setProfileName(e.target.value)}
               className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6 focus-visible:ring-primary" 
             />
           </div>

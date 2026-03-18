@@ -19,6 +19,8 @@ export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isFullScreenMode, setIsFullScreenMode] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  
   const lastScrollY = useRef(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +41,13 @@ export default function Home() {
     lastScrollY.current = currentScrollY;
   };
 
+  const navigateToProfile = (username: string) => {
+    setSelectedUser(username);
+    setActiveTab("profile");
+    setIsFullScreenMode(false);
+    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+  };
+
   if (!isAppLoaded) return <LoadingScreen />;
 
   const showChrome = isNavVisible && !isFullScreenMode;
@@ -53,18 +62,32 @@ export default function Home() {
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
           <div className="pt-24 pb-32">
-            {activeTab === "inicio" && <MainFeed />}
+            {activeTab === "inicio" && (
+              <MainFeed onProfileClick={navigateToProfile} />
+            )}
             {activeTab === "live" && (
-              <LiveViewer onToggleFullScreen={(val) => setIsFullScreenMode(val)} />
+              <LiveViewer 
+                onToggleFullScreen={(val) => setIsFullScreenMode(val)} 
+                onProfileClick={navigateToProfile}
+              />
             )}
             {activeTab === "notifications" && <NotificationCenter />}
-            {activeTab === "profile" && <ProfileView />}
+            {activeTab === "profile" && (
+              <ProfileView 
+                username={selectedUser || "BioEntity_01"} 
+                isOwnProfile={!selectedUser || selectedUser === "BioEntity_01"}
+                onBack={() => setSelectedUser(null)}
+              />
+            )}
             {activeTab === "upload" && <CreationHub />}
           </div>
         </div>
 
         <TopBar 
-          onAuthClick={() => setIsAuthModalOpen(true)} 
+          onAuthClick={() => {
+            setSelectedUser(null);
+            setIsAuthModalOpen(true);
+          }} 
           isVisible={showChrome} 
         />
         
@@ -72,7 +95,10 @@ export default function Home() {
         
         <BottomNav 
           activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
+          setActiveTab={(tab) => {
+            if (tab !== "profile") setSelectedUser(null);
+            setActiveTab(tab);
+          }} 
           isVisible={showChrome} 
         />
         
