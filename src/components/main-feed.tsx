@@ -111,19 +111,19 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
              <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 italic">Nodos Cercanos</h3>
              <Users size={12} className="text-primary/40" />
           </div>
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
+          <div className="flex gap-5 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2">
             {storyIds.map((id, index) => (
               <div 
                 key={id} 
                 onClick={() => setSelectedStoryIndex(index)}
-                className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform snap-center w-16"
+                className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform snap-center w-20"
               >
-                <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent group-hover:rotate-12 transition-transform">
+                <div className="w-20 h-20 rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-accent to-primary group-hover:rotate-12 transition-transform shadow-[0_0_20px_rgba(204,255,0,0.15)]">
                   <div className="w-full h-full rounded-full bg-black border-2 border-[#020503] overflow-hidden relative">
-                    <Image src={`https://picsum.photos/seed/u${id}/100/100`} fill alt="User" className="object-cover" />
+                    <Image src={`https://picsum.photos/seed/u${id}/150/150`} fill alt="User" className="object-cover" />
                   </div>
                 </div>
-                <span className="text-[7px] font-black uppercase text-white/30 tracking-widest truncate w-full text-center">Bio_{id}_Entity</span>
+                <span className="text-[8px] font-black uppercase text-white/40 tracking-widest truncate w-full text-center">Bio_{id}_Entity</span>
               </div>
             ))}
           </div>
