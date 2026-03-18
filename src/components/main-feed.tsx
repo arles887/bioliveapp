@@ -4,13 +4,15 @@ import { useState } from "react";
 import Image from "next/image";
 import { 
   Zap, Globe, Play, Users, 
-  Flame, Hash, Star, LayoutGrid
+  Flame, Hash, Star, LayoutGrid, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { ProtocolWindow } from "@/components/protocol-window";
 
 export function MainFeed() {
   const [activeFilter, setActiveFilter] = useState("Para ti");
+  const [selectedStory, setSelectedStory] = useState<number | null>(null);
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
 
@@ -22,6 +24,7 @@ export function MainFeed() {
       user: "BioGuardian", 
       viewers: "12.4K",
       thumbnail: "https://picsum.photos/seed/bio3/1280/720",
+      filter: "Para ti"
     },
     { 
       id: "2", 
@@ -30,6 +33,7 @@ export function MainFeed() {
       user: "NeonBot", 
       viewers: "45K",
       thumbnail: "https://picsum.photos/seed/bio1/1080/1920",
+      filter: "Para ti"
     },
     { 
       id: "3", 
@@ -38,12 +42,16 @@ export function MainFeed() {
       user: "FrostWatcher", 
       viewers: "8.1K",
       thumbnail: "https://picsum.photos/seed/bio4/1280/720",
+      filter: "Siguiendo"
     }
   ];
 
+  const filteredItems = activeFilter === "Para ti" 
+    ? contentItems 
+    : contentItems.filter(item => item.filter === activeFilter);
+
   return (
     <div className="flex flex-col w-full h-full relative">
-      {/* Sub-Navegación de Filtros */}
       <div className="sticky top-0 z-20 bg-[#020503]/80 backdrop-blur-md py-4 border-b border-white/5">
         <div className="flex gap-4 overflow-x-auto no-scrollbar px-6">
           {filters.map((filter) => (
@@ -64,7 +72,6 @@ export function MainFeed() {
       </div>
 
       <div className="flex-1 p-6 space-y-8 no-scrollbar">
-        {/* Stories / Amigos Activos */}
         <section className="space-y-4">
           <div className="flex items-center justify-between px-2">
              <h3 className="text-[9px] font-black uppercase tracking-[0.4em] text-white/30 italic">Nodos Cercanos</h3>
@@ -72,8 +79,12 @@ export function MainFeed() {
           </div>
           <div className="flex gap-4 overflow-x-auto no-scrollbar">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex flex-col items-center gap-2 shrink-0">
-                <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent">
+              <div 
+                key={i} 
+                onClick={() => setSelectedStory(i)}
+                className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group active:scale-95 transition-transform"
+              >
+                <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-primary to-accent group-hover:rotate-12 transition-transform">
                   <div className="w-full h-full rounded-full bg-black border-2 border-[#020503] overflow-hidden">
                     <Image src={`https://picsum.photos/seed/u${i}/100/100`} width={64} height={64} alt="User" className="object-cover" />
                   </div>
@@ -84,9 +95,8 @@ export function MainFeed() {
           </div>
         </section>
 
-        {/* Feed Mixto */}
         <section className="grid grid-cols-1 gap-6">
-          {contentItems.map((item) => (
+          {filteredItems.length > 0 ? filteredItems.map((item) => (
             <div 
               key={item.id} 
               className={cn(
@@ -115,9 +125,31 @@ export function MainFeed() {
                  <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-2">{item.viewers} Sincronizados</p>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="flex flex-col items-center justify-center py-20 text-white/20 space-y-4">
+              <Zap size={40} className="animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.3em]">No hay señales en este nodo</p>
+            </div>
+          )}
         </section>
       </div>
+
+      <ProtocolWindow isOpen={!!selectedStory} onClose={() => setSelectedStory(null)} title="Bio-Story">
+        <div className="relative aspect-[9/16] w-full bg-black rounded-3xl overflow-hidden border border-white/10">
+          {selectedStory && (
+            <>
+              <Image src={`https://picsum.photos/seed/story${selectedStory}/1080/1920`} fill alt="Story" className="object-cover" />
+              <div className="absolute top-4 left-4 right-4 h-1 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-primary animate-[progress_5s_linear_infinite]" style={{ width: '100%' }}></div>
+              </div>
+              <div className="absolute bottom-10 left-6">
+                 <p className="text-white font-black italic text-sm">@Bio_{selectedStory}</p>
+                 <p className="text-white/60 text-[10px] uppercase font-bold tracking-widest">Protocolo de supervivencia #01</p>
+              </div>
+            </>
+          )}
+        </div>
+      </ProtocolWindow>
     </div>
   );
 }

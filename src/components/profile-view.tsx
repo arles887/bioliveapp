@@ -1,19 +1,22 @@
-
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import { 
   Settings, Camera, Play, Music, Heart, 
-  Grid, List, Edit3, Share2, Zap
+  Grid, List, Edit3, Share2, Zap, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { toast } from "@/hooks/use-toast";
+import { ProtocolWindow } from "@/components/protocol-window";
+import { Input } from "@/components/ui/input";
 
 export function ProfileView() {
   const [isEditing, setIsEditing] = useState(false);
+  const [userName, setUserName] = useState("BioEntity_01");
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
   const stats = [
@@ -22,28 +25,29 @@ export function ProfileView() {
     { label: "Amigos", value: "156" }
   ];
 
-  const myVideos = [
-    { id: "v1", thumb: "https://picsum.photos/seed/pv1/300/400", views: "1.2K" },
-    { id: "v2", thumb: "https://picsum.photos/seed/pv2/300/400", views: "850" },
-    { id: "v3", thumb: "https://picsum.photos/seed/pv3/300/400", views: "3.4K" },
-    { id: "v4", thumb: "https://picsum.photos/seed/pv4/300/400", views: "12K" },
-  ];
+  const handleUpdateProfile = () => {
+    setIsEditing(false);
+    toast({ title: "Protocolo Actualizado", description: "Identidad digital guardada correctamente." });
+  };
 
   return (
     <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      {/* Header / Cover Area */}
       <div className="relative h-32 w-full bg-gradient-to-b from-primary/20 to-transparent">
         <div className="absolute top-6 right-6 flex gap-3">
-           <button className="h-10 w-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all">
+           <button 
+             onClick={() => toast({ title: "Enlace Copiado", description: "Tu nodo perfil está listo para compartir." })}
+             className="h-10 w-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
+           >
               <Share2 size={18} />
            </button>
-           <button className="h-10 w-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all">
+           <button 
+             className="h-10 w-10 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
+           >
               <Settings size={18} />
            </button>
         </div>
       </div>
 
-      {/* User Info Section */}
       <div className="px-8 -mt-12 space-y-6">
         <div className="flex items-end justify-between">
           <div className="relative group">
@@ -55,7 +59,10 @@ export function ProfileView() {
                   BIO
                 </div>
               )}
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+              <div 
+                onClick={() => toast({ title: "Cámara Activa", description: "Selecciona una nueva imagen de nodo." })}
+                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+              >
                 <Camera size={20} className="text-white" />
               </div>
             </div>
@@ -65,6 +72,7 @@ export function ProfileView() {
           </div>
           
           <Button 
+            onClick={() => setIsEditing(true)}
             variant="outline" 
             className="rounded-2xl border-white/10 bg-white/5 text-[9px] font-black uppercase tracking-widest h-10 px-6 hover:bg-primary hover:text-black transition-all"
           >
@@ -74,14 +82,13 @@ export function ProfileView() {
         </div>
 
         <div className="space-y-1">
-          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">Bio<span className="text-primary">Entity_01</span></h2>
+          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none">{userName}</h2>
           <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">@bio_signal_alpha</p>
           <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-[80%]">
             Explorador de biomas digitales y coleccionista de señales orgánicas. 🌱⚡ #BioCyber #NatureTech
           </p>
         </div>
 
-        {/* Stats Row */}
         <div className="flex gap-8 py-4 border-y border-white/5">
           {stats.map((stat) => (
             <div key={stat.label} className="flex flex-col">
@@ -92,7 +99,6 @@ export function ProfileView() {
         </div>
       </div>
 
-      {/* Content Tabs */}
       <Tabs defaultValue="videos" className="w-full mt-6">
         <TabsList className="flex w-full bg-transparent border-b border-white/5 h-14 px-4 rounded-none gap-4 overflow-x-auto no-scrollbar">
           <TabsTrigger value="videos" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest transition-all">
@@ -107,25 +113,21 @@ export function ProfileView() {
         </TabsList>
 
         <TabsContent value="videos" className="p-4 grid grid-cols-2 gap-3 animate-in fade-in duration-500">
-          {myVideos.map((item) => (
-            <div key={item.id} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/5 group">
-              <Image src={item.thumb} fill alt="Video" className="object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/5 group cursor-pointer active:scale-95 transition-all">
+              <Image src={`https://picsum.photos/seed/pv${i}/300/400`} fill alt="Video" className="object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
               <div className="absolute bottom-3 left-3 flex items-center gap-1">
                 <Play size={10} className="text-white/60" />
-                <span className="text-[8px] font-black text-white/60">{item.views}</span>
+                <span className="text-[8px] font-black text-white/60">{Math.floor(Math.random() * 20)}K</span>
               </div>
             </div>
           ))}
-          <div className="aspect-[3/4] rounded-2xl border-2 border-dashed border-white/5 flex flex-col items-center justify-center gap-2 text-white/10 hover:border-primary/20 hover:text-primary/20 transition-all cursor-pointer">
-            <Zap size={24} />
-            <span className="text-[8px] font-black uppercase tracking-widest">Subir Video</span>
-          </div>
         </TabsContent>
 
         <TabsContent value="music" className="p-6 space-y-4 animate-in fade-in duration-500">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all group">
+            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all group cursor-pointer active:bg-white/10">
               <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
                 <Music size={20} />
               </div>
@@ -142,7 +144,7 @@ export function ProfileView() {
 
         <TabsContent value="likes" className="p-4 grid grid-cols-2 gap-3 animate-in fade-in duration-500">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/5">
+            <div key={i} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/5 cursor-pointer active:scale-95 transition-all">
               <Image src={`https://picsum.photos/seed/like${i}/300/400`} fill alt="Liked" className="object-cover opacity-50" />
               <div className="absolute top-3 right-3 h-6 w-6 rounded-full bg-primary/10 backdrop-blur-md flex items-center justify-center text-primary">
                 <Heart size={12} fill="currentColor" />
@@ -151,6 +153,32 @@ export function ProfileView() {
           ))}
         </TabsContent>
       </Tabs>
+
+      <ProtocolWindow isOpen={isEditing} onClose={() => setIsEditing(false)} title="Identidad Digital">
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 ml-2">Bio-Alias</label>
+            <Input 
+              value={userName} 
+              onChange={(e) => setUserName(e.target.value)}
+              className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6 focus-visible:ring-primary" 
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 ml-2">Bio-Descripción</label>
+            <Input 
+              placeholder="Explorador de biomas..."
+              className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6 focus-visible:ring-primary" 
+            />
+          </div>
+          <Button 
+            onClick={handleUpdateProfile}
+            className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_20px_rgba(204,255,0,0.3)]"
+          >
+            Sincronizar Protocolo
+          </Button>
+        </div>
+      </ProtocolWindow>
     </div>
   );
 }
