@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { 
-  Zap, Users, Heart, X, UserPlus, Check
+  Zap, Users, Heart, X, UserPlus, Check, Play, MessageCircle, Share2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -21,14 +21,14 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
   const storiesScrollRef = useRef<HTMLDivElement>(null);
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
-  const storyIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const storyIds = Array.from({ length: 12 }, (_, i) => i + 1);
 
   const contentItems = [
     { 
       id: "1", 
       type: "live",
       title: "Amazon Canopy Node", 
-      user: "BioGuardian_Alpha_Centauri", 
+      user: "BioGuardian_Alpha", 
       viewers: "12.4K",
       thumbnail: "https://picsum.photos/seed/bio3/1280/720",
       filter: "Para ti"
@@ -46,7 +46,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       id: "3", 
       type: "live",
       title: "Arctic Algae Flow", 
-      user: "FrostWatcher_Extreme", 
+      user: "FrostWatcher", 
       viewers: "8.1K",
       thumbnail: "https://picsum.photos/seed/bio4/1280/720",
       filter: "Siguiendo"
@@ -77,6 +77,15 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       viewers: "88K",
       thumbnail: "https://picsum.photos/seed/bio11/1080/1920",
       filter: "Para ti"
+    },
+    { 
+      id: "7", 
+      type: "video",
+      title: "Bio-Engineering 101", 
+      user: "LabEntity_01", 
+      viewers: "5.5K",
+      thumbnail: "https://picsum.photos/seed/bio7/1280/720",
+      filter: "Temáticas"
     }
   ];
 
@@ -88,13 +97,13 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
           const storyElements = container.querySelectorAll('.story-item-container');
           if (storyElements[selectedStoryIndex]) {
             storyElements[selectedStoryIndex].scrollIntoView({
-              behavior: 'smooth',
+              behavior: 'auto',
               block: 'nearest',
               inline: 'center'
             });
           }
         }
-      }, 100);
+      }, 50);
       return () => clearTimeout(timer);
     }
   }, [selectedStoryIndex]);
@@ -196,7 +205,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                   "text-[8px] font-black tracking-widest px-4 h-6 border-none flex items-center",
                   item.type === "live" ? "bg-red-500 text-white" : "bg-primary text-black"
                 )}>
-                  {item.type === "live" ? "LIVE" : "REEL"}
+                  {item.type.toUpperCase()}
                 </Badge>
               </div>
 
@@ -252,27 +261,27 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
           {storyIds.map((id) => (
             <div 
               key={id} 
-              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-6"
+              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-4"
             >
-              <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[320px] bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,0,0,1)]">
+              <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[340px] bg-black rounded-[3.5rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]">
                 <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" priority />
                 
                 {/* HUD Superior: Progress Bar */}
-                <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden z-20">
+                <div className="absolute top-6 left-8 right-8 h-1 bg-white/10 rounded-full overflow-hidden z-20">
                   <div className="h-full bg-primary animate-[story-progress_5s_linear_forwards]"></div>
                 </div>
 
                 {/* HUD Superior: Perfil */}
-                <div className="absolute top-10 left-6 flex items-center gap-3 z-20">
+                <div className="absolute top-10 left-8 flex items-center gap-3 z-20">
                    <div 
-                    className="h-9 w-9 rounded-full border border-primary/40 overflow-hidden relative cursor-pointer"
-                    onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}_Entity`); }}
+                    className="h-10 w-10 rounded-full border border-primary/40 overflow-hidden relative cursor-pointer"
+                    onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}`); }}
                    >
                       <Image src={`https://picsum.photos/seed/u${id}/100/100`} fill alt="User" />
                    </div>
                    <div 
                     className="cursor-pointer min-w-0"
-                    onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}_Entity`); }}
+                    onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}`); }}
                    >
                      <p className="text-white font-black italic text-[11px] uppercase tracking-tighter truncate leading-none">@Bio_{id}</p>
                      <p className="text-white/40 text-[7px] uppercase font-bold tracking-[0.2em] mt-1">Activo</p>
@@ -280,27 +289,27 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                 </div>
 
                 {/* HUD Inferior: Interacción */}
-                <div className="absolute bottom-8 left-6 right-6 flex items-center gap-4 z-20">
+                <div className="absolute bottom-10 left-8 right-8 flex items-center gap-4 z-20">
                    <button 
                     onClick={() => toggleStoryLike(id)}
                     className={cn(
-                      "h-12 w-12 rounded-2xl backdrop-blur-3xl border flex items-center justify-center transition-all active:scale-75 shrink-0",
+                      "h-14 w-14 rounded-2xl backdrop-blur-3xl border flex items-center justify-center transition-all active:scale-75 shrink-0",
                       likedStories[id] 
                         ? "bg-red-500/20 border-red-500/40 text-red-500" 
                         : "bg-white/5 border-white/10 text-white/60"
                     )}
                    >
-                      <Heart size={22} fill={likedStories[id] ? "currentColor" : "none"} />
+                      <Heart size={24} fill={likedStories[id] ? "currentColor" : "none"} />
                    </button>
                    <div className="flex-1">
-                      <div className="h-12 w-full bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center px-4">
-                         <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Responder...</span>
+                      <div className="h-14 w-full bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center px-4">
+                         <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Responder...</span>
                       </div>
                    </div>
                 </div>
 
                 {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"></div>
               </div>
             </div>
           ))}
