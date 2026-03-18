@@ -6,7 +6,7 @@ import Image from "next/image";
 import { 
   Gamepad2, Leaf, Globe, 
   Search, Lock, Zap, Flame, Key,
-  X, Users, Heart, Send, MessageCircle, Eye, EyeOff,
+  X, Users, Heart, Send, Eye, EyeOff,
   Gift, Sparkles, Trophy, Gem, Dna
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -85,7 +85,7 @@ export function LiveViewer({
 
   if (viewingMode) {
     return (
-      <div className="fixed inset-0 z-[100] bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar max-w-[500px] left-1/2 -translate-x-1/2">
+      <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-[100] bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar border-x border-white/5">
         {lives.filter(l => !l.locked).map((live) => (
           <div key={live.id} className="h-full w-full snap-start shrink-0">
             <LiveStreamRoom live={live} onBack={() => { setViewingMode(false); onToggleFullScreen(false); }} />
@@ -127,7 +127,6 @@ export function LiveViewer({
         </div>
       </div>
 
-      {/* Galería en Cuadrícula 2x2 Infinito */}
       <div className="flex-1 overflow-y-auto px-6 grid grid-cols-2 gap-4 pb-8 no-scrollbar">
         {filteredLives.map((live) => (
           <div 
@@ -221,7 +220,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
   const handleSendGift = (gift: any) => {
     if (espBalance < gift.cost) {
-      toast({ variant: "destructive", title: "Balance Insuficiente", description: "Inyecta más tokens ESP en tu nodo." });
+      toast({ variant: "destructive", title: "Balance Insuficiente", description: "Inyecta más tokens ESP." });
       return;
     }
     setEspBalance(prev => prev - gift.cost);
@@ -268,8 +267,8 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
       {/* Header HUD - Perfeccionado */}
       <div className="relative z-40 px-6 py-10 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl p-2 rounded-2xl border border-white/10 pointer-events-auto">
-          <div className="h-9 w-9 rounded-xl overflow-hidden border border-primary/40">
-            <Image src={`https://picsum.photos/seed/${live.user}/100/100`} width={36} height={36} alt="Avatar" />
+          <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative">
+            <Image src={`https://picsum.photos/seed/${live.user}/100/100`} fill alt="Avatar" className="object-cover" />
           </div>
           <div className="pr-2">
             <h4 className="text-[10px] font-black italic text-white uppercase leading-none mb-1">@{live.user}</h4>
@@ -300,7 +299,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       {/* Footer HUD - Chat y Regalos */}
       <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
-        <div ref={scrollRef} className="max-h-40 overflow-y-auto no-scrollbar space-y-2 mb-4">
+        <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mb-3">
           {messages.map((msg) => (
             <div key={msg.id} className="text-left animate-in fade-in slide-in-from-left-2">
               <span className={cn("text-[8px] font-black uppercase italic", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
@@ -309,10 +308,10 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           ))}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="h-14 w-14 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 shadow-2xl">
+              <button className="h-14 w-14 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 shadow-2xl active:scale-90 transition-transform">
                 <Gift size={24} />
               </button>
             </PopoverTrigger>
