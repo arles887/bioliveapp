@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -5,9 +6,9 @@ import Image from "next/image";
 import { 
   Gamepad2, Leaf, Globe, 
   Search, Lock, Zap, Flame, Key,
-  X, Users, Heart, Send, Eye, EyeOff,
+  X, Users, Eye, EyeOff,
   Gift, Sparkles, Trophy, Gem, Dna, UserPlus, Check,
-  Volume2, VolumeX
+  Volume2, VolumeX, Heart, Send
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtocolWindow } from "@/components/protocol-window";
@@ -21,8 +22,8 @@ import {
 } from "@/components/ui/popover";
 
 const VIDEO_SOURCES = [
-  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=0&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=0&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=0&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
@@ -207,13 +208,13 @@ export function LiveViewer({
 }
 
 function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: any; onBack: () => void; onProfileClick: (u: string) => void; requireAuth: (cb: () => void) => void }) {
-  const [likes, setLikes] = useState(1420);
   const [hearts, setHearts] = useState<any[]>([]);
   const [activeGifts, setActiveGifts] = useState<any[]>([]);
   const [espBalance, setEspBalance] = useState(2500);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -237,33 +238,36 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          if (!isYouTube) {
-            videoRef.current?.play().catch(() => {});
-            setIsMuted(false);
-          }
-        } else {
-          if (!isYouTube) {
-            videoRef.current?.pause();
-            setIsMuted(true);
-          }
-        }
+        setIsActive(entry.isIntersecting);
       },
-      { threshold: 0.8 }
+      { threshold: 0.6 }
     );
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [isYouTube]);
+  }, []);
 
   useEffect(() => {
-    if (!isMuted) {
+    if (!isActive) {
+      setIsMuted(true);
+      if (!isYouTube && videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.muted = true;
+      }
+    } else {
+      if (!isYouTube && videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    }
+  }, [isActive, isYouTube]);
+
+  useEffect(() => {
+    if (!isMuted && isActive) {
       window.dispatchEvent(new CustomEvent('bio-video-playing'));
     }
-  }, [isMuted]);
+  }, [isMuted, isActive]);
 
   const handleTikiTiki = (e: any) => {
     requireAuth(() => {
-      setLikes(prev => prev + 1);
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : rect.width / 2);
@@ -272,8 +276,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       setHearts(prev => [...prev, newHeart]);
       setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
       
-      // Auto-unmute on first interaction if possible
-      if (isMuted && videoRef.current) {
+      // Auto-unmute on first interaction within room if user wants
+      if (isMuted && !isYouTube && videoRef.current) {
         setIsMuted(false);
         videoRef.current.muted = false;
       }
@@ -313,12 +317,20 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     });
   };
 
+  const getYouTubeSrc = () => {
+    if (!isYouTube) return "";
+    let url = live.video;
+    url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
+    url = url.replace(/mute=[01]/, `mute=${isMuted ? 1 : 0}`);
+    return url;
+  };
+
   return (
     <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col" onClick={handleTikiTiki}>
       <div className="absolute inset-0 z-0">
         {isYouTube ? (
           <iframe 
-            src={`${live.video}&controls=0`} 
+            src={getYouTubeSrc()} 
             className="h-full w-full object-cover opacity-90 pointer-events-none" 
             allow="autoplay; encrypted-media"
           />

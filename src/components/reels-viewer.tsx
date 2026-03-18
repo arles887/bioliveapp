@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
 const VIDEO_SOURCES = [
-  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=1&mute=0&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=1&mute=0&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=0&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
@@ -95,6 +95,7 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
+  const [isActive, setIsActive] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -107,26 +108,30 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          if (!isYouTube) {
-            videoRef.current?.play().catch(() => {});
-            setIsPlaying(true);
-          }
-        } else {
-          if (!isYouTube) {
-            videoRef.current?.pause();
-            if (videoRef.current) videoRef.current.muted = true;
-          }
-          setIsPlaying(false);
-          setIsMuted(true);
-        }
+        setIsActive(entry.isIntersecting);
       },
-      { threshold: 0.8 }
+      { threshold: 0.6 }
     );
 
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [isYouTube]);
+  }, []);
+
+  useEffect(() => {
+    if (!isActive) {
+      setIsPlaying(false);
+      setIsMuted(true);
+      if (!isYouTube && videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.muted = true;
+      }
+    } else {
+      setIsPlaying(true);
+      if (!isYouTube && videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    }
+  }, [isActive, isYouTube]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -143,10 +148,10 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
   }, [isYouTube]);
 
   useEffect(() => {
-    if (!isMuted && isPlaying) {
+    if (!isMuted && isPlaying && isActive) {
       window.dispatchEvent(new CustomEvent('bio-video-playing'));
     }
-  }, [isMuted, isPlaying]);
+  }, [isMuted, isPlaying, isActive]);
 
   const handleInteraction = (e: React.MouseEvent) => {
     if (isYouTube) return;
@@ -192,12 +197,21 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
     }
   };
 
+  const getYouTubeSrc = () => {
+    if (!isYouTube) return "";
+    let url = reel.video;
+    // Controlamos autoplay y mute basado en isActive e isMuted
+    url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
+    url = url.replace(/mute=[01]/, `mute=${isMuted ? 1 : 0}`);
+    return url;
+  };
+
   return (
     <div ref={containerRef} className="relative h-full w-full snap-start shrink-0 flex flex-col items-center justify-center">
       <div className="relative w-full h-full max-w-[500px] bg-black">
         {isYouTube ? (
           <iframe 
-            src={reel.video} 
+            src={getYouTubeSrc()} 
             className="h-full w-full object-cover opacity-80 pointer-events-none" 
             allow="autoplay; encrypted-media"
           />
@@ -239,13 +253,13 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           <div className="absolute top-8 left-0 right-0 px-6 z-50 flex gap-1 items-center justify-center">
             {Array.from({ length: 15 }).map((_, i) => {
               const segmentProgress = (i + 1) * (100 / 15);
-              const isActive = progress >= segmentProgress - (100/15);
+              const isActiveSegment = progress >= segmentProgress - (100/15);
               return (
                 <div 
                   key={i} 
                   className={cn(
                     "h-1 flex-1 rounded-full transition-all duration-300",
-                    isActive ? "bg-primary shadow-[0_0_8px_rgba(204,255,0,0.6)]" : "bg-white/10"
+                    isActiveSegment ? "bg-primary shadow-[0_0_8px_rgba(204,255,0,0.6)]" : "bg-white/10"
                   )}
                 />
               );
