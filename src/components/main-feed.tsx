@@ -253,25 +253,26 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
         </section>
       </div>
 
+      {/* Visor de Historias Inmersivo */}
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
         <div 
           ref={storiesScrollRef}
-          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-black/95"
+          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-transparent"
         >
           {storyIds.map((id) => (
             <div 
               key={id} 
-              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-4"
+              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-6"
             >
-              <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[340px] bg-black rounded-[3.5rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]">
+              <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[340px] bg-black rounded-[3.5rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.8)]">
                 <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" priority />
                 
-                {/* HUD Superior: Progress Bar */}
+                {/* HUD Superior: Barra de Progreso */}
                 <div className="absolute top-6 left-8 right-8 h-1 bg-white/10 rounded-full overflow-hidden z-20">
                   <div className="h-full bg-primary animate-[story-progress_5s_linear_forwards]"></div>
                 </div>
 
-                {/* HUD Superior: Perfil */}
+                {/* HUD Superior: Información de Perfil */}
                 <div className="absolute top-10 left-8 flex items-center gap-3 z-20">
                    <div 
                     className="h-10 w-10 rounded-full border border-primary/40 overflow-hidden relative cursor-pointer"
@@ -284,16 +285,16 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                     onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}`); }}
                    >
                      <p className="text-white font-black italic text-[11px] uppercase tracking-tighter truncate leading-none">@Bio_{id}</p>
-                     <p className="text-white/40 text-[7px] uppercase font-bold tracking-[0.2em] mt-1">Activo</p>
+                     <p className="text-white/40 text-[7px] uppercase font-bold tracking-[0.2em] mt-1">Sincronizado</p>
                    </div>
                 </div>
 
-                {/* HUD Inferior: Interacción */}
+                {/* HUD Inferior: Interacciones */}
                 <div className="absolute bottom-10 left-8 right-8 flex items-center gap-4 z-20">
                    <button 
                     onClick={() => toggleStoryLike(id)}
                     className={cn(
-                      "h-14 w-14 rounded-2xl backdrop-blur-3xl border flex items-center justify-center transition-all active:scale-75 shrink-0",
+                      "h-14 w-14 rounded-2xl backdrop-blur-3xl border flex items-center justify-center transition-all active:scale-75 shrink-0 shadow-2xl",
                       likedStories[id] 
                         ? "bg-red-500/20 border-red-500/40 text-red-500" 
                         : "bg-white/5 border-white/10 text-white/60"
@@ -303,18 +304,19 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                    </button>
                    <div className="flex-1">
                       <div className="h-14 w-full bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center px-4">
-                         <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Responder...</span>
+                         <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Inyectar respuesta...</span>
                       </div>
                    </div>
                 </div>
 
-                {/* Gradient Overlay */}
+                {/* Gradiente Inmersivo */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none"></div>
               </div>
             </div>
           ))}
         </div>
       </ProtocolWindow>
+
       <style jsx global>{`
         @keyframes story-progress {
           from { width: 0%; }
