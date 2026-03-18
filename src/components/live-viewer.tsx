@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -399,11 +398,11 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
          </button>
       )}
 
-      {/* Centered Interaction Icon */}
+      {/* Centered Interaction Icon: Más pequeño, transparente y fluido */}
       {showCenterIcon && !isYouTube && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="h-24 w-24 rounded-full bg-black/40 backdrop-blur-3xl border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_50px_rgba(204,255,0,0.3)] animate-in zoom-in fade-in duration-300">
-            {isPlaying ? <Play size={48} fill="currentColor" className="ml-2" /> : <Pause size={48} fill="currentColor" />}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
+          <div className="h-16 w-16 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
+            {isPlaying ? <Play size={32} fill="currentColor" className="ml-1" /> : <Pause size={32} fill="currentColor" />}
           </div>
         </div>
       )}
@@ -475,6 +474,21 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       </div>
 
       <div className="flex-1"></div>
+
+      {/* Right Side Interactions: Elevados un 20% (de bottom-40 a bottom-[52%]) y pegados a la derecha */}
+      <div className="absolute bottom-[52%] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
+        <div 
+          onClick={(e) => { e.stopPropagation(); handleTikiTiki(e); }}
+          className="flex flex-col items-center gap-2 group cursor-pointer pointer-events-auto"
+        >
+          <div className={cn(
+            "h-14 w-14 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center transition-all active:scale-75 shadow-2xl text-white group-hover:text-primary"
+          )}>
+            <Heart size={28} />
+          </div>
+          <span className="text-[10px] font-black text-white/60 tracking-widest">{likes}</span>
+        </div>
+      </div>
 
       <div className={cn("relative z-40 px-6 pb-12 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div ref={scrollRef} className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">

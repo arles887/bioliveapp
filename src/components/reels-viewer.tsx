@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -110,13 +109,11 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
         if (entry.isIntersecting) {
           if (!isYouTube) {
             videoRef.current?.play().catch(() => {});
-            // Solo reproducir sonido si el video está en pantalla
             setIsPlaying(true);
           }
         } else {
           if (!isYouTube) {
             videoRef.current?.pause();
-            // Silenciar automáticamente al salir de pantalla
             if (videoRef.current) videoRef.current.muted = true;
           }
           setIsPlaying(false);
@@ -147,7 +144,6 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
   const handleInteraction = (e: React.MouseEvent) => {
     if (isYouTube) return;
     
-    // Toggle play/pause on single click
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
@@ -213,11 +209,11 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
         
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none"></div>
         
-        {/* Centered Interaction Icon */}
+        {/* Centered Interaction Icon: Más pequeño, transparente y fluido */}
         {showCenterIcon && !isYouTube && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none animate-in fade-in zoom-in duration-300">
-            <div className="h-24 w-24 rounded-full bg-black/40 backdrop-blur-3xl border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_50px_rgba(204,255,0,0.3)]">
-              {isPlaying ? <Play size={48} fill="currentColor" className="ml-2" /> : <Pause size={48} fill="currentColor" />}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
+            <div className="h-16 w-16 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
+              {isPlaying ? <Play size={32} fill="currentColor" className="ml-1" /> : <Pause size={32} fill="currentColor" />}
             </div>
           </div>
         )}
@@ -292,8 +288,8 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         </div>
 
-        {/* Right Side Interactions */}
-        <div className="absolute bottom-40 right-3 flex flex-col items-center gap-8 z-50">
+        {/* Right Side Interactions: Elevados un 20% (de bottom-40 a bottom-[52%]) y pegados a la derecha */}
+        <div className="absolute bottom-[52%] right-3 flex flex-col items-center gap-8 z-50">
           <div 
             onClick={() => toggleLike(reel.id)}
             className="flex flex-col items-center gap-2 group cursor-pointer"
