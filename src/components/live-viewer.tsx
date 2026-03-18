@@ -177,8 +177,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleTikiTiki = (e: React.MouseEvent | React.TouchEvent) => {
-    // Si el chat está visible y el clic fue en la zona del chat, ignorar si se quiere evitar confusión,
-    // pero usualmente en lives el tiki tiki es en toda la pantalla.
     setLikes(prev => prev + 1);
     const clientX = 'clientX' in e ? (e as React.MouseEvent).clientX : (e as any).touches[0].clientX;
     const newHeart = {
@@ -200,7 +198,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         user: fakeUsers[Math.floor(Math.random() * fakeUsers.length)],
         text: fakeTexts[Math.floor(Math.random() * fakeTexts.length)],
       };
-      setMessages(prev => [...prev.slice(-10), newMessage]);
+      setMessages(prev => [...prev.slice(-8), newMessage]);
     }, 4000);
 
     return () => clearInterval(chatInterval);
@@ -286,28 +284,28 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
       </div>
 
       {/* Likes Counter */}
-      <div className="relative z-20 mt-4 px-6">
+      <div className="relative z-20 mt-2 px-6">
         <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md px-3 py-1 rounded-full border border-primary/30">
-          <Heart size={12} fill="currentColor" className="text-primary" />
-          <span className="text-[9px] font-black text-primary uppercase tracking-widest">{likes}K</span>
+          <Heart size={10} fill="currentColor" className="text-primary" />
+          <span className="text-[8px] font-black text-primary uppercase tracking-widest">{likes}K</span>
         </div>
       </div>
 
       <div className="flex-1"></div>
 
-      {/* Contenedor del Chat (Ocultable y posicionado abajo) */}
+      {/* Contenedor del Chat Compacto y Bajo */}
       <div className={cn(
-        "relative z-20 px-6 pb-12 transition-all duration-500 transform",
+        "relative z-20 px-4 pb-6 transition-all duration-500 transform",
         isChatVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
       )}>
         <div 
           ref={scrollRef}
-          className="max-h-56 overflow-y-auto no-scrollbar space-y-3 mask-fade-top mb-4"
+          className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mask-fade-top mb-3"
         >
           {messages.map((msg) => (
-            <div key={msg.id} className="flex flex-col gap-0.5 animate-in fade-in slide-in-from-left-2 duration-300">
-              <span className="text-[9px] font-black text-primary/80 uppercase tracking-widest italic">{msg.user}</span>
-              <p className="text-[11px] text-white/90 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[85%] shadow-xl">
+            <div key={msg.id} className="flex flex-col gap-0 animate-in fade-in slide-in-from-left-1 duration-300">
+              <span className="text-[8px] font-black text-primary/70 uppercase tracking-widest italic">{msg.user}</span>
+              <p className="text-[10px] text-white/90 bg-black/40 backdrop-blur-md px-3 py-1 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[80%] shadow-lg">
                 {msg.text}
               </p>
             </div>
@@ -316,26 +314,26 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <div className="relative flex-1">
-            <MessageCircle size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />
+            <MessageCircle size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/60" />
             <input 
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Inyectar mensaje..." 
-              className="w-full h-12 bg-black/50 backdrop-blur-2xl border border-white/10 rounded-2xl pl-10 pr-4 text-xs text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
+              placeholder="Inject signal..." 
+              className="w-full h-10 bg-black/50 backdrop-blur-3xl border border-white/10 rounded-xl pl-10 pr-4 text-[11px] text-white focus:outline-none focus:border-primary/50 transition-all placeholder:text-white/20 shadow-2xl"
             />
           </div>
           <button 
             type="submit"
-            className="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center text-black shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:scale-105 active:scale-95 transition-all"
+            className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center text-black shadow-[0_0_15px_rgba(204,255,0,0.3)] hover:scale-105 active:scale-95 transition-all"
           >
-            <Send size={18} fill="currentColor" />
+            <Send size={16} fill="currentColor" />
           </button>
         </form>
       </div>
 
       <style jsx>{`
         .mask-fade-top {
-          mask-image: linear-gradient(to bottom, transparent, black 25%);
+          mask-image: linear-gradient(to bottom, transparent, black 15%);
         }
       `}</style>
     </div>
