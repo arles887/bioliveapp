@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -42,19 +41,18 @@ export default function Home() {
 
   if (!isAppLoaded) return <LoadingScreen />;
 
-  // Los menús solo se muestran si NO estamos en modo pantalla completa (Live activo)
   const showChrome = isNavVisible && !isFullScreenMode;
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden font-body">
-      <div className="relative w-full h-full max-w-[420px] bg-[#020503] flex flex-col overflow-hidden ring-1 ring-white/5 shadow-[0_0_80px_rgba(0,0,0,1)]">
+      <div className="relative w-full h-full max-w-[500px] bg-[#020503] flex flex-col overflow-hidden ring-1 ring-white/5 shadow-[0_0_80px_rgba(0,0,0,1)]">
         
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
-          <div className="pt-24 pb-32 px-4">
+          <div className="pt-24 pb-32">
             {activeTab === "inicio" && <MainFeed />}
             {activeTab === "live" && (
               <LiveViewer onToggleFullScreen={(val) => setIsFullScreenMode(val)} />

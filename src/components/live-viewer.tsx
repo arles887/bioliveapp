@@ -281,7 +281,7 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
   return (
     <div 
       ref={containerRef}
-      className="fixed inset-0 z-[100] bg-black animate-in slide-in-from-bottom duration-500 flex flex-col w-full max-w-[420px] left-1/2 -translate-x-1/2 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)]"
+      className="fixed inset-0 z-[100] bg-black animate-in slide-in-from-bottom duration-500 flex flex-col w-full max-w-[500px] left-1/2 -translate-x-1/2 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)]"
     >
       <div className="absolute inset-0 z-0 cursor-pointer" onClick={handleTikiTiki}>
         <Image 
@@ -294,20 +294,18 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
       </div>
 
-      {/* Capa de Corazones (Relativa al contenedor 420px) */}
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
         {hearts.map(heart => (
           <div 
             key={heart.id}
             className="absolute bottom-20 animate-heart-float text-primary"
-            style={{ left: `${Math.max(20, Math.min(heart.x - 12, 380))}px` }}
+            style={{ left: `${Math.max(20, Math.min(heart.x - 12, 460))}px` }}
           >
             <Heart fill="currentColor" size={24} />
           </div>
         ))}
       </div>
 
-      {/* Capa de Regalos Dinámicos (Relativa al contenedor 420px) */}
       <div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center">
         {activeGifts.map(gift => (
           <div key={gift.id} className={cn("animate-gift-bounce flex flex-col items-center", gift.color)}>
