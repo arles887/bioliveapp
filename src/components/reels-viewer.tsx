@@ -1,24 +1,18 @@
-
 "use client";
 
 import { useState } from "react";
 import Image from "next/image";
-import { Heart, MessageCircle, Share2, Music, UserPlus, Check } from "lucide-react";
+import { Heart, MessageCircle, Share2, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
 export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) => void }) {
   const [reels, setReels] = useState([
-    { id: "1", user: "EcoExplorer_Extreme_Nature", description: "The hidden waterfalls of Gaia Node 04 #nature #bio", likes: 124, comments: 12, video: "https://picsum.photos/seed/reel1/1080/1920", liked: false, following: false },
-    { id: "2", user: "CyberBotany_Laboratory_Units", description: "Bioluminescent algae synthesis complete. #cyber #science", likes: 89, comments: 8, video: "https://picsum.photos/seed/reel2/1080/1920", liked: false, following: false },
-    { id: "3", user: "NeonPulse_Hyper_Drive", description: "Night vibes in the bio-dome. 🌱⚡", likes: 256, comments: 42, video: "https://picsum.photos/seed/reel3/1080/1920", liked: false, following: false },
-    { id: "4", user: "OceanPulse_Deep_Dive", description: "Deep sea bio-luminescence discovery. Amazing colors! 🌊", likes: 512, comments: 64, video: "https://picsum.photos/seed/reel4/1080/1920", liked: false, following: false },
-    { id: "5", user: "SkyHigh_Gaia_Unit", description: "AERIAL VIEW: The green wall architecture is evolving. #green #city", likes: 342, comments: 21, video: "https://picsum.photos/seed/reel5/1080/1920", liked: false, following: false },
-    { id: "6", user: "Solaris_Energy_Network", description: "Harnessing the sun with organic solar cells. ☀️🌿", likes: 198, comments: 15, video: "https://picsum.photos/seed/reel6/1080/1920", liked: false, following: false },
-    { id: "7", user: "BioSynth_Synthetix_Labs", description: "New organic polymer synthesis. Faster than silicon. #tech #bio", likes: 120, comments: 5, video: "https://picsum.photos/seed/reel7/1080/1920", liked: false, following: false },
-    { id: "8", user: "Jungle_Navigator_Zero", description: "Deep canopy exploration. Sector 9 is breathing. #jungle #life", likes: 450, comments: 88, video: "https://picsum.photos/seed/reel8/1080/1920", liked: false, following: false },
-    { id: "9", user: "WaterWatcher_Flow", description: "Crystal clear bio-filtered water streams. #pure #water", likes: 210, comments: 14, video: "https://picsum.photos/seed/reel9/1080/1920", liked: false, following: false },
-    { id: "10", user: "Aurora_Bio_Labs", description: "Simulating aurora borealis in a petri dish. #lab #aurora", likes: 670, comments: 120, video: "https://picsum.photos/seed/reel10/1080/1920", liked: false, following: false },
+    { id: "1", user: "EcoExplorer_Gaia", description: "Las cascadas ocultas del Nodo 04. #nature #bio", likes: 124, comments: 12, video: "https://picsum.photos/seed/reel1/1080/1920", liked: false, following: false },
+    { id: "2", user: "CyberBotany_Lab", description: "Síntesis de algas bioluminiscentes completada. #cyber #science", likes: 89, comments: 8, video: "https://picsum.photos/seed/reel2/1080/1920", liked: false, following: false },
+    { id: "3", user: "NeonPulse_Drive", description: "Vibras nocturnas en el bio-domo. 🌱⚡", likes: 256, comments: 42, video: "https://picsum.photos/seed/reel3/1080/1920", liked: false, following: false },
+    { id: "4", user: "OceanDeep_Watcher", description: "Descubrimiento de bio-luminiscencia en el abismo. 🌊", likes: 512, comments: 64, video: "https://picsum.photos/seed/reel4/1080/1920", liked: false, following: false },
+    { id: "5", user: "SkyHigh_Unit", description: "VISTA AÉREA: La arquitectura verde evoluciona. #green #city", likes: 342, comments: 21, video: "https://picsum.photos/seed/reel5/1080/1920", liked: false, following: false },
   ]);
 
   const toggleLike = (id: string) => {
@@ -45,7 +39,7 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
   };
 
   const handleShare = (user: string) => {
-    toast({ title: "Enlace Copiado", description: `Señal de @${user} lista para retransmitir.` });
+    toast({ title: "Enlace Copiado", description: `Señal de @${user} lista para compartir.` });
   };
 
   return (
@@ -57,7 +51,7 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
             
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 pointer-events-none"></div>
             
-            <div className="absolute bottom-12 left-8 right-16 space-y-5">
+            <div className="absolute bottom-12 left-8 right-20 space-y-5">
               <div className="flex items-center gap-4 min-w-0">
                 <div 
                   className="h-12 w-12 rounded-full border-2 border-primary overflow-hidden shadow-2xl cursor-pointer shrink-0"
@@ -81,18 +75,16 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
               </div>
               <p className="text-sm text-white/90 leading-relaxed font-medium max-w-[90%] line-clamp-3">{reel.description}</p>
               <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md w-fit px-4 py-2 rounded-xl border border-white/5">
-                <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Music size={12} className="text-primary animate-pulse" />
-                </div>
-                <div className="overflow-hidden w-48">
-                  <p className="text-[10px] text-primary font-black uppercase tracking-widest whitespace-nowrap animate-[marquee_12s_linear_infinite]">
-                    Original Bio-Signal Audio - Neural Mix 0{reel.id} • Gaia Ecosystem Protocol
+                <Music size={12} className="text-primary animate-pulse" />
+                <div className="overflow-hidden w-40">
+                  <p className="text-[9px] text-primary font-black uppercase tracking-widest whitespace-nowrap animate-[marquee_12s_linear_infinite]">
+                    Bio-Signal Audio • Gaia Mix v.1.0
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* BOTONES DE INTERACCIÓN: Más a la derecha y sin etiquetas de texto largas */}
+            {/* BOTONES DE INTERACCIÓN: Elevados 20% y pegados a la derecha */}
             <div className="absolute bottom-60 right-3 flex flex-col items-center gap-8 z-50">
               <div 
                 onClick={() => toggleLike(reel.id)}
@@ -108,13 +100,13 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
               </div>
 
               <div 
-                onClick={() => toast({ title: "Signal Chat", description: "Bandeja de comentarios protegida por Gaia." })}
+                onClick={() => toast({ title: "Signal Chat", description: "Bandeja de comentarios protegida." })}
                 className="flex flex-col items-center gap-2 cursor-pointer group"
               >
                 <div className="h-14 w-14 glass-panel rounded-full flex items-center justify-center text-white group-hover:text-primary transition-all shadow-2xl">
                   <MessageCircle size={28} />
                 </div>
-                <span className="text-[10px] font-black text-white/60 tracking-widest">{reel.comments}K</span>
+                <span className="text-[10px] font-black text-white/60 tracking-widest">{reel.comments}</span>
               </div>
 
               <div 
@@ -124,6 +116,7 @@ export function ReelsViewer({ onProfileClick }: { onProfileClick: (u: string) =>
                 <div className="h-14 w-14 glass-panel rounded-full flex items-center justify-center text-white group-hover:text-primary transition-all shadow-2xl">
                   <Share2 size={28} />
                 </div>
+                {/* Palabra 'Retransmisión' quitada como se solicitó */}
               </div>
             </div>
           </div>

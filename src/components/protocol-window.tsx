@@ -1,6 +1,6 @@
 "use client"
 
-import { X, ChevronLeft } from "lucide-react";
+import { X } from "lucide-react";
 import { 
   Dialog, 
   DialogContent, 
@@ -19,27 +19,27 @@ export function ProtocolWindow({
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-[500px] h-full sm:h-[95vh] rounded-none sm:rounded-[3rem] bg-[#020503] border-none sm:border-white/10 p-0 shadow-[0_0_120px_rgba(0,0,0,1)] overflow-hidden">
+      <DialogContent className="w-full max-w-[500px] h-full sm:h-[98vh] rounded-none sm:rounded-[3rem] bg-[#020503] border-none sm:border-white/10 p-0 shadow-[0_0_120px_rgba(0,0,0,1)] overflow-hidden">
         {/* Barra de estado superior decorativa */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent z-[100]"></div>
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-primary to-transparent z-[100]"></div>
         
-        {/* BOTÓN DE SALIR / REGRESAR - Ultra Prominente */}
-        <div className="absolute top-10 right-8 z-[1000] pointer-events-auto">
+        {/* BOTÓN DE CIERRE MAESTRO - Ultra Prominente en la esquina superior derecha */}
+        <div className="absolute top-8 right-8 z-[1000] pointer-events-auto">
           <button 
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onClose();
             }}
-            className="h-14 w-14 bg-primary text-black rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-[0_0_40px_rgba(204,255,0,0.8)] border-2 border-white/20 hover:rotate-90 hover:scale-110"
-            aria-label="Close Protocol"
+            className="h-16 w-16 bg-primary text-black rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-[0_0_50px_rgba(204,255,0,0.6)] border-2 border-white/20 hover:rotate-90 hover:scale-110 group"
+            aria-label="Cerrar Protocolo"
           >
-            <X size={32} strokeWidth={4} />
+            <X size={36} strokeWidth={4} className="group-hover:scale-110 transition-transform" />
           </button>
         </div>
 
         {/* Etiqueta de Sistema - Esquina superior izquierda */}
-        <div className="absolute top-10 left-10 z-[200] pointer-events-none opacity-60">
+        <div className="absolute top-10 left-10 z-[200] pointer-events-none opacity-80">
           <div className="bg-black/60 backdrop-blur-2xl px-5 py-3 rounded-2xl border border-white/10 shadow-2xl">
             <h3 className="text-[12px] font-black tracking-tighter text-white uppercase italic leading-none">{title}</h3>
             <p className="text-[8px] font-black uppercase tracking-[0.4em] text-primary/80 mt-1.5">Neural Sync Active</p>
@@ -47,7 +47,7 @@ export function ProtocolWindow({
         </div>
 
         {/* Contenedor de Contenido Principal */}
-        <div className="w-full h-full relative">
+        <div className="w-full h-full relative overflow-hidden">
           {children}
         </div>
       </DialogContent>

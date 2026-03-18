@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -60,24 +59,6 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       viewers: "12K",
       thumbnail: "https://picsum.photos/seed/bio9/1080/1920",
       filter: "Para ti"
-    },
-    { 
-      id: "5", 
-      type: "live",
-      title: "Deep Sea Bio-Network", 
-      user: "Abyssal_Watcher", 
-      viewers: "3.2K",
-      thumbnail: "https://picsum.photos/seed/bio10/1280/720",
-      filter: "Para ti"
-    },
-    { 
-      id: "6", 
-      type: "reel",
-      title: "Sustainable Tech 2025", 
-      user: "Future_Gaia", 
-      viewers: "88K",
-      thumbnail: "https://picsum.photos/seed/bio11/1080/1920",
-      filter: "Temáticas"
     }
   ];
 
@@ -89,13 +70,13 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
           const storyElements = container.querySelectorAll('.story-item-container');
           if (storyElements[selectedStoryIndex]) {
             storyElements[selectedStoryIndex].scrollIntoView({
-              behavior: 'auto',
+              behavior: 'smooth',
               block: 'nearest',
               inline: 'center'
             });
           }
         }
-      }, 50);
+      }, 100);
       return () => clearTimeout(timer);
     }
   }, [selectedStoryIndex]);
@@ -124,9 +105,9 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       <div className="fixed inset-0 z-[80] bg-black">
         <button 
           onClick={() => setActiveReelMode(false)}
-          className="absolute top-8 left-6 z-[100] h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl flex items-center justify-center text-white border border-white/10"
+          className="absolute top-8 left-6 z-[100] h-12 w-12 bg-black/40 backdrop-blur-xl rounded-xl flex items-center justify-center text-white border border-white/10 active:scale-90 transition-all"
         >
-          <X size={20} />
+          <X size={24} />
         </button>
         <ReelsViewer onProfileClick={onProfileClick} />
       </div>
@@ -225,16 +206,11 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                       )}
                     >
                       {following[item.user] ? (
-                        <>
-                          <Check size={10} strokeWidth={4} />
-                          Sincronizado
-                        </>
+                        <Check size={10} strokeWidth={4} />
                       ) : (
-                        <>
-                          <UserPlus size={10} strokeWidth={4} />
-                          Seguir
-                        </>
+                        <UserPlus size={10} strokeWidth={4} />
                       )}
+                      <span className="ml-1.5">{following[item.user] ? "Sinc." : "Seguir"}</span>
                     </button>
                  </div>
                  <div className="pointer-events-none space-y-2">
@@ -253,15 +229,15 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
         <div 
           ref={storiesScrollRef}
-          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-black/60 pt-20 pb-10"
+          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center bg-black/95"
         >
           {storyIds.map((id) => (
             <div 
               key={id} 
-              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-4"
+              className="story-item-container w-full h-full shrink-0 flex items-center justify-center snap-center px-6"
             >
-              <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[340px] bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]">
-                <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
+              <div className="relative aspect-[9/16] h-[85vh] w-full max-w-[320px] bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(0,0,0,1)]">
+                <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" priority />
                 
                 {/* HUD Superior: Progress Bar */}
                 <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden z-20">
@@ -280,8 +256,8 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                     className="cursor-pointer min-w-0"
                     onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}_Entity`); }}
                    >
-                     <p className="text-white font-black italic text-[11px] uppercase tracking-tighter truncate leading-none">@Bio_{id}_Entity</p>
-                     <p className="text-white/40 text-[7px] uppercase font-bold tracking-[0.2em] mt-1">Protocolo Activo</p>
+                     <p className="text-white font-black italic text-[11px] uppercase tracking-tighter truncate leading-none">@Bio_{id}</p>
+                     <p className="text-white/40 text-[7px] uppercase font-bold tracking-[0.2em] mt-1">Activo</p>
                    </div>
                 </div>
 
@@ -300,7 +276,7 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
                    </button>
                    <div className="flex-1">
                       <div className="h-12 w-full bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 flex items-center px-4">
-                         <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Sincronizar Respuesta...</span>
+                         <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">Responder...</span>
                       </div>
                    </div>
                 </div>
