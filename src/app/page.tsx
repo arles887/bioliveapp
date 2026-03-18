@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -12,6 +11,7 @@ import { AuthModal } from "@/components/auth-modal";
 import { MusicHub } from "@/components/music-hub";
 import { Toaster } from "@/components/ui/toaster";
 import { ProfileView } from "@/components/profile-view";
+import { CreationHub } from "@/components/creation-hub";
 
 export default function Home() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
@@ -49,23 +49,12 @@ export default function Home() {
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
-          <div className="pt-24 pb-32">
+          <div className="pt-24 pb-32 px-4">
             {activeTab === "inicio" && <MainFeed />}
             {activeTab === "live" && <LiveViewer />}
             {activeTab === "notifications" && <NotificationCenter />}
             {activeTab === "profile" && <ProfileView />}
-
-            {activeTab === "upload" && (
-              <div className="flex flex-col items-center justify-center min-h-[70vh] p-10 text-center space-y-10 animate-in fade-in duration-700">
-                <h2 className="text-3xl font-black tracking-tighter text-primary uppercase italic leading-none">Nueva<br/>Transmisión</h2>
-                <div className="grid grid-cols-1 gap-5 w-full px-4">
-                    <div className="p-12 bg-white/[0.03] backdrop-blur-xl border border-white/5 rounded-[3rem] flex flex-col items-center justify-center gap-5 cursor-pointer hover:border-primary/30 transition-all group shadow-2xl">
-                      <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg group-hover:rotate-12 transition-transform"><span className="font-black italic text-xl">LIVE</span></div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-primary italic">Activar Sensor Neural</span>
-                    </div>
-                </div>
-              </div>
-            )}
+            {activeTab === "upload" && <CreationHub />}
           </div>
         </div>
 
