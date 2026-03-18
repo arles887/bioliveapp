@@ -49,7 +49,7 @@ export default function Home() {
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
-          <div className="pt-20 pb-32">
+          <div className="pt-24 pb-32">
             {activeTab === "inicio" && <MainFeed />}
             {activeTab === "live" && <LiveViewer />}
             {activeTab === "notifications" && <NotificationCenter />}
@@ -69,7 +69,7 @@ export default function Home() {
           </div>
         </div>
 
-        <TopBar onAuthClick={() => setIsAuthModalOpen(true)} />
+        <TopBar onAuthClick={() => setIsAuthModalOpen(true)} isVisible={isNavVisible} />
         <MusicHub isVisible={isNavVisible} />
         <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} isVisible={isNavVisible} />
         
