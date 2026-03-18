@@ -7,7 +7,8 @@ import {
   Edit3, Share2, Zap, UserPlus, Check, Send, ChevronLeft,
   Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
   TrendingUp, Gift, DollarSign, PlusCircle, Bell, Shield, Moon, Eye, Globe,
-  MessageSquare, Mail, Phone, Calendar
+  MessageSquare, Mail, Phone, Calendar, ArrowUpRight, ArrowDownLeft,
+  CreditCard, Smartphone, Ticket, RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,13 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 export function ProfileView({ 
   username = "BioEntity_01", 
@@ -41,13 +49,14 @@ export function ProfileView({
   const [profileName, setProfileName] = useState(username);
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
+  const [walletView, setWalletView] = useState<"main" | "buy" | "withdraw">("main");
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
   const stats = [
     { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
     { label: "Siguiendo", value: isOwnProfile ? "842" : "120" },
-    { label: "ESP Tokens", value: isOwnProfile ? "2.5K" : "800" }
+    { label: "ESP Tokens", value: isOwnProfile ? "2,500" : "800" }
   ];
 
   const handleUpdateProfile = () => {
@@ -96,7 +105,7 @@ export function ProfileView({
               <Share2 size={18} />
            </button>
            {isOwnProfile && (
-             <Sheet onOpenChange={() => setActiveMenuSection(null)}>
+             <Sheet onOpenChange={() => { setActiveMenuSection(null); setWalletView("main"); }}>
                <SheetTrigger asChild>
                  <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
                     <Menu size={18} />
@@ -130,63 +139,188 @@ export function ProfileView({
                       ) : (
                         <div className="space-y-8 animate-in slide-in-from-right duration-300">
                           <button 
-                            onClick={() => setActiveMenuSection(null)}
+                            onClick={() => {
+                              if (activeMenuSection === "wallet" && walletView !== "main") {
+                                setWalletView("main");
+                              } else {
+                                setActiveMenuSection(null);
+                              }
+                            }}
                             className="flex items-center gap-2 text-white/40 hover:text-primary transition-colors"
                           >
                             <ChevronLeft size={16} />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest">
+                              {walletView === "main" ? "Volver" : "Volver a Billetera"}
+                            </span>
                           </button>
 
                           {activeMenuSection === "wallet" && (
                             <div className="space-y-8">
-                              <div className="p-6 rounded-[2.5rem] bg-primary/10 border border-primary/20 space-y-4">
-                                <div className="flex justify-between items-start">
-                                  <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Bio-Wallet balance</span>
-                                  <Zap size={14} className="text-primary animate-pulse" />
-                                </div>
-                                <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
-                                <Button className="w-full bg-primary text-black font-black uppercase italic tracking-widest h-12 rounded-xl" onClick={() => toast({ title: "Inyectando Tokens", description: "Pasarela de pago segura activada." })}>
-                                  <PlusCircle size={16} className="mr-2" />
-                                  Comprar Tokens
-                                </Button>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                                  <TrendingUp size={14} className="text-accent" />
-                                  <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Estadísticas</p>
-                                  <p className="text-lg font-black text-white italic">+24% <span className="text-[8px] text-accent">↑</span></p>
-                                </div>
-                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                                  <DollarSign size={14} className="text-green-400" />
-                                  <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Ingresos Live</p>
-                                  <p className="text-lg font-black text-white italic">1.2K <span className="text-[8px] text-primary">ESP</span></p>
-                                </div>
-                              </div>
-
-                              <div className="space-y-4">
-                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 ml-2 italic">Historial Reciente</h4>
-                                <div className="space-y-2">
-                                  {[
-                                    { type: "gift", label: "Regalo enviado", amount: "-50", user: "@Watcher_12" },
-                                    { type: "buy", label: "Compra de Tokens", amount: "+500", user: "Protocol Gaia" },
-                                    { type: "income", label: "Ingreso por Live", amount: "+120", user: "@Fan_99" },
-                                  ].map((t, i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                                      <div className="flex items-center gap-3">
-                                        <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
-                                          {t.type === 'gift' ? <Gift size={14} className="text-red-400" /> : <DollarSign size={14} className="text-primary" />}
-                                        </div>
-                                        <div>
-                                          <p className="text-[9px] font-black text-white uppercase italic tracking-tight">{t.label}</p>
-                                          <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">{t.user}</p>
-                                        </div>
-                                      </div>
-                                      <span className={cn("text-[10px] font-black italic", t.amount.startsWith('+') ? "text-primary" : "text-red-400")}>{t.amount}</span>
+                              {walletView === "main" && (
+                                <div className="space-y-6">
+                                  <div className="p-6 rounded-[2.5rem] bg-primary/10 border border-primary/20 space-y-4">
+                                    <div className="flex justify-between items-start">
+                                      <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Balance Bio-Neural</span>
+                                      <Zap size={14} className="text-primary animate-pulse" />
                                     </div>
-                                  ))}
+                                    <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
+                                    <div className="grid grid-cols-2 gap-3 pt-2">
+                                      <Button 
+                                        onClick={() => setWalletView("buy")}
+                                        className="bg-primary text-black font-black uppercase italic tracking-widest h-12 rounded-xl text-[9px]"
+                                      >
+                                        <PlusCircle size={14} className="mr-2" />
+                                        Comprar
+                                      </Button>
+                                      <Button 
+                                        onClick={() => setWalletView("withdraw")}
+                                        variant="outline"
+                                        className="bg-white/5 border-white/10 text-white font-black uppercase italic tracking-widest h-12 rounded-xl text-[9px] hover:bg-primary hover:text-black"
+                                      >
+                                        <RefreshCw size={14} className="mr-2" />
+                                        Retirar
+                                      </Button>
+                                    </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                      <TrendingUp size={14} className="text-accent" />
+                                      <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Estadísticas</p>
+                                      <p className="text-lg font-black text-white italic">+24% <span className="text-[8px] text-accent">↑</span></p>
+                                    </div>
+                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                      <DollarSign size={14} className="text-green-400" />
+                                      <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Ingresos Live</p>
+                                      <p className="text-lg font-black text-white italic">1.2K <span className="text-[8px] text-primary">ESP</span></p>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 ml-2 italic">Historial Gaia</h4>
+                                    <div className="space-y-2">
+                                      {[
+                                        { type: "gift", label: "Regalo enviado", amount: "-50", user: "@Watcher_12" },
+                                        { type: "buy", label: "Compra de Tokens", amount: "+500", user: "Protocol Gaia" },
+                                        { type: "income", label: "Ingreso por Live", amount: "+120", user: "@Fan_99" },
+                                      ].map((t, i) => (
+                                        <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                                          <div className="flex items-center gap-3">
+                                            <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
+                                              {t.type === 'gift' ? <Gift size={14} className="text-red-400" /> : <DollarSign size={14} className="text-primary" />}
+                                            </div>
+                                            <div>
+                                              <p className="text-[9px] font-black text-white uppercase italic tracking-tight">{t.label}</p>
+                                              <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">{t.user}</p>
+                                            </div>
+                                          </div>
+                                          <span className={cn("text-[10px] font-black italic", t.amount.startsWith('+') ? "text-primary" : "text-red-400")}>{t.amount}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                              )}
+
+                              {walletView === "buy" && (
+                                <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                                  <div className="space-y-2">
+                                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Inyectar <span className="text-primary">Señal ESP</span></h3>
+                                    <p className="text-[9px] text-white/30 uppercase tracking-widest">Selecciona tu método de sincronización de fondos</p>
+                                  </div>
+
+                                  <div className="space-y-6">
+                                    <div className="space-y-2 px-1">
+                                      <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Cantidad de Tokens</label>
+                                      <Input type="number" placeholder="Ej: 500" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black" />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                      <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">Método de Pago</label>
+                                      <div className="grid grid-cols-1 gap-2">
+                                        {[
+                                          { id: 'card', label: 'Tarjeta Crédito/Débito', icon: CreditCard, color: 'text-blue-400' },
+                                          { id: 'yape', label: 'Yape / Plin', icon: Smartphone, color: 'text-purple-400' },
+                                          { id: 'paypal', label: 'PayPal Global', icon: Globe, color: 'text-blue-500' },
+                                          { id: 'code', label: 'Código Regalo / Promo', icon: Ticket, color: 'text-yellow-400' },
+                                        ].map((m) => (
+                                          <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 transition-all group text-left">
+                                            <div className="flex items-center gap-4">
+                                              <m.icon size={18} className={m.color} />
+                                              <span className="text-[10px] font-black text-white uppercase italic tracking-tight">{m.label}</span>
+                                            </div>
+                                            <ArrowUpRight size={14} className="text-white/20 group-hover:text-primary" />
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    <Button className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]">
+                                      Iniciar Transacción Gaia
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+
+                              {walletView === "withdraw" && (
+                                <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                                  <div className="space-y-2">
+                                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Convertir a <span className="text-accent">Soles (PEN)</span></h3>
+                                    <p className="text-[9px] text-white/30 uppercase tracking-widest">Transforma tu energía neural en activos reales</p>
+                                  </div>
+
+                                  <div className="p-6 rounded-[2.5rem] bg-accent/10 border border-accent/20 space-y-4">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-[9px] font-black uppercase text-accent tracking-widest italic">Tasa de Conversión</span>
+                                      <span className="text-[10px] text-white font-bold">100 ESP = S/ 1.00</span>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Tokens a Retirar</label>
+                                      <div className="relative">
+                                        <Input type="number" placeholder="Min: 500 ESP" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black pr-16" />
+                                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-accent">ESP</span>
+                                      </div>
+                                    </div>
+                                    <div className="pt-2 flex flex-col items-center">
+                                      <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] mb-2">Equivale a</span>
+                                      <div className="text-3xl font-black italic text-white leading-none">S/ 0.00</div>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-4">
+                                    <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em] ml-1">Destino de Fondos</label>
+                                    <div className="grid grid-cols-1 gap-2">
+                                      {[
+                                        { id: 'wyape', label: 'Retiro vía Yape', icon: Smartphone, color: 'text-purple-400' },
+                                        { id: 'wcard', label: 'Transferencia Bancaria', icon: CreditCard, color: 'text-blue-400' },
+                                        { id: 'wpaypal', label: 'PayPal (USD)', icon: Globe, color: 'text-blue-500' },
+                                      ].map((m) => (
+                                        <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-accent/40 transition-all group text-left">
+                                          <div className="flex items-center gap-4">
+                                            <m.icon size={18} className={m.color} />
+                                            <span className="text-[10px] font-black text-white uppercase italic tracking-tight">{m.label}</span>
+                                          </div>
+                                          <ArrowDownLeft size={14} className="text-white/20 group-hover:text-accent" />
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/10 space-y-3">
+                                    <div className="flex items-center gap-2 text-red-400">
+                                      <Shield size={14} />
+                                      <span className="text-[9px] font-black uppercase tracking-widest">Protocolo de Seguridad</span>
+                                    </div>
+                                    <p className="text-[8px] text-white/40 font-bold uppercase tracking-widest leading-relaxed">
+                                      Los retiros se efectuarán <span className="text-red-400">únicamente al titular</span> de la cuenta BioLive verificado. El tiempo de procesamiento es de 24 a 48 ciclos horarios.
+                                    </p>
+                                  </div>
+
+                                  <Button className="w-full h-16 bg-accent text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,255,187,0.3)]">
+                                    Confirmar Retiro Neural
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           )}
 
