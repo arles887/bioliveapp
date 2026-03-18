@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Music, Pause, SkipForward, Music2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -14,6 +15,16 @@ export function MusicHub({
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState(4);
+
+  // Listen for video playback events to pause music
+  useEffect(() => {
+    const handleVideoPlaying = () => {
+      setIsPlaying(false);
+    };
+
+    window.addEventListener('bio-video-playing', handleVideoPlaying);
+    return () => window.removeEventListener('bio-video-playing', handleVideoPlaying);
+  }, []);
 
   const togglePlayback = () => {
     requireAuth(() => {

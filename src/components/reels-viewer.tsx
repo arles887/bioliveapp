@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -141,6 +142,13 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
     return () => video.removeEventListener('timeupdate', updateProgress);
   }, [isYouTube]);
 
+  // Sincronización global: Mute music when video audio starts
+  useEffect(() => {
+    if (!isMuted && isPlaying) {
+      window.dispatchEvent(new CustomEvent('bio-video-playing'));
+    }
+  }, [isMuted, isPlaying]);
+
   const handleInteraction = (e: React.MouseEvent) => {
     if (isYouTube) return;
     
@@ -176,8 +184,12 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
+      const newMuteStatus = !isMuted;
+      videoRef.current.muted = newMuteStatus;
+      setIsMuted(newMuteStatus);
+      if (!newMuteStatus) {
+        window.dispatchEvent(new CustomEvent('bio-video-playing'));
+      }
     }
   };
 
@@ -211,8 +223,8 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
         
         {showCenterIcon && !isYouTube && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
-            <div className="h-12 w-12 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
-              {isPlaying ? <Play size={24} fill="currentColor" className="ml-0.5" /> : <Pause size={24} fill="currentColor" />}
+            <div className="h-10 w-10 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
+              {isPlaying ? <Play size={20} fill="currentColor" className="ml-0.5" /> : <Pause size={20} fill="currentColor" />}
             </div>
           </div>
         )}
@@ -233,7 +245,7 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
                 <div 
                   key={i} 
                   className={cn(
-                    "h-1 flex-1 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(0,0,0,0.5)]",
+                    "h-1 flex-1 rounded-full transition-all duration-300",
                     isActive ? "bg-primary shadow-[0_0_8px_rgba(204,255,0,0.6)]" : "bg-white/10"
                   )}
                 />
@@ -284,7 +296,7 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         </div>
 
-        <div className="absolute bottom-[32%] right-3 flex flex-col items-center gap-8 z-50">
+        <div className="absolute bottom-12 right-3 flex flex-col items-center gap-8 z-50">
           <div 
             onClick={() => toggleLike(reel.id)}
             className="flex flex-col items-center gap-2 group cursor-pointer"

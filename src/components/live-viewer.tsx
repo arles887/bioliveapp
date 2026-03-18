@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -244,11 +245,13 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
       ([entry]) => {
         if (entry.isIntersecting) {
           if (!isYouTube) videoRef.current?.play().catch(() => {});
+          setIsPlaying(true);
         } else {
           if (!isYouTube) {
             videoRef.current?.pause();
             if (videoRef.current) videoRef.current.muted = true;
           }
+          setIsPlaying(false);
           setIsMuted(true);
         }
       },
@@ -267,6 +270,13 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     video.addEventListener('timeupdate', updateProgress);
     return () => video.removeEventListener('timeupdate', updateProgress);
   }, [isYouTube]);
+
+  // Sincronización global: Mute music when video audio starts
+  useEffect(() => {
+    if (!isMuted && isPlaying) {
+      window.dispatchEvent(new CustomEvent('bio-video-playing'));
+    }
+  }, [isMuted, isPlaying]);
 
   const handleInteraction = (e: React.MouseEvent) => {
     if (isYouTube) return;
@@ -340,6 +350,16 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     });
   };
 
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newMuteStatus = !isMuted;
+    setIsMuted(newMuteStatus);
+    if(videoRef.current) videoRef.current.muted = newMuteStatus;
+    if (!newMuteStatus) {
+      window.dispatchEvent(new CustomEvent('bio-video-playing'));
+    }
+  };
+
   return (
     <div ref={containerRef} className="relative h-full w-full bg-black overflow-hidden flex flex-col">
       <div className="absolute inset-0 z-0 cursor-pointer" 
@@ -389,7 +409,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       {!isYouTube && (
          <button 
-          onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); if(videoRef.current) videoRef.current.muted = !isMuted; }}
+          onClick={toggleMute}
           className="absolute top-12 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
          >
            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -398,8 +418,8 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       {showCenterIcon && !isYouTube && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[70]">
-          <div className="h-12 w-12 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
-            {isPlaying ? <Play size={24} fill="currentColor" className="ml-0.5" /> : <Pause size={24} fill="currentColor" />}
+          <div className="h-10 w-10 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary/60 shadow-[0_0_30px_rgba(204,255,0,0.1)] animate-in zoom-in fade-in duration-300">
+            {isPlaying ? <Play size={20} fill="currentColor" className="ml-0.5" /> : <Pause size={20} fill="currentColor" />}
           </div>
         </div>
       )}
@@ -470,7 +490,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       <div className="flex-1"></div>
 
-      <div className="absolute bottom-[32%] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
+      <div className="absolute bottom-12 right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
         <div 
           onClick={(e) => { e.stopPropagation(); handleTikiTiki(e); }}
           className="flex flex-col items-center gap-2 group cursor-pointer pointer-events-auto"
