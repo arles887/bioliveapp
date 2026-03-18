@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { 
-  Settings, Camera, Play, Music, Heart, 
-  Edit3, Share2, Zap, UserPlus, Check, Send, ChevronLeft
+  Menu, Camera, Play, Music, Heart, 
+  Edit3, Share2, Zap, UserPlus, Check, Send, ChevronLeft,
+  Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
+  TrendingUp, Gift, DollarSign, PlusCircle, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,6 +15,15 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { toast } from "@/hooks/use-toast";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
 export function ProfileView({ 
   username = "BioEntity_01_Official_Handle", 
@@ -26,6 +37,7 @@ export function ProfileView({
   const [isEditing, setIsEditing] = useState(false);
   const [profileName, setProfileName] = useState(username);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
@@ -48,6 +60,16 @@ export function ProfileView({
     });
   };
 
+  const menuItems = [
+    { id: "wallet", label: "Billetera ESP", icon: Wallet, color: "text-primary" },
+    { id: "activity", label: "Registro de Actividad", icon: History, color: "text-white/60" },
+    { id: "account", label: "Información de la Cuenta", icon: UserCircle, color: "text-white/60" },
+    { id: "support", label: "Soporte Técnico", icon: LifeBuoy, color: "text-white/60" },
+    { id: "help", label: "Ayuda", icon: HelpCircle, color: "text-white/60" },
+    { id: "settings", label: "Ajustes", icon: Settings, color: "text-white/60" },
+    { id: "privacy", label: "Privacidad", icon: Lock, color: "text-accent" },
+  ];
+
   return (
     <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="relative h-32 w-full bg-gradient-to-b from-primary/20 to-transparent">
@@ -69,9 +91,107 @@ export function ProfileView({
               <Share2 size={18} />
            </button>
            {isOwnProfile && (
-             <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
-                <Settings size={18} />
-             </button>
+             <Sheet>
+               <SheetTrigger asChild>
+                 <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
+                    <Menu size={18} />
+                 </button>
+               </SheetTrigger>
+               <SheetContent side="right" className="bg-[#020503] border-white/5 p-0 w-full sm:max-w-[400px]">
+                 <div className="flex flex-col h-full">
+                    <SheetHeader className="p-8 border-b border-white/5">
+                      <SheetTitle className="text-2xl font-black italic uppercase text-white tracking-tighter">
+                        Centro <span className="text-primary">Neural</span>
+                      </SheetTitle>
+                    </SheetHeader>
+
+                    <ScrollArea className="flex-1 p-6">
+                      {!activeMenuSection ? (
+                        <div className="space-y-2">
+                          {menuItems.map((item) => (
+                            <button
+                              key={item.id}
+                              onClick={() => {
+                                if (item.id === "wallet") setActiveMenuSection("wallet");
+                                else toast({ title: item.label, description: "Protocolo en desarrollo." });
+                              }}
+                              className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group"
+                            >
+                              <div className="flex items-center gap-4">
+                                <item.icon size={20} className={item.color} />
+                                <span className="text-xs font-black uppercase tracking-widest text-white/80">{item.label}</span>
+                              </div>
+                              <ChevronLeft size={16} className="rotate-180 text-white/20 group-hover:text-primary" />
+                            </button>
+                          ))}
+                        </div>
+                      ) : activeMenuSection === "wallet" ? (
+                        <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                          <button 
+                            onClick={() => setActiveMenuSection(null)}
+                            className="flex items-center gap-2 text-white/40 hover:text-primary transition-colors"
+                          >
+                            <ChevronLeft size={16} />
+                            <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
+                          </button>
+
+                          <div className="p-6 rounded-[2.5rem] bg-primary/10 border border-primary/20 space-y-4 shadow-[0_0_30px_rgba(204,255,0,0.1)]">
+                             <div className="flex justify-between items-start">
+                                <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Bio-Wallet balance</span>
+                                <Zap size={14} className="text-primary animate-pulse" />
+                             </div>
+                             <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
+                             <Button className="w-full bg-primary text-black font-black uppercase italic tracking-widest h-12 rounded-xl">
+                                <PlusCircle size={16} className="mr-2" />
+                                Inyectar Tokens
+                             </Button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                <TrendingUp size={14} className="text-accent" />
+                                <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Estadísticas</p>
+                                <p className="text-lg font-black text-white italic">+24% <span className="text-[8px] text-accent">↑</span></p>
+                             </div>
+                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                <DollarSign size={14} className="text-green-400" />
+                                <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Ingresos Live</p>
+                                <p className="text-lg font-black text-white italic">1.2K <span className="text-[8px] text-primary">ESP</span></p>
+                             </div>
+                          </div>
+
+                          <div className="space-y-4">
+                             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 ml-2 italic">Historial Reciente</h4>
+                             <div className="space-y-2">
+                                {[
+                                  { type: "gift", label: "Regalo enviado", amount: "-50", user: "@Watcher_12" },
+                                  { type: "buy", label: "Compra de Tokens", amount: "+500", user: "Protocol Gaia" },
+                                  { type: "income", label: "Ingreso por Live", amount: "+120", user: "@Fan_99" },
+                                ].map((t, i) => (
+                                  <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                      <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
+                                        {t.type === 'gift' ? <Gift size={14} className="text-red-400" /> : <DollarSign size={14} className="text-primary" />}
+                                      </div>
+                                      <div>
+                                        <p className="text-[9px] font-black text-white uppercase italic tracking-tight">{t.label}</p>
+                                        <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">{t.user}</p>
+                                      </div>
+                                    </div>
+                                    <span className={cn(
+                                      "text-[10px] font-black italic",
+                                      t.amount.startsWith('+') ? "text-primary" : "text-red-400"
+                                    )}>{t.amount}</span>
+                                  </div>
+                                ))}
+                             </div>
+                          </div>
+                        </div>
+                      ) : null}
+                    </ScrollArea>
+                 </div>
+               </SheetContent>
+             </Sheet>
            )}
         </div>
       </div>
