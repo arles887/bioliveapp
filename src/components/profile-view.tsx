@@ -8,7 +8,7 @@ import {
   Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
   TrendingUp, Gift, DollarSign, PlusCircle, Bell, Shield, Moon, Eye, Globe,
   MessageSquare, Mail, Phone, Calendar, ArrowUpRight, ArrowDownLeft,
-  CreditCard, Smartphone, Ticket, RefreshCw
+  CreditCard, Smartphone, Ticket, RefreshCw, Star, Sparkles, Gem
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 
 export function ProfileView({ 
   username = "BioEntity_01", 
@@ -50,6 +51,8 @@ export function ProfileView({
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
   const [walletView, setWalletView] = useState<"main" | "buy" | "withdraw">("main");
+  const [selectedPackage, setSelectedPackage] = useState<number | "custom" | null>(null);
+  const [customESP, setCustomESP] = useState("");
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
@@ -57,6 +60,19 @@ export function ProfileView({
     { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
     { label: "Siguiendo", value: isOwnProfile ? "842" : "120" },
     { label: "ESP Tokens", value: isOwnProfile ? "2,500" : "800" }
+  ];
+
+  const tokenPackages = [
+    { esp: 100, pen: "1.00" }, { esp: 200, pen: "2.00" }, { esp: 300, pen: "3.00" },
+    { esp: 400, pen: "4.00" }, { esp: 500, pen: "5.00", hot: true }, { esp: 600, pen: "6.00" },
+    { esp: 700, pen: "7.00" }, { esp: 800, pen: "8.00" }, { esp: 900, pen: "9.00" },
+    { esp: 1000, pen: "10.00", badge: "POPULAR" }, { esp: 1500, pen: "15.00" }, { esp: 2000, pen: "20.00" },
+    { esp: 2500, pen: "25.00" }, { esp: 3000, pen: "30.00" }, { esp: 4000, pen: "40.00" },
+    { esp: 5000, pen: "45.00", badge: "OFERTA", hot: true }, { esp: 6000, pen: "60.00" }, { esp: 7000, pen: "70.00" },
+    { esp: 8000, pen: "80.00" }, { esp: 9000, pen: "90.00" }, { esp: 10000, pen: "85.00", badge: "MEGA", hot: true },
+    { esp: 15000, pen: "150.00" }, { esp: 20000, pen: "200.00" }, { esp: 25000, pen: "250.00" },
+    { esp: 30000, pen: "300.00" }, { esp: 40000, pen: "400.00" }, { esp: 50000, pen: "400.00", badge: "BIO-GOD", hot: true },
+    { esp: 60000, pen: "600.00" }, { esp: 75000, pen: "750.00" }, { esp: 100000, pen: "900.00", badge: "LEGEND" }
   ];
 
   const handleUpdateProfile = () => {
@@ -119,362 +135,418 @@ export function ProfileView({
                       </SheetTitle>
                     </SheetHeader>
 
-                    <ScrollArea className="flex-1 p-6">
-                      {!activeMenuSection ? (
-                        <div className="space-y-2">
-                          {menuItems.map((item) => (
-                            <button
-                              key={item.id}
-                              onClick={() => setActiveMenuSection(item.id)}
-                              className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group"
-                            >
-                              <div className="flex items-center gap-4">
-                                <item.icon size={20} className={item.color} />
-                                <span className="text-xs font-black uppercase tracking-widest text-white/80">{item.label}</span>
-                              </div>
-                              <ChevronLeft size={16} className="rotate-180 text-white/20 group-hover:text-primary" />
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="space-y-8 animate-in slide-in-from-right duration-300">
-                          <button 
-                            onClick={() => {
-                              if (activeMenuSection === "wallet" && walletView !== "main") {
-                                setWalletView("main");
-                              } else {
-                                setActiveMenuSection(null);
-                              }
-                            }}
-                            className="flex items-center gap-2 text-white/40 hover:text-primary transition-colors"
-                          >
-                            <ChevronLeft size={16} />
-                            <span className="text-[9px] font-black uppercase tracking-widest">
-                              {walletView === "main" ? "Volver" : "Volver a Billetera"}
-                            </span>
-                          </button>
-
-                          {activeMenuSection === "wallet" && (
-                            <div className="space-y-8">
-                              {walletView === "main" && (
-                                <div className="space-y-6">
-                                  <div className="p-6 rounded-[2.5rem] bg-primary/10 border border-primary/20 space-y-4">
-                                    <div className="flex justify-between items-start">
-                                      <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Balance Bio-Neural</span>
-                                      <Zap size={14} className="text-primary animate-pulse" />
-                                    </div>
-                                    <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
-                                    <div className="grid grid-cols-2 gap-3 pt-2">
-                                      <Button 
-                                        onClick={() => setWalletView("buy")}
-                                        className="bg-primary text-black font-black uppercase italic tracking-widest h-12 rounded-xl text-[9px]"
-                                      >
-                                        <PlusCircle size={14} className="mr-2" />
-                                        Comprar
-                                      </Button>
-                                      <Button 
-                                        onClick={() => setWalletView("withdraw")}
-                                        variant="outline"
-                                        className="bg-white/5 border-white/10 text-white font-black uppercase italic tracking-widest h-12 rounded-xl text-[9px] hover:bg-primary hover:text-black"
-                                      >
-                                        <RefreshCw size={14} className="mr-2" />
-                                        Retirar
-                                      </Button>
-                                    </div>
-                                  </div>
-
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                                      <TrendingUp size={14} className="text-accent" />
-                                      <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Estadísticas</p>
-                                      <p className="text-lg font-black text-white italic">+24% <span className="text-[8px] text-accent">↑</span></p>
-                                    </div>
-                                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                                      <DollarSign size={14} className="text-green-400" />
-                                      <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Ingresos Live</p>
-                                      <p className="text-lg font-black text-white italic">1.2K <span className="text-[8px] text-primary">ESP</span></p>
-                                    </div>
-                                  </div>
-
-                                  <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 ml-2 italic">Historial Gaia</h4>
-                                    <div className="space-y-2">
-                                      {[
-                                        { type: "gift", label: "Regalo enviado", amount: "-50", user: "@Watcher_12" },
-                                        { type: "buy", label: "Compra de Tokens", amount: "+500", user: "Protocol Gaia" },
-                                        { type: "income", label: "Ingreso por Live", amount: "+120", user: "@Fan_99" },
-                                      ].map((t, i) => (
-                                        <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                                          <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
-                                              {t.type === 'gift' ? <Gift size={14} className="text-red-400" /> : <DollarSign size={14} className="text-primary" />}
-                                            </div>
-                                            <div>
-                                              <p className="text-[9px] font-black text-white uppercase italic tracking-tight">{t.label}</p>
-                                              <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">{t.user}</p>
-                                            </div>
-                                          </div>
-                                          <span className={cn("text-[10px] font-black italic", t.amount.startsWith('+') ? "text-primary" : "text-red-400")}>{t.amount}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
+                    <ScrollArea className="flex-1">
+                      <div className="p-6">
+                        {!activeMenuSection ? (
+                          <div className="space-y-2">
+                            {menuItems.map((item) => (
+                              <button
+                                key={item.id}
+                                onClick={() => setActiveMenuSection(item.id)}
+                                className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group"
+                              >
+                                <div className="flex items-center gap-4">
+                                  <item.icon size={20} className={item.color} />
+                                  <span className="text-xs font-black uppercase tracking-widest text-white/80">{item.label}</span>
                                 </div>
-                              )}
+                                <ChevronLeft size={16} className="rotate-180 text-white/20 group-hover:text-primary" />
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                            <button 
+                              onClick={() => {
+                                if (activeMenuSection === "wallet" && walletView !== "main") {
+                                  setWalletView("main");
+                                } else {
+                                  setActiveMenuSection(null);
+                                }
+                              }}
+                              className="flex items-center gap-2 text-white/40 hover:text-primary transition-colors"
+                            >
+                              <ChevronLeft size={16} />
+                              <span className="text-[9px] font-black uppercase tracking-widest">
+                                {walletView === "main" ? "Volver" : "Volver a Billetera"}
+                              </span>
+                            </button>
 
-                              {walletView === "buy" && (
-                                <div className="space-y-8 animate-in slide-in-from-right duration-300">
-                                  <div className="space-y-2">
-                                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Inyectar <span className="text-primary">Señal ESP</span></h3>
-                                    <p className="text-[9px] text-white/30 uppercase tracking-widest">Selecciona tu método de sincronización de fondos</p>
-                                  </div>
-
+                            {activeMenuSection === "wallet" && (
+                              <div className="space-y-8 pb-10">
+                                {walletView === "main" && (
                                   <div className="space-y-6">
-                                    <div className="space-y-2 px-1">
-                                      <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Cantidad de Tokens</label>
-                                      <Input type="number" placeholder="Ej: 500" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black" />
+                                    <div className="p-6 rounded-[2.5rem] bg-primary/10 border border-primary/20 space-y-4">
+                                      <div className="flex justify-between items-start">
+                                        <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Balance Bio-Neural</span>
+                                        <Zap size={14} className="text-primary animate-pulse" />
+                                      </div>
+                                      <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
+                                      <div className="grid grid-cols-2 gap-3 pt-2">
+                                        <Button 
+                                          onClick={() => setWalletView("buy")}
+                                          className="bg-primary text-black font-black uppercase italic tracking-widest h-12 rounded-xl text-[9px]"
+                                        >
+                                          <PlusCircle size={14} className="mr-2" />
+                                          Comprar
+                                        </Button>
+                                        <Button 
+                                          onClick={() => setWalletView("withdraw")}
+                                          variant="outline"
+                                          className="bg-white/5 border-white/10 text-white font-black uppercase italic tracking-widest h-12 rounded-xl text-[9px] hover:bg-primary hover:text-black"
+                                        >
+                                          <RefreshCw size={14} className="mr-2" />
+                                          Retirar
+                                        </Button>
+                                      </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                      <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">Método de Pago</label>
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                        <TrendingUp size={14} className="text-accent" />
+                                        <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Estadísticas</p>
+                                        <p className="text-lg font-black text-white italic">+24% <span className="text-[8px] text-accent">↑</span></p>
+                                      </div>
+                                      <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                        <DollarSign size={14} className="text-green-400" />
+                                        <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Ingresos Live</p>
+                                        <p className="text-lg font-black text-white italic">1.2K <span className="text-[8px] text-primary">ESP</span></p>
+                                      </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                      <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 ml-2 italic">Historial Gaia</h4>
+                                      <div className="space-y-2">
+                                        {[
+                                          { type: "gift", label: "Regalo enviado", amount: "-50", user: "@Watcher_12" },
+                                          { type: "buy", label: "Compra de Tokens", amount: "+500", user: "Protocol Gaia" },
+                                          { type: "income", label: "Ingreso por Live", amount: "+120", user: "@Fan_99" },
+                                        ].map((t, i) => (
+                                          <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                                            <div className="flex items-center gap-3">
+                                              <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
+                                                {t.type === 'gift' ? <Gift size={14} className="text-red-400" /> : <DollarSign size={14} className="text-primary" />}
+                                              </div>
+                                              <div>
+                                                <p className="text-[9px] font-black text-white uppercase italic tracking-tight">{t.label}</p>
+                                                <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">{t.user}</p>
+                                              </div>
+                                            </div>
+                                            <span className={cn("text-[10px] font-black italic", t.amount.startsWith('+') ? "text-primary" : "text-red-400")}>{t.amount}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {walletView === "buy" && (
+                                  <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                                    <div className="space-y-2">
+                                      <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Inyectar <span className="text-primary">Señal ESP</span></h3>
+                                      <p className="text-[9px] text-white/30 uppercase tracking-widest">Sincroniza tus fondos con la red neural</p>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                      <div className="space-y-4">
+                                        <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">Paquetes Disponibles</label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                          {tokenPackages.map((pkg, idx) => (
+                                            <button
+                                              key={idx}
+                                              onClick={() => setSelectedPackage(idx)}
+                                              className={cn(
+                                                "relative flex flex-col items-center justify-center p-4 rounded-2xl border transition-all group overflow-hidden",
+                                                selectedPackage === idx 
+                                                  ? "bg-primary/20 border-primary shadow-[0_0_20px_rgba(204,255,0,0.2)]" 
+                                                  : "bg-white/5 border-white/10 hover:border-primary/40"
+                                              )}
+                                            >
+                                              {pkg.badge && (
+                                                <div className="absolute top-0 right-0">
+                                                  <span className="bg-primary text-black text-[6px] font-black px-2 py-0.5 rounded-bl-lg uppercase">{pkg.badge}</span>
+                                                </div>
+                                              )}
+                                              {pkg.hot && (
+                                                <Sparkles size={8} className="absolute top-2 left-2 text-primary animate-pulse" />
+                                              )}
+                                              <span className="text-lg font-black text-white italic">{pkg.esp}</span>
+                                              <span className="text-[7px] font-black text-primary uppercase tracking-widest mt-0.5">ESP</span>
+                                              <div className="mt-3 text-[9px] font-black text-white/40 uppercase tracking-tighter">S/ {pkg.pen}</div>
+                                            </button>
+                                          ))}
+
+                                          <button
+                                            onClick={() => setSelectedPackage("custom")}
+                                            className={cn(
+                                              "flex flex-col items-center justify-center p-4 rounded-2xl border transition-all",
+                                              selectedPackage === "custom" 
+                                                ? "bg-accent/20 border-accent shadow-[0_0_20px_rgba(0,255,187,0.2)]" 
+                                                : "bg-white/5 border-white/10 hover:border-accent/40"
+                                            )}
+                                          >
+                                            <PlusCircle size={14} className={selectedPackage === "custom" ? "text-accent" : "text-white/20"} />
+                                            <span className="text-[8px] font-black text-white uppercase tracking-widest mt-2">Personalizado</span>
+                                          </button>
+                                        </div>
+                                      </div>
+
+                                      {selectedPackage === "custom" && (
+                                        <div className="space-y-3 animate-in fade-in duration-300">
+                                          <div className="relative">
+                                            <Input 
+                                              type="number" 
+                                              placeholder="Mínimo 100 ESP" 
+                                              value={customESP}
+                                              onChange={(e) => setCustomESP(e.target.value)}
+                                              className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black pr-16" 
+                                            />
+                                            <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[9px] font-black text-accent uppercase">ESP</span>
+                                          </div>
+                                          <p className="text-[7px] text-white/20 font-black uppercase tracking-widest ml-2 italic">Conversión: S/ {(Number(customESP) / 100).toFixed(2)} PEN</p>
+                                        </div>
+                                      )}
+
+                                      <div className="space-y-3 pt-4">
+                                        <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">Método de Pago</label>
+                                        <div className="grid grid-cols-1 gap-2">
+                                          {[
+                                            { id: 'card', label: 'Tarjeta Crédito/Débito', icon: CreditCard, color: 'text-blue-400' },
+                                            { id: 'yape', label: 'Yape / Plin', icon: Smartphone, color: 'text-purple-400' },
+                                            { id: 'paypal', label: 'PayPal Global', icon: Globe, color: 'text-blue-500' },
+                                            { id: 'code', label: 'Código Regalo / Promo', icon: Ticket, color: 'text-yellow-400' },
+                                          ].map((m) => (
+                                            <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 transition-all group text-left">
+                                              <div className="flex items-center gap-4">
+                                                <m.icon size={18} className={m.color} />
+                                                <span className="text-[10px] font-black text-white uppercase italic tracking-tight">{m.label}</span>
+                                              </div>
+                                              <ArrowUpRight size={14} className="text-white/20 group-hover:text-primary" />
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </div>
+
+                                      <Button className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]">
+                                        Iniciar Transacción Gaia
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {walletView === "withdraw" && (
+                                  <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                                    <div className="space-y-2">
+                                      <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Convertir a <span className="text-accent">Soles (PEN)</span></h3>
+                                      <p className="text-[9px] text-white/30 uppercase tracking-widest">Transforma tu energía neural en activos reales</p>
+                                    </div>
+
+                                    <div className="p-6 rounded-[2.5rem] bg-accent/10 border border-accent/20 space-y-4">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-[9px] font-black uppercase text-accent tracking-widest italic">Tasa de Conversión</span>
+                                        <span className="text-[10px] text-white font-bold">100 ESP = S/ 1.00</span>
+                                      </div>
+                                      <div className="space-y-2">
+                                        <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Tokens a Retirar</label>
+                                        <div className="relative">
+                                          <Input type="number" placeholder="Min: 500 ESP" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black pr-16" />
+                                          <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-accent">ESP</span>
+                                        </div>
+                                      </div>
+                                      <div className="pt-2 flex flex-col items-center">
+                                        <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] mb-2">Equivale a</span>
+                                        <div className="text-3xl font-black italic text-white leading-none">S/ 0.00</div>
+                                      </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                      <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em] ml-1">Destino de Fondos</label>
                                       <div className="grid grid-cols-1 gap-2">
                                         {[
-                                          { id: 'card', label: 'Tarjeta Crédito/Débito', icon: CreditCard, color: 'text-blue-400' },
-                                          { id: 'yape', label: 'Yape / Plin', icon: Smartphone, color: 'text-purple-400' },
-                                          { id: 'paypal', label: 'PayPal Global', icon: Globe, color: 'text-blue-500' },
-                                          { id: 'code', label: 'Código Regalo / Promo', icon: Ticket, color: 'text-yellow-400' },
+                                          { id: 'wyape', label: 'Retiro vía Yape', icon: Smartphone, color: 'text-purple-400' },
+                                          { id: 'wcard', label: 'Transferencia Bancaria', icon: CreditCard, color: 'text-blue-400' },
+                                          { id: 'wpaypal', label: 'PayPal (USD)', icon: Globe, color: 'text-blue-500' },
                                         ].map((m) => (
-                                          <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 transition-all group text-left">
+                                          <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-accent/40 transition-all group text-left">
                                             <div className="flex items-center gap-4">
                                               <m.icon size={18} className={m.color} />
                                               <span className="text-[10px] font-black text-white uppercase italic tracking-tight">{m.label}</span>
                                             </div>
-                                            <ArrowUpRight size={14} className="text-white/20 group-hover:text-primary" />
+                                            <ArrowDownLeft size={14} className="text-white/20 group-hover:text-accent" />
                                           </button>
                                         ))}
                                       </div>
                                     </div>
 
-                                    <Button className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]">
-                                      Iniciar Transacción Gaia
+                                    <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/10 space-y-3">
+                                      <div className="flex items-center gap-2 text-red-400">
+                                        <Shield size={14} />
+                                        <span className="text-[9px] font-black uppercase tracking-widest">Protocolo de Seguridad</span>
+                                      </div>
+                                      <p className="text-[8px] text-white/40 font-bold uppercase tracking-widest leading-relaxed">
+                                        Los retiros se efectuarán <span className="text-red-400">únicamente al titular</span> de la cuenta BioLive verificado. El tiempo de procesamiento es de 24 a 48 ciclos horarios.
+                                      </p>
+                                    </div>
+
+                                    <Button className="w-full h-16 bg-accent text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,255,187,0.3)]">
+                                      Confirmar Retiro Neural
                                     </Button>
                                   </div>
-                                </div>
-                              )}
+                                )}
+                              </div>
+                            )}
 
-                              {walletView === "withdraw" && (
-                                <div className="space-y-8 animate-in slide-in-from-right duration-300">
-                                  <div className="space-y-2">
-                                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Convertir a <span className="text-accent">Soles (PEN)</span></h3>
-                                    <p className="text-[9px] text-white/30 uppercase tracking-widest">Transforma tu energía neural en activos reales</p>
-                                  </div>
-
-                                  <div className="p-6 rounded-[2.5rem] bg-accent/10 border border-accent/20 space-y-4">
-                                    <div className="flex justify-between items-center">
-                                      <span className="text-[9px] font-black uppercase text-accent tracking-widest italic">Tasa de Conversión</span>
-                                      <span className="text-[10px] text-white font-bold">100 ESP = S/ 1.00</span>
-                                    </div>
-                                    <div className="space-y-2">
-                                      <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Tokens a Retirar</label>
-                                      <div className="relative">
-                                        <Input type="number" placeholder="Min: 500 ESP" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black pr-16" />
-                                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-accent">ESP</span>
+                            {activeMenuSection === "activity" && (
+                              <div className="space-y-4">
+                                <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Historial de <span className="text-primary">Actividad</span></h3>
+                                <div className="space-y-3">
+                                  {[
+                                    { action: "Te gustó el Reel de @NatureLover", time: "hace 2m", icon: Heart },
+                                    { action: "Comentaste en el Live de @EcoExplorer", time: "hace 1h", icon: MessageSquare },
+                                    { action: "Empezaste a seguir a @BioHacker", time: "hace 5h", icon: UserPlus },
+                                    { action: "Compartiste la señal de @GaiaNode", time: "ayer", icon: Share2 },
+                                  ].map((item, i) => (
+                                    <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                                      <item.icon size={16} className="text-primary" />
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-[10px] text-white/80 font-medium leading-tight">{item.action}</p>
+                                        <p className="text-[8px] text-white/20 font-black uppercase tracking-widest mt-1">{item.time}</p>
                                       </div>
                                     </div>
-                                    <div className="pt-2 flex flex-col items-center">
-                                      <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] mb-2">Equivale a</span>
-                                      <div className="text-3xl font-black italic text-white leading-none">S/ 0.00</div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {activeMenuSection === "account" && (
+                              <div className="space-y-6">
+                                <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Información <span className="text-primary">Cuenta</span></h3>
+                                <div className="space-y-4">
+                                  <div className="space-y-1.5 px-2">
+                                    <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Correo Electrónico</p>
+                                    <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                                      <Mail size={14} className="text-white/20" />
+                                      <span className="text-[10px] text-white/80 font-bold tracking-widest">ENTITY_01@GAIA.OS</span>
                                     </div>
                                   </div>
-
-                                  <div className="space-y-4">
-                                    <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em] ml-1">Destino de Fondos</label>
-                                    <div className="grid grid-cols-1 gap-2">
-                                      {[
-                                        { id: 'wyape', label: 'Retiro vía Yape', icon: Smartphone, color: 'text-purple-400' },
-                                        { id: 'wcard', label: 'Transferencia Bancaria', icon: CreditCard, color: 'text-blue-400' },
-                                        { id: 'wpaypal', label: 'PayPal (USD)', icon: Globe, color: 'text-blue-500' },
-                                      ].map((m) => (
-                                        <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-accent/40 transition-all group text-left">
-                                          <div className="flex items-center gap-4">
-                                            <m.icon size={18} className={m.color} />
-                                            <span className="text-[10px] font-black text-white uppercase italic tracking-tight">{m.label}</span>
-                                          </div>
-                                          <ArrowDownLeft size={14} className="text-white/20 group-hover:text-accent" />
-                                        </button>
-                                      ))}
+                                  <div className="space-y-1.5 px-2">
+                                    <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Teléfono Sincronizado</p>
+                                    <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                                      <Phone size={14} className="text-white/20" />
+                                      <span className="text-[10px] text-white/80 font-bold tracking-widest">+54 9 11 1234 5678</span>
                                     </div>
                                   </div>
-
-                                  <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/10 space-y-3">
-                                    <div className="flex items-center gap-2 text-red-400">
-                                      <Shield size={14} />
-                                      <span className="text-[9px] font-black uppercase tracking-widest">Protocolo de Seguridad</span>
+                                  <div className="space-y-1.5 px-2">
+                                    <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Edad Registrada</p>
+                                    <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                                      <Calendar size={14} className="text-white/20" />
+                                      <span className="text-[10px] text-white/80 font-bold tracking-widest">24 CICLOS SOLARES</span>
                                     </div>
-                                    <p className="text-[8px] text-white/40 font-bold uppercase tracking-widest leading-relaxed">
-                                      Los retiros se efectuarán <span className="text-red-400">únicamente al titular</span> de la cuenta BioLive verificado. El tiempo de procesamiento es de 24 a 48 ciclos horarios.
-                                    </p>
                                   </div>
-
-                                  <Button className="w-full h-16 bg-accent text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,255,187,0.3)]">
-                                    Confirmar Retiro Neural
+                                  <Button className="w-full h-12 bg-white/5 border border-white/10 text-white font-black uppercase text-[9px] tracking-widest rounded-xl hover:bg-primary hover:text-black" onClick={() => toast({ title: "Cifrado Quantum", description: "Verifica tu identidad para editar." })}>
+                                    Editar Datos Sensibles
                                   </Button>
                                 </div>
-                              )}
-                            </div>
-                          )}
-
-                          {activeMenuSection === "activity" && (
-                            <div className="space-y-4">
-                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Historial de <span className="text-primary">Actividad</span></h3>
-                              <div className="space-y-3">
-                                {[
-                                  { action: "Te gustó el Reel de @NatureLover", time: "hace 2m", icon: Heart },
-                                  { action: "Comentaste en el Live de @EcoExplorer", time: "hace 1h", icon: MessageSquare },
-                                  { action: "Empezaste a seguir a @BioHacker", time: "hace 5h", icon: UserPlus },
-                                  { action: "Compartiste la señal de @GaiaNode", time: "ayer", icon: Share2 },
-                                ].map((item, i) => (
-                                  <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
-                                    <item.icon size={16} className="text-primary" />
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-[10px] text-white/80 font-medium leading-tight">{item.action}</p>
-                                      <p className="text-[8px] text-white/20 font-black uppercase tracking-widest mt-1">{item.time}</p>
-                                    </div>
-                                  </div>
-                                ))}
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {activeMenuSection === "account" && (
-                            <div className="space-y-6">
-                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Información <span className="text-primary">Cuenta</span></h3>
+                            {activeMenuSection === "support" && (
+                              <div className="space-y-6 text-center pt-8">
+                                 <div className="h-20 w-20 rounded-[2.5rem] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto">
+                                   <LifeBuoy size={40} className="animate-spin-slow" />
+                                 </div>
+                                 <div className="space-y-2">
+                                   <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Soporte <span className="text-primary">Técnico</span></h3>
+                                   <p className="text-[10px] text-white/40 uppercase tracking-widest leading-relaxed">Conexión directa con el núcleo Gaia</p>
+                                 </div>
+                                 <div className="space-y-2">
+                                   <Button className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">Chat en Tiempo Real</Button>
+                                   <Button className="w-full h-14 bg-white/5 border border-white/10 text-white font-black uppercase italic tracking-widest rounded-2xl">Enviar Ticket Neural</Button>
+                                 </div>
+                              </div>
+                            )}
+
+                            {activeMenuSection === "help" && (
                               <div className="space-y-4">
-                                <div className="space-y-1.5 px-2">
-                                  <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Correo Electrónico</p>
-                                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <Mail size={14} className="text-white/20" />
-                                    <span className="text-[10px] text-white/80 font-bold tracking-widest">ENTITY_01@GAIA.OS</span>
+                                <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Base de <span className="text-primary">Datos</span></h3>
+                                <div className="space-y-2">
+                                  {[
+                                    "¿Cómo minar tokens ESP?",
+                                    "Seguridad de la señal Live",
+                                    "Privacidad del bioma digital",
+                                    "Reglas de la red Gaia",
+                                  ].map((q, i) => (
+                                    <button key={i} className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-left">
+                                      <span className="text-[10px] text-white/80 font-bold uppercase tracking-tight">{q}</span>
+                                      <ChevronLeft size={14} className="rotate-180 text-white/20" />
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {activeMenuSection === "settings" && (
+                              <div className="space-y-6">
+                                <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Ajustes <span className="text-primary">Sistema</span></h3>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                      <Bell size={16} className="text-primary" />
+                                      <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Notificaciones</span>
+                                    </div>
+                                    <Switch defaultChecked />
+                                  </div>
+                                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                      <Moon size={16} className="text-primary" />
+                                      <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Modo Oscuro Absoluto</span>
+                                    </div>
+                                    <Switch defaultChecked />
+                                  </div>
+                                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                      <Shield size={16} className="text-primary" />
+                                      <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Seguridad Biométrica</span>
+                                    </div>
+                                    <Switch />
                                   </div>
                                 </div>
-                                <div className="space-y-1.5 px-2">
-                                  <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Teléfono Sincronizado</p>
-                                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <Phone size={14} className="text-white/20" />
-                                    <span className="text-[10px] text-white/80 font-bold tracking-widest">+54 9 11 1234 5678</span>
+                              </div>
+                            )}
+
+                            {activeMenuSection === "privacy" && (
+                              <div className="space-y-6">
+                                <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Protocolo <span className="text-accent">Privacidad</span></h3>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                      <Eye size={16} className="text-accent" />
+                                      <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Perfil Público</span>
+                                    </div>
+                                    <Switch defaultChecked />
+                                  </div>
+                                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                      <Globe size={16} className="text-accent" />
+                                      <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Visibilidad Global</span>
+                                    </div>
+                                    <Switch defaultChecked />
+                                  </div>
+                                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <div className="flex items-center gap-3">
+                                      <Lock size={16} className="text-accent" />
+                                      <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Cuenta Encriptada</span>
+                                    </div>
+                                    <Switch />
                                   </div>
                                 </div>
-                                <div className="space-y-1.5 px-2">
-                                  <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Edad Registrada</p>
-                                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
-                                    <Calendar size={14} className="text-white/20" />
-                                    <span className="text-[10px] text-white/80 font-bold tracking-widest">24 CICLOS SOLARES</span>
-                                  </div>
-                                </div>
-                                <Button className="w-full h-12 bg-white/5 border border-white/10 text-white font-black uppercase text-[9px] tracking-widest rounded-xl hover:bg-primary hover:text-black" onClick={() => toast({ title: "Cifrado Quantum", description: "Verifica tu identidad para editar." })}>
-                                  Editar Datos Sensibles
+                                <Button variant="destructive" className="w-full h-12 rounded-xl text-[9px] font-black uppercase tracking-widest bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => toast({ variant: "destructive", title: "ALERTA", description: "Protocolo de eliminación no disponible." })}>
+                                  Eliminar Identidad Digital
                                 </Button>
                               </div>
-                            </div>
-                          )}
-
-                          {activeMenuSection === "support" && (
-                            <div className="space-y-6 text-center pt-8">
-                               <div className="h-20 w-20 rounded-[2.5rem] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto">
-                                 <LifeBuoy size={40} className="animate-spin-slow" />
-                               </div>
-                               <div className="space-y-2">
-                                 <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Soporte <span className="text-primary">Técnico</span></h3>
-                                 <p className="text-[10px] text-white/40 uppercase tracking-widest leading-relaxed">Conexión directa con el núcleo Gaia</p>
-                               </div>
-                               <div className="space-y-2">
-                                 <Button className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">Chat en Tiempo Real</Button>
-                                 <Button className="w-full h-14 bg-white/5 border border-white/10 text-white font-black uppercase italic tracking-widest rounded-2xl">Enviar Ticket Neural</Button>
-                               </div>
-                            </div>
-                          )}
-
-                          {activeMenuSection === "help" && (
-                            <div className="space-y-4">
-                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Base de <span className="text-primary">Datos</span></h3>
-                              <div className="space-y-2">
-                                {[
-                                  "¿Cómo minar tokens ESP?",
-                                  "Seguridad de la señal Live",
-                                  "Privacidad del bioma digital",
-                                  "Reglas de la red Gaia",
-                                ].map((q, i) => (
-                                  <button key={i} className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-left">
-                                    <span className="text-[10px] text-white/80 font-bold uppercase tracking-tight">{q}</span>
-                                    <ChevronLeft size={14} className="rotate-180 text-white/20" />
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {activeMenuSection === "settings" && (
-                            <div className="space-y-6">
-                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Ajustes <span className="text-primary">Sistema</span></h3>
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                  <div className="flex items-center gap-3">
-                                    <Bell size={16} className="text-primary" />
-                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Notificaciones</span>
-                                  </div>
-                                  <Switch defaultChecked />
-                                </div>
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                  <div className="flex items-center gap-3">
-                                    <Moon size={16} className="text-primary" />
-                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Modo Oscuro Absoluto</span>
-                                  </div>
-                                  <Switch defaultChecked />
-                                </div>
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                  <div className="flex items-center gap-3">
-                                    <Shield size={16} className="text-primary" />
-                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Seguridad Biométrica</span>
-                                  </div>
-                                  <Switch />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {activeMenuSection === "privacy" && (
-                            <div className="space-y-6">
-                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Protocolo <span className="text-accent">Privacidad</span></h3>
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                  <div className="flex items-center gap-3">
-                                    <Eye size={16} className="text-accent" />
-                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Perfil Público</span>
-                                  </div>
-                                  <Switch defaultChecked />
-                                </div>
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                  <div className="flex items-center gap-3">
-                                    <Globe size={16} className="text-accent" />
-                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Visibilidad Global</span>
-                                  </div>
-                                  <Switch defaultChecked />
-                                </div>
-                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                                  <div className="flex items-center gap-3">
-                                    <Lock size={16} className="text-accent" />
-                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Cuenta Encriptada</span>
-                                  </div>
-                                  <Switch />
-                                </div>
-                              </div>
-                              <Button variant="destructive" className="w-full h-12 rounded-xl text-[9px] font-black uppercase tracking-widest bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => toast({ variant: "destructive", title: "ALERTA", description: "Protocolo de eliminación no disponible." })}>
-                                Eliminar Identidad Digital
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </ScrollArea>
                  </div>
                </SheetContent>
