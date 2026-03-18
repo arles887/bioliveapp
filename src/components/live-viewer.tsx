@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -206,7 +207,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
     const clientX = 'clientX' in e ? (e as React.MouseEvent).clientX : (e as any).touches[0].clientX;
     const x = clientX - rect.left;
     
-    // Garantizar que el corazón nazca dentro del contenedor visual (500px)
     const constrainedX = Math.max(20, Math.min(x, 480));
     const newHeart = { id: Date.now(), x: constrainedX };
     setHearts(prev => [...prev, newHeart]);
@@ -317,9 +317,8 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
         ))}
       </div>
 
-      {/* Header Room - Rediseñado y Simetrizado */}
+      {/* Header Room */}
       <div className="relative z-40 px-6 py-8 flex items-center justify-between pointer-events-none">
-        {/* Creator Profile - Left */}
         <div className="flex items-center gap-3 bg-black/40 backdrop-blur-2xl px-3 py-2 rounded-[1.5rem] border border-white/10 pointer-events-auto">
           <div className="h-10 w-10 rounded-xl overflow-hidden border border-primary/50 shrink-0">
             <Image src={`https://picsum.photos/seed/${live.user}/100/100`} width={40} height={40} alt="Avatar" />
@@ -333,7 +332,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
           </div>
         </div>
         
-        {/* Actions - Right */}
         <div className="flex items-center gap-2 pointer-events-auto">
           <button 
             onClick={() => setIsChatVisible(!isChatVisible)}
@@ -359,12 +357,12 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
 
       <div className="flex-1"></div>
 
-      {/* Chat HUD */}
+      {/* Chat HUD - Moved More Down */}
       <div className={cn(
-        "relative z-40 px-6 pb-10 transition-all duration-500 transform",
+        "relative z-40 px-6 pb-6 transition-all duration-500 transform",
         isChatVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
       )}>
-        <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-3 mask-fade-top mb-5">
+        <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-3 mask-fade-top mb-3">
           {messages.map((msg) => (
             <div key={msg.id} className="flex flex-col gap-0 animate-in fade-in slide-in-from-left-1 duration-300">
               <span className={cn(
@@ -396,7 +394,6 @@ function LiveStreamRoom({ live, onBack }: { live: any; onBack: () => void }) {
               className="w-[300px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-5 mb-5 shadow-[0_20px_50px_rgba(0,0,0,0.8)]"
             >
               <div className="space-y-5">
-                {/* Bio-Wallet Section */}
                 <div className="flex flex-col gap-1 p-4 rounded-3xl bg-primary/10 border border-primary/20">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] italic">Bio-Wallet</span>
