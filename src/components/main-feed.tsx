@@ -59,16 +59,16 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       const timer = setTimeout(() => {
         if (storiesScrollRef.current) {
           const container = storiesScrollRef.current;
-          const storyElements = container.querySelectorAll('.snap-center');
+          const storyElements = container.querySelectorAll('.story-item');
           if (storyElements[selectedStoryIndex]) {
             storyElements[selectedStoryIndex].scrollIntoView({
-              behavior: 'smooth',
+              behavior: 'auto',
               block: 'nearest',
               inline: 'center'
             });
           }
         }
-      }, 100);
+      }, 50);
       return () => clearTimeout(timer);
     }
   }, [selectedStoryIndex]);
@@ -226,44 +226,64 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
         <div 
           ref={storiesScrollRef}
-          className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center h-full gap-6 px-8 py-2"
+          className="w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center gap-8 px-8 py-4"
         >
           {storyIds.map((id) => (
             <div 
               key={id} 
-              className="relative aspect-[9/16] h-[75vh] shrink-0 snap-center bg-black rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all"
+              className="story-item relative aspect-[9/16] h-[70vh] shrink-0 snap-center bg-black rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.8)] transition-all"
             >
               <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
               
-              <div className="absolute top-4 left-4 right-4 h-1 bg-white/10 rounded-full overflow-hidden z-10">
-                <div className="h-full bg-primary" style={{ width: '100%' }}></div>
+              <div className="absolute top-6 left-6 right-6 h-1 bg-white/10 rounded-full overflow-hidden z-10">
+                <div className="h-full bg-primary animate-[progress_5s_linear_forwards]" style={{ width: '100%' }}></div>
               </div>
 
-              <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between z-10">
+              <div className="absolute top-10 left-6 flex items-center gap-3 z-10">
                  <div 
-                  className="cursor-pointer hover:opacity-80 transition-opacity min-w-0 flex-1 mr-4"
+                  className="h-8 w-8 rounded-full border border-primary/40 overflow-hidden relative cursor-pointer"
                   onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}_Entity`); }}
                  >
-                   <p className="text-white font-black italic text-xs uppercase tracking-tighter truncate">@Bio_{id}_Entity</p>
-                   <p className="text-white/60 text-[8px] uppercase font-bold tracking-widest truncate">Protocolo #0{id}</p>
+                    <Image src={`https://picsum.photos/seed/u${id}/50/50`} fill alt="User" />
                  </div>
+                 <div 
+                  className="cursor-pointer"
+                  onClick={() => { setSelectedStoryIndex(null); onProfileClick(`Bio_${id}_Entity`); }}
+                 >
+                   <p className="text-white font-black italic text-[10px] uppercase tracking-tighter truncate leading-none">@Bio_{id}_Entity</p>
+                   <p className="text-white/40 text-[7px] uppercase font-bold tracking-widest mt-1">Protocolo Activo</p>
+                 </div>
+              </div>
+
+              <div className="absolute bottom-8 left-6 right-6 flex items-center justify-between z-10">
                  <button 
                   onClick={() => toggleStoryLike(id)}
                   className={cn(
-                    "h-10 w-10 rounded-full backdrop-blur-xl border flex items-center justify-center transition-all active:scale-75 shrink-0",
+                    "h-12 w-12 rounded-2xl backdrop-blur-xl border flex items-center justify-center transition-all active:scale-75 shadow-2xl",
                     likedStories[id] 
                       ? "bg-red-500/20 border-red-500/40 text-red-500" 
-                      : "bg-white/10 border-white/10 text-white/60"
+                      : "bg-white/5 border-white/10 text-white/60"
                   )}
                  >
-                    <Heart size={16} fill={likedStories[id] ? "currentColor" : "none"} />
+                    <Heart size={20} fill={likedStories[id] ? "currentColor" : "none"} />
                  </button>
+                 <div className="flex-1 px-4">
+                    <div className="h-10 w-full bg-white/5 backdrop-blur-md rounded-xl border border-white/10 flex items-center px-4">
+                       <span className="text-[8px] font-black text-white/30 uppercase tracking-widest">Enviar Respuesta...</span>
+                    </div>
+                 </div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40"></div>
             </div>
           ))}
         </div>
       </ProtocolWindow>
+      <style jsx global>{`
+        @keyframes progress {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+      `}</style>
     </div>
   );
 }
