@@ -6,7 +6,8 @@ import {
   Menu, Camera, Play, Music, Heart, 
   Edit3, Share2, Zap, UserPlus, Check, Send, ChevronLeft,
   Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
-  TrendingUp, Gift, DollarSign, PlusCircle, X
+  TrendingUp, Gift, DollarSign, PlusCircle, Bell, Shield, Moon, Eye, Globe,
+  MessageSquare, Mail, Phone, Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,16 +24,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 
 export function ProfileView({ 
-  username = "BioEntity_01_Official_Handle", 
+  username = "BioEntity_01", 
   isOwnProfile = true,
-  onBack
+  onBack,
+  requireAuth
 }: { 
   username?: string;
   isOwnProfile?: boolean;
   onBack?: () => void;
+  requireAuth: (cb: () => void) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [profileName, setProfileName] = useState(username);
@@ -53,10 +56,12 @@ export function ProfileView({
   };
 
   const handleFollow = () => {
-    setIsFollowing(!isFollowing);
-    toast({ 
-      title: isFollowing ? "Sincronización Terminada" : "Sincronizado", 
-      description: isFollowing ? `Has dejado de seguir a @${profileName}` : `Siguiendo a @${profileName}` 
+    requireAuth(() => {
+      setIsFollowing(!isFollowing);
+      toast({ 
+        title: isFollowing ? "Sincronización Terminada" : "Sincronizado", 
+        description: isFollowing ? `Has dejado de seguir a @${profileName}` : `Siguiendo a @${profileName}` 
+      });
     });
   };
 
@@ -91,7 +96,7 @@ export function ProfileView({
               <Share2 size={18} />
            </button>
            {isOwnProfile && (
-             <Sheet>
+             <Sheet onOpenChange={() => setActiveMenuSection(null)}>
                <SheetTrigger asChild>
                  <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
                     <Menu size={18} />
@@ -111,10 +116,7 @@ export function ProfileView({
                           {menuItems.map((item) => (
                             <button
                               key={item.id}
-                              onClick={() => {
-                                if (item.id === "wallet") setActiveMenuSection("wallet");
-                                else toast({ title: item.label, description: "Protocolo en desarrollo." });
-                              }}
+                              onClick={() => setActiveMenuSection(item.id)}
                               className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group"
                             >
                               <div className="flex items-center gap-4">
@@ -125,7 +127,7 @@ export function ProfileView({
                             </button>
                           ))}
                         </div>
-                      ) : activeMenuSection === "wallet" ? (
+                      ) : (
                         <div className="space-y-8 animate-in slide-in-from-right duration-300">
                           <button 
                             onClick={() => setActiveMenuSection(null)}
@@ -135,59 +137,210 @@ export function ProfileView({
                             <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
                           </button>
 
-                          <div className="p-6 rounded-[2.5rem] bg-primary/10 border border-primary/20 space-y-4 shadow-[0_0_30px_rgba(204,255,0,0.1)]">
-                             <div className="flex justify-between items-start">
-                                <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Bio-Wallet balance</span>
-                                <Zap size={14} className="text-primary animate-pulse" />
-                             </div>
-                             <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
-                             <Button className="w-full bg-primary text-black font-black uppercase italic tracking-widest h-12 rounded-xl">
-                                <PlusCircle size={16} className="mr-2" />
-                                Inyectar Tokens
-                             </Button>
-                          </div>
+                          {activeMenuSection === "wallet" && (
+                            <div className="space-y-8">
+                              <div className="p-6 rounded-[2.5rem] bg-primary/10 border border-primary/20 space-y-4">
+                                <div className="flex justify-between items-start">
+                                  <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Bio-Wallet balance</span>
+                                  <Zap size={14} className="text-primary animate-pulse" />
+                                </div>
+                                <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
+                                <Button className="w-full bg-primary text-black font-black uppercase italic tracking-widest h-12 rounded-xl" onClick={() => toast({ title: "Inyectando Tokens", description: "Pasarela de pago segura activada." })}>
+                                  <PlusCircle size={16} className="mr-2" />
+                                  Comprar Tokens
+                                </Button>
+                              </div>
 
-                          <div className="grid grid-cols-2 gap-4">
-                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                                <TrendingUp size={14} className="text-accent" />
-                                <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Estadísticas</p>
-                                <p className="text-lg font-black text-white italic">+24% <span className="text-[8px] text-accent">↑</span></p>
-                             </div>
-                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
-                                <DollarSign size={14} className="text-green-400" />
-                                <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Ingresos Live</p>
-                                <p className="text-lg font-black text-white italic">1.2K <span className="text-[8px] text-primary">ESP</span></p>
-                             </div>
-                          </div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                  <TrendingUp size={14} className="text-accent" />
+                                  <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Estadísticas</p>
+                                  <p className="text-lg font-black text-white italic">+24% <span className="text-[8px] text-accent">↑</span></p>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-2">
+                                  <DollarSign size={14} className="text-green-400" />
+                                  <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">Ingresos Live</p>
+                                  <p className="text-lg font-black text-white italic">1.2K <span className="text-[8px] text-primary">ESP</span></p>
+                                </div>
+                              </div>
 
-                          <div className="space-y-4">
-                             <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 ml-2 italic">Historial Reciente</h4>
-                             <div className="space-y-2">
-                                {[
-                                  { type: "gift", label: "Regalo enviado", amount: "-50", user: "@Watcher_12" },
-                                  { type: "buy", label: "Compra de Tokens", amount: "+500", user: "Protocol Gaia" },
-                                  { type: "income", label: "Ingreso por Live", amount: "+120", user: "@Fan_99" },
-                                ].map((t, i) => (
-                                  <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                                    <div className="flex items-center gap-3">
-                                      <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
-                                        {t.type === 'gift' ? <Gift size={14} className="text-red-400" /> : <DollarSign size={14} className="text-primary" />}
+                              <div className="space-y-4">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 ml-2 italic">Historial Reciente</h4>
+                                <div className="space-y-2">
+                                  {[
+                                    { type: "gift", label: "Regalo enviado", amount: "-50", user: "@Watcher_12" },
+                                    { type: "buy", label: "Compra de Tokens", amount: "+500", user: "Protocol Gaia" },
+                                    { type: "income", label: "Ingreso por Live", amount: "+120", user: "@Fan_99" },
+                                  ].map((t, i) => (
+                                    <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                                      <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center">
+                                          {t.type === 'gift' ? <Gift size={14} className="text-red-400" /> : <DollarSign size={14} className="text-primary" />}
+                                        </div>
+                                        <div>
+                                          <p className="text-[9px] font-black text-white uppercase italic tracking-tight">{t.label}</p>
+                                          <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">{t.user}</p>
+                                        </div>
                                       </div>
-                                      <div>
-                                        <p className="text-[9px] font-black text-white uppercase italic tracking-tight">{t.label}</p>
-                                        <p className="text-[7px] font-bold text-white/20 uppercase tracking-widest">{t.user}</p>
-                                      </div>
+                                      <span className={cn("text-[10px] font-black italic", t.amount.startsWith('+') ? "text-primary" : "text-red-400")}>{t.amount}</span>
                                     </div>
-                                    <span className={cn(
-                                      "text-[10px] font-black italic",
-                                      t.amount.startsWith('+') ? "text-primary" : "text-red-400"
-                                    )}>{t.amount}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMenuSection === "activity" && (
+                            <div className="space-y-4">
+                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Historial de <span className="text-primary">Actividad</span></h3>
+                              <div className="space-y-3">
+                                {[
+                                  { action: "Te gustó el Reel de @NatureLover", time: "hace 2m", icon: Heart },
+                                  { action: "Comentaste en el Live de @EcoExplorer", time: "hace 1h", icon: MessageSquare },
+                                  { action: "Empezaste a seguir a @BioHacker", time: "hace 5h", icon: UserPlus },
+                                  { action: "Compartiste la señal de @GaiaNode", time: "ayer", icon: Share2 },
+                                ].map((item, i) => (
+                                  <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                                    <item.icon size={16} className="text-primary" />
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-[10px] text-white/80 font-medium leading-tight">{item.action}</p>
+                                      <p className="text-[8px] text-white/20 font-black uppercase tracking-widest mt-1">{item.time}</p>
+                                    </div>
                                   </div>
                                 ))}
-                             </div>
-                          </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMenuSection === "account" && (
+                            <div className="space-y-6">
+                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Información <span className="text-primary">Cuenta</span></h3>
+                              <div className="space-y-4">
+                                <div className="space-y-1.5 px-2">
+                                  <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Correo Electrónico</p>
+                                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <Mail size={14} className="text-white/20" />
+                                    <span className="text-[10px] text-white/80 font-bold tracking-widest">ENTITY_01@GAIA.OS</span>
+                                  </div>
+                                </div>
+                                <div className="space-y-1.5 px-2">
+                                  <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Teléfono Sincronizado</p>
+                                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <Phone size={14} className="text-white/20" />
+                                    <span className="text-[10px] text-white/80 font-bold tracking-widest">+54 9 11 1234 5678</span>
+                                  </div>
+                                </div>
+                                <div className="space-y-1.5 px-2">
+                                  <p className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Edad Registrada</p>
+                                  <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                                    <Calendar size={14} className="text-white/20" />
+                                    <span className="text-[10px] text-white/80 font-bold tracking-widest">24 CICLOS SOLARES</span>
+                                  </div>
+                                </div>
+                                <Button className="w-full h-12 bg-white/5 border border-white/10 text-white font-black uppercase text-[9px] tracking-widest rounded-xl hover:bg-primary hover:text-black" onClick={() => toast({ title: "Cifrado Quantum", description: "Verifica tu identidad para editar." })}>
+                                  Editar Datos Sensibles
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMenuSection === "support" && (
+                            <div className="space-y-6 text-center pt-8">
+                               <div className="h-20 w-20 rounded-[2.5rem] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto">
+                                 <LifeBuoy size={40} className="animate-spin-slow" />
+                               </div>
+                               <div className="space-y-2">
+                                 <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Soporte <span className="text-primary">Técnico</span></h3>
+                                 <p className="text-[10px] text-white/40 uppercase tracking-widest leading-relaxed">Conexión directa con el núcleo Gaia</p>
+                               </div>
+                               <div className="space-y-2">
+                                 <Button className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">Chat en Tiempo Real</Button>
+                                 <Button className="w-full h-14 bg-white/5 border border-white/10 text-white font-black uppercase italic tracking-widest rounded-2xl">Enviar Ticket Neural</Button>
+                               </div>
+                            </div>
+                          )}
+
+                          {activeMenuSection === "help" && (
+                            <div className="space-y-4">
+                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Base de <span className="text-primary">Datos</span></h3>
+                              <div className="space-y-2">
+                                {[
+                                  "¿Cómo minar tokens ESP?",
+                                  "Seguridad de la señal Live",
+                                  "Privacidad del bioma digital",
+                                  "Reglas de la red Gaia",
+                                ].map((q, i) => (
+                                  <button key={i} className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-left">
+                                    <span className="text-[10px] text-white/80 font-bold uppercase tracking-tight">{q}</span>
+                                    <ChevronLeft size={14} className="rotate-180 text-white/20" />
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMenuSection === "settings" && (
+                            <div className="space-y-6">
+                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Ajustes <span className="text-primary">Sistema</span></h3>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                  <div className="flex items-center gap-3">
+                                    <Bell size={16} className="text-primary" />
+                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Notificaciones</span>
+                                  </div>
+                                  <Switch defaultChecked />
+                                </div>
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                  <div className="flex items-center gap-3">
+                                    <Moon size={16} className="text-primary" />
+                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Modo Oscuro Absoluto</span>
+                                  </div>
+                                  <Switch defaultChecked />
+                                </div>
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                  <div className="flex items-center gap-3">
+                                    <Shield size={16} className="text-primary" />
+                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Seguridad Biométrica</span>
+                                  </div>
+                                  <Switch />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {activeMenuSection === "privacy" && (
+                            <div className="space-y-6">
+                              <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Protocolo <span className="text-accent">Privacidad</span></h3>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                  <div className="flex items-center gap-3">
+                                    <Eye size={16} className="text-accent" />
+                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Perfil Público</span>
+                                  </div>
+                                  <Switch defaultChecked />
+                                </div>
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                  <div className="flex items-center gap-3">
+                                    <Globe size={16} className="text-accent" />
+                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Visibilidad Global</span>
+                                  </div>
+                                  <Switch defaultChecked />
+                                </div>
+                                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                                  <div className="flex items-center gap-3">
+                                    <Lock size={16} className="text-accent" />
+                                    <span className="text-[10px] text-white/80 font-black uppercase tracking-widest">Cuenta Encriptada</span>
+                                  </div>
+                                  <Switch />
+                                </div>
+                              </div>
+                              <Button variant="destructive" className="w-full h-12 rounded-xl text-[9px] font-black uppercase tracking-widest bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white" onClick={() => toast({ variant: "destructive", title: "ALERTA", description: "Protocolo de eliminación no disponible." })}>
+                                Eliminar Identidad Digital
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                      ) : null}
+                      )}
                     </ScrollArea>
                  </div>
                </SheetContent>
@@ -355,6 +508,16 @@ export function ProfileView({
           </Button>
         </div>
       </ProtocolWindow>
+
+      <style jsx global>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 8s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
