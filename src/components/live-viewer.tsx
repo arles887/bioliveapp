@@ -271,7 +271,6 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     return () => video.removeEventListener('timeupdate', updateProgress);
   }, [isYouTube]);
 
-  // Sincronización global: Mute music when video audio starts
   useEffect(() => {
     if (!isMuted && isPlaying) {
       window.dispatchEvent(new CustomEvent('bio-video-playing'));
@@ -490,7 +489,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
 
       <div className="flex-1"></div>
 
-      <div className="absolute bottom-12 right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
+      <div className="absolute bottom-[230px] right-3 flex flex-col items-center gap-8 z-50 pointer-events-none">
         <div 
           onClick={(e) => { e.stopPropagation(); handleTikiTiki(e); }}
           className="flex flex-col items-center gap-2 group cursor-pointer pointer-events-auto"
@@ -553,7 +552,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
             <input 
               value={inputText} 
               onChange={(e) => setInputText(e.target.value)} 
-              placeholder="Inyectar señal..." 
+              placeholder="Inyectar respuesta..." 
               className="flex-1 h-full bg-black/60 backdrop-blur-3xl border border-white/10 rounded-xl px-4 text-[10px] text-white focus:outline-none focus:border-primary/40" 
             />
             <button 
@@ -568,3 +567,4 @@ function LiveStreamRoom({ live, onBack, onProfileClick, requireAuth }: { live: a
     </div>
   );
 }
+

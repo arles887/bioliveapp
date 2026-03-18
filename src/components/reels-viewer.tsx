@@ -142,7 +142,6 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
     return () => video.removeEventListener('timeupdate', updateProgress);
   }, [isYouTube]);
 
-  // Sincronización global: Mute music when video audio starts
   useEffect(() => {
     if (!isMuted && isPlaying) {
       window.dispatchEvent(new CustomEvent('bio-video-playing'));
@@ -296,7 +295,7 @@ function ReelItem({ reel, onProfileClick, toggleLike, toggleFollow, handleShare,
           </div>
         </div>
 
-        <div className="absolute bottom-12 right-3 flex flex-col items-center gap-8 z-50">
+        <div className="absolute bottom-[230px] right-3 flex flex-col items-center gap-8 z-50">
           <div 
             onClick={() => toggleLike(reel.id)}
             className="flex flex-col items-center gap-2 group cursor-pointer"
