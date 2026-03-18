@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { 
   Zap, Users, Heart, X, UserPlus, Check
@@ -17,6 +17,8 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
   const [activeReelMode, setActiveReelMode] = useState(false);
   const [following, setFollowing] = useState<Record<string, boolean>>({});
   const [likedStories, setLikedStories] = useState<Record<number, boolean>>({});
+  
+  const storiesScrollRef = useRef<HTMLDivElement>(null);
 
   const filters = ["Amigos", "Siguiendo", "Temáticas", "Salas", "Para ti"];
   const storyIds = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -50,6 +52,18 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       filter: "Siguiendo"
     }
   ];
+
+  // Auto-scroll to selected story when modal opens
+  useEffect(() => {
+    if (selectedStoryIndex !== null && storiesScrollRef.current) {
+      const container = storiesScrollRef.current;
+      const storyWidth = container.offsetWidth;
+      container.scrollTo({
+        left: selectedStoryIndex * (storyWidth + 16), // width + gap
+        behavior: 'smooth'
+      });
+    }
+  }, [selectedStoryIndex]);
 
   const toggleFollow = (user: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -202,9 +216,15 @@ export function MainFeed({ onProfileClick }: { onProfileClick: (username: string
       </div>
 
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
-        <div className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex h-full gap-4">
+        <div 
+          ref={storiesScrollRef}
+          className="w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex items-center h-full gap-4 px-4"
+        >
           {storyIds.map((id) => (
-            <div key={id} className="relative aspect-[9/16] h-[60vh] shrink-0 snap-center bg-black rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl mx-auto">
+            <div 
+              key={id} 
+              className="relative aspect-[9/16] h-[60vh] shrink-0 snap-center bg-black rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl"
+            >
               <Image src={`https://picsum.photos/seed/story${id}/1080/1920`} fill alt="Story" className="object-cover" />
               
               <div className="absolute top-4 left-4 right-4 h-1 bg-white/10 rounded-full overflow-hidden z-10">
