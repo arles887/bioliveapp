@@ -241,7 +241,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
     e.preventDefault();
     if (!inputText.trim()) return;
     setMessages(prev => [...prev, { id: Date.now(), user: "Tú", text: inputText }]);
-    inputText("");
+    setInputText("");
   };
 
   return (
@@ -267,8 +267,9 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
         ))}
       </div>
 
-      <div className="relative z-40 px-6 py-10 flex items-center justify-between">
-        <div className="flex items-center gap-3 bg-transparent backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10 min-w-0 max-w-[70%]">
+      {/* Header Corregido con Espaciado Simétrico */}
+      <div className="relative z-40 px-6 py-10 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 flex-1 min-w-0 bg-transparent backdrop-blur-2xl p-2 pr-4 rounded-2xl border border-white/10">
           <div 
             className="h-10 w-10 rounded-xl overflow-hidden border border-primary/40 relative cursor-pointer shrink-0"
             onClick={() => { onBack(); onProfileClick(live.user); }}
@@ -293,7 +294,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
           </button>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button 
             onClick={(e) => { e.stopPropagation(); setIsChatVisible(!isChatVisible); }} 
             className="h-11 w-11 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-white border border-white/10 hover:border-primary/40 transition-all"
@@ -311,6 +312,7 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
 
       <div className="flex-1"></div>
 
+      {/* Chat HUD Corregido */}
       <div className={cn("relative z-40 px-6 pb-6 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div ref={scrollRef} className="max-h-44 overflow-y-auto no-scrollbar space-y-2 mb-3">
           {messages.map((msg) => (
@@ -321,10 +323,10 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 h-14 w-full">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="h-14 w-14 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 shadow-2xl active:scale-90 transition-transform">
+              <button className="h-14 w-14 shrink-0 bg-white/10 backdrop-blur-3xl rounded-2xl flex items-center justify-center text-white border border-white/10 shadow-2xl active:scale-90 transition-all overflow-hidden">
                 <Gift size={24} />
               </button>
             </PopoverTrigger>
@@ -356,16 +358,16 @@ function LiveStreamRoom({ live, onBack, onProfileClick }: { live: any; onBack: (
             </PopoverContent>
           </Popover>
 
-          <form onSubmit={handleSendMessage} className="flex-1 flex gap-2">
+          <form onSubmit={handleSendMessage} className="flex-1 flex gap-2 h-full">
             <input 
               value={inputText} 
               onChange={(e) => setInputText(e.target.value)} 
               placeholder="Inyectar señal..." 
-              className="flex-1 h-14 bg-black/60 backdrop-blur-3xl border border-white/10 rounded-2xl px-5 text-[11px] text-white focus:outline-none focus:border-primary/50" 
+              className="flex-1 h-full bg-black/60 backdrop-blur-3xl border border-white/10 rounded-2xl px-5 text-[11px] text-white focus:outline-none focus:border-primary/50" 
             />
             <button 
               type="submit" 
-              className="h-14 w-14 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="h-14 w-14 shrink-0 bg-primary rounded-2xl flex items-center justify-center text-black shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
               <Send size={22} fill="currentColor" />
             </button>
