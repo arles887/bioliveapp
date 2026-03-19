@@ -9,15 +9,21 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
 const VIDEO_SOURCES = [
-  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=0&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/Ap7pyB8Gp5Q?autoplay=0&mute=1&loop=1&playlist=Ap7pyB8Gp5Q&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/-rDD5v-oTjM?autoplay=0&mute=1&loop=1&playlist=-rDD5v-oTjM&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/dn3mKOYeR20?autoplay=0&mute=1&loop=1&playlist=dn3mKOYeR20&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/A0I0CnYoFO8?autoplay=0&mute=1&loop=1&playlist=A0I0CnYoFO8&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/OKkle0WgDQQ?autoplay=0&mute=1&loop=1&playlist=OKkle0WgDQQ&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/80aU_aT1VPA?autoplay=0&mute=1&loop=1&playlist=80aU_aT1VPA&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/sJTcMA3e7LI?autoplay=0&mute=1&loop=1&playlist=sJTcMA3e7LI&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/kMQLJC9aV9s?autoplay=0&mute=1&loop=1&playlist=kMQLJC9aV9s&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/fqOJVCH3RAc?autoplay=0&mute=1&loop=1&playlist=fqOJVCH3RAc&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/5U2xPq_oSHI?autoplay=0&mute=1&loop=1&playlist=5U2xPq_oSHI&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/twG-EwxFb-A?autoplay=0&mute=1&loop=1&playlist=twG-EwxFb-A&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/zc4hD4ytN0A?autoplay=0&mute=1&loop=1&playlist=zc4hD4ytN0A&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/dORlRI79D3w?autoplay=0&mute=1&loop=1&playlist=dORlRI79D3w&controls=0&modestbranding=1&rel=0",
   "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
 ];
 
 const INITIAL_REELS = Array.from({ length: 50 }, (_, i) => ({

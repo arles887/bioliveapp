@@ -27,15 +27,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const VIDEO_SOURCES = [
+  "https://www.youtube.com/embed/xpcLA9WQjB0?autoplay=0&mute=1&loop=1&playlist=xpcLA9WQjB0&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VLwd4WiNFMM?autoplay=0&mute=1&loop=1&playlist=VLwd4WiNFMM&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/WD5W5zjcbAk?autoplay=0&mute=1&loop=1&playlist=WD5W5zjcbAk&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/lqew-iI6tmI?autoplay=0&mute=1&loop=1&playlist=lqew-iI6tmI&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/AZyR9QymVoo?autoplay=0&mute=1&loop=1&playlist=AZyR9QymVoo&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/wQpubNc-0bQ?autoplay=0&mute=1&loop=1&playlist=wQpubNc-0bQ&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VsxpMi4v1yE?autoplay=0&mute=1&loop=1&playlist=VsxpMi4v1yE&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/1qlGdVUy_Cc?autoplay=0&mute=1&loop=1&playlist=1qlGdVUy_Cc&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/wc-yyfCCuIA?autoplay=0&mute=1&loop=1&playlist=wc-yyfCCuIA&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/5GGyhbKOWtY?autoplay=0&mute=1&loop=1&playlist=5GGyhbKOWtY&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/lrQRSltwU8E?autoplay=0&mute=1&loop=1&playlist=lrQRSltwU8E&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/gCsemG6ip54?autoplay=0&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0"
 ];
 
 const INITIAL_LIVES = Array.from({ length: 25 }, (_, i) => ({
