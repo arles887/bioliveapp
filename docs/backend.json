@@ -1,0 +1,553 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information within the BioLive application. This entity stores public and semi-public user details, excluding sensitive authentication credentials.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "A unique, user-chosen name for their profile."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for identification and communication.",
+          "format": "email"
+        },
+        "profilePictureUrl": {
+          "type": "string",
+          "description": "URL to the user's profile picture.",
+          "format": "uri"
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biographical description provided by the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "createdAt"
+      ]
+    },
+    "MediaItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MediaItem",
+      "type": "object",
+      "description": "Represents a piece of uploaded content, such as a short video (reel) or a recorded live stream. This entity stores details about the media itself.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MediaItem entity."
+        },
+        "uploaderId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who uploaded this media. (Relationship: UserProfile 1:N MediaItem)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the media item."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the media item."
+        },
+        "mediaUrl": {
+          "type": "string",
+          "description": "URL to the actual video content file.",
+          "format": "uri"
+        },
+        "thumbnailUrl": {
+          "type": "string",
+          "description": "URL to the thumbnail image for the media item.",
+          "format": "uri"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of media (e.g., 'REEL', 'VIDEO', 'LIVE_RECORDING')."
+        },
+        "durationSeconds": {
+          "type": "number",
+          "description": "The duration of the media content in seconds."
+        },
+        "viewsCount": {
+          "type": "number",
+          "description": "The total number of times this media item has been viewed."
+        },
+        "likesCount": {
+          "type": "number",
+          "description": "The total number of likes this media item has received."
+        },
+        "commentsCount": {
+          "type": "number",
+          "description": "The total number of comments this media item has received."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the media item was uploaded.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the media item was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "uploaderId",
+        "title",
+        "mediaUrl",
+        "type",
+        "createdAt"
+      ]
+    },
+    "LiveStream": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LiveStream",
+      "type": "object",
+      "description": "Represents an active or scheduled live broadcast event. This entity tracks the real-time aspects of a live stream.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LiveStream entity."
+        },
+        "broadcasterId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who is broadcasting the live stream. (Relationship: UserProfile 1:N LiveStream)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the live stream."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the live stream content."
+        },
+        "streamUrl": {
+          "type": "string",
+          "description": "The URL for viewers to access the live stream content.",
+          "format": "uri"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the live stream (e.g., 'SCHEDULED', 'LIVE', 'ENDED')."
+        },
+        "startedAt": {
+          "type": "string",
+          "description": "Timestamp when the live stream officially started.",
+          "format": "date-time"
+        },
+        "endedAt": {
+          "type": "string",
+          "description": "Timestamp when the live stream officially ended."
+        },
+        "peakViewerCount": {
+          "type": "number",
+          "description": "The highest number of concurrent viewers reached during the live stream."
+        },
+        "recordedMediaItemId": {
+          "type": "string",
+          "description": "Optional reference to a MediaItem if this live stream was recorded and saved as VOD. (Relationship: LiveStream 1:1 MediaItem)"
+        }
+      },
+      "required": [
+        "id",
+        "broadcasterId",
+        "title",
+        "streamUrl",
+        "status",
+        "startedAt"
+      ]
+    },
+    "Comment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Comment",
+      "type": "object",
+      "description": "Represents a user comment posted on a MediaItem.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Comment entity."
+        },
+        "mediaItemId": {
+          "type": "string",
+          "description": "Reference to the MediaItem this comment belongs to. (Relationship: MediaItem 1:N Comment)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who posted the comment. (Relationship: UserProfile 1:N Comment)"
+        },
+        "content": {
+          "type": "string",
+          "description": "The textual content of the comment."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the comment was posted.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the comment was last updated (e.g., edited)."
+        },
+        "parentId": {
+          "type": "string",
+          "description": "Optional reference to another Comment, indicating this is a reply. (Relationship: Comment 1:N Comment)"
+        },
+        "moderationStatus": {
+          "type": "string",
+          "description": "The moderation status of the comment (e.g., 'APPROVED', 'FLAGGED', 'REMOVED', 'PENDING_REVIEW')."
+        }
+      },
+      "required": [
+        "id",
+        "mediaItemId",
+        "userId",
+        "content",
+        "createdAt"
+      ]
+    },
+    "LiveChatMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LiveChatMessage",
+      "type": "object",
+      "description": "Represents a single chat message sent during a live stream. These messages may be ephemeral but are stored for moderation and potential history features.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LiveChatMessage entity."
+        },
+        "liveStreamId": {
+          "type": "string",
+          "description": "Reference to the LiveStream this message belongs to. (Relationship: LiveStream 1:N LiveChatMessage)"
+        },
+        "senderId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who sent the message. (Relationship: UserProfile 1:N LiveChatMessage)"
+        },
+        "message": {
+          "type": "string",
+          "description": "The textual content of the chat message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp when the message was sent.",
+          "format": "date-time"
+        },
+        "moderationStatus": {
+          "type": "string",
+          "description": "The moderation status of the chat message (e.g., 'APPROVED', 'FLAGGED', 'REMOVED')."
+        },
+        "moderationDetails": {
+          "type": "string",
+          "description": "Additional details about the moderation decision, potentially including AI analysis results (e.g., JSON string)."
+        }
+      },
+      "required": [
+        "id",
+        "liveStreamId",
+        "senderId",
+        "message",
+        "timestamp"
+      ]
+    },
+    "FollowRelationship": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FollowRelationship",
+      "type": "object",
+      "description": "Represents a user following another user, establishing a follower-followed relationship.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FollowRelationship entity."
+        },
+        "followerId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who is doing the following. (Relationship: UserProfile N:N UserProfile)"
+        },
+        "followedId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who is being followed. (Relationship: UserProfile N:N UserProfile)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the follow relationship was established.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "followerId",
+        "followedId",
+        "createdAt"
+      ]
+    },
+    "LikeRelationship": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LikeRelationship",
+      "type": "object",
+      "description": "Represents a user liking a specific MediaItem.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LikeRelationship entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who liked the media item. (Relationship: UserProfile N:N MediaItem)"
+        },
+        "mediaItemId": {
+          "type": "string",
+          "description": "Reference to the MediaItem that was liked. (Relationship: UserProfile N:N MediaItem)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the like was recorded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mediaItemId",
+        "createdAt"
+      ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification sent to a user, informing them of an event such as new content, followers, or comments.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Notification entity."
+        },
+        "recipientId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who should receive this notification. (Relationship: UserProfile 1:N Notification)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of notification (e.g., 'NEW_FOLLOWER', 'NEW_CONTENT', 'LIVE_STARTED', 'COMMENT_ON_MY_POST')."
+        },
+        "message": {
+          "type": "string",
+          "description": "The content of the notification message."
+        },
+        "isRead": {
+          "type": "boolean",
+          "description": "Indicates whether the recipient has viewed the notification."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the notification was created.",
+          "format": "date-time"
+        },
+        "relatedEntityId": {
+          "type": "string",
+          "description": "Optional reference to the ID of the entity that triggered the notification (e.g., MediaItem ID, UserProfile ID)."
+        },
+        "relatedEntityType": {
+          "type": "string",
+          "description": "Optional type of the entity that triggered the notification (e.g., 'MediaItem', 'UserProfile', 'LiveStream')."
+        }
+      },
+      "required": [
+        "id",
+        "recipientId",
+        "type",
+        "message",
+        "isRead",
+        "createdAt"
+      ]
+    },
+    "ModerationEvent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ModerationEvent",
+      "type": "object",
+      "description": "Records details of a moderation action or event, whether automated by AI or manual, on various content types.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ModerationEvent entity."
+        },
+        "targetEntityType": {
+          "type": "string",
+          "description": "The type of entity that was moderated (e.g., 'LiveChatMessage', 'Comment', 'MediaItem', 'UserProfile')."
+        },
+        "targetEntityId": {
+          "type": "string",
+          "description": "Reference to the ID of the specific entity that was moderated. (Relationship: ModerationEvent 1:1 various entities)"
+        },
+        "moderatorId": {
+          "type": "string",
+          "description": "Optional reference to the UserProfile who performed a manual moderation action. (Relationship: UserProfile 1:N ModerationEvent)"
+        },
+        "action": {
+          "type": "string",
+          "description": "The moderation action taken (e.g., 'FLAGGED', 'REMOVED', 'APPROVED', 'REVIEWED')."
+        },
+        "reason": {
+          "type": "string",
+          "description": "The reason for the moderation action (e.g., 'HATE_SPEECH', 'SPAM', 'INAPPROPRIATE_CONTENT', 'MANUAL_OVERRIDE')."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp when the moderation event occurred.",
+          "format": "date-time"
+        },
+        "metadata": {
+          "type": "string",
+          "description": "Additional JSON string containing context or details, such as AI confidence scores, original content, or links to evidence."
+        }
+      },
+      "required": [
+        "id",
+        "targetEntityType",
+        "targetEntityId",
+        "action",
+        "reason",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores a user's profile information. The `userId` in the path MUST match `resource.data.id` and `request.auth.uid` for write operations, ensuring authorization independence for profile ownership."
+        }
+      },
+      {
+        "path": "/adminUsers/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Dedicated collection for Database Access Control (DBAC). The existence of a document here (where document ID is `userId`) grants administrative privileges. This is an existence-based role check, not a full profile storage. References `UserProfile` as the entity whose ID is used for the role."
+        }
+      },
+      {
+        "path": "/mediaItems/{mediaItemId}",
+        "definition": {
+          "entityName": "MediaItem",
+          "schema": {
+            "$ref": "#/backend/entities/MediaItem"
+          },
+          "description": "Stores public short-form videos (reels) and recorded live streams. Includes `uploaderId` in the document for authorization independence; rules can directly compare `request.auth.uid` with `resource.data.uploaderId`."
+        }
+      },
+      {
+        "path": "/liveStreams/{liveStreamId}",
+        "definition": {
+          "entityName": "LiveStream",
+          "schema": {
+            "$ref": "#/backend/entities/LiveStream"
+          },
+          "description": "Stores active or scheduled live broadcast events. Includes `broadcasterId` in the document for authorization independence; rules can directly compare `request.auth.uid` with `resource.data.broadcasterId`."
+        }
+      },
+      {
+        "path": "/mediaItems/{mediaItemId}/comments/{commentId}",
+        "definition": {
+          "entityName": "Comment",
+          "schema": {
+            "$ref": "#/backend/entities/Comment"
+          },
+          "description": "Stores comments for a specific media item. Includes `userId` (commenter) and `mediaItemId` in the document for authorization independence and validation against the path wildcards."
+        }
+      },
+      {
+        "path": "/liveStreams/{liveStreamId}/chatMessages/{chatMessageId}",
+        "definition": {
+          "entityName": "LiveChatMessage",
+          "schema": {
+            "$ref": "#/backend/entities/LiveChatMessage"
+          },
+          "description": "Stores real-time chat messages for a specific live stream. Includes `senderId` and `liveStreamId` in the document for authorization independence and validation against the path wildcards."
+        }
+      },
+      {
+        "path": "/users/{userId}/following/{followedUserId}",
+        "definition": {
+          "entityName": "FollowRelationship",
+          "schema": {
+            "$ref": "#/backend/entities/FollowRelationship"
+          },
+          "description": "Records that `userId` (from path) is following `followedUserId` (from path and document ID). The `followerId` in the document MUST match `userId` from the path and `request.auth.uid` for authorization independence. The `followedId` in the document MUST match `followedUserId` from the path."
+        }
+      },
+      {
+        "path": "/users/{userId}/followers/{followerUserId}",
+        "definition": {
+          "entityName": "FollowRelationship",
+          "schema": {
+            "$ref": "#/backend/entities/FollowRelationship"
+          },
+          "description": "Records that `followerUserId` (from path and document ID) is following `userId` (from path). The `followedId` in the document MUST match `userId` from the path for authorization independence. The `followerId` in the document MUST match `followerUserId` from the path."
+        }
+      },
+      {
+        "path": "/users/{userId}/likes/{mediaItemId}",
+        "definition": {
+          "entityName": "LikeRelationship",
+          "schema": {
+            "$ref": "#/backend/entities/LikeRelationship"
+          },
+          "description": "Records that `userId` (from path) liked `mediaItemId` (from path and document ID). The `userId` in the document MUST match `userId` from the path and `request.auth.uid` for authorization independence. The `mediaItemId` in the document MUST match `mediaItemId` from the path."
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores private notifications for a specific user. The `recipientId` in the document MUST match `userId` from the path and `request.auth.uid` for authorization independence."
+        }
+      },
+      {
+        "path": "/moderationEvents/{moderationEventId}",
+        "definition": {
+          "entityName": "ModerationEvent",
+          "schema": {
+            "$ref": "#/backend/entities/ModerationEvent"
+          },
+          "description": "Records all moderation actions, whether manual or AI-driven. Access to this collection is restricted to users with the `adminUsers` role."
+        }
+      }
+    ],
+    "reasoning": "This Firestore data structure is designed with a strong emphasis on security, scalability, and debuggability, adhering to enterprise-level architectural principles. The core philosophy is to minimize rule complexity by making authorization explicit within the data structure itself, rather than relying on complex lookups.\n\n**Authorization Independence (CRITICAL):**\nThis design prioritizes Authorization Independence by consistently denormalizing authorization-critical fields directly into the documents. For instance, `MediaItem` documents include `uploaderId`, `LiveStream` documents include `broadcasterId`, and nested collections like `Comment` and `LiveChatMessage` explicitly contain `userId` (commenter/sender) and their respective parent IDs (`mediaItemId`, `liveStreamId`). This eliminates the need for `get()` calls in Firestore Security Rules to fetch parent document data for authorization decisions, thus simplifying rules, improving performance, and enabling atomic operations (transactions/batches) without breaking security context. For user-specific data like `FollowRelationship`, `LikeRelationship`, and `Notification`, the `userId` is part of the document's path AND duplicated within the document (`followerId`, `userId`, `recipientId`), ensuring that `request.auth.uid` can be directly compared against both the path wildcard and the document field.\n\n**Structural Segregation & QAPs (Rules are not Filters):**\nCollections are designed with a homogeneous security posture to support Queryable Access Patterns (QAPs) and simplify rules:\n*   `/users/{userId}/...` collections (`following`, `followers`, `likes`, `notifications`) are strictly segregated for private, user-owned data. Only the authenticated user (`request.auth.uid`) matching the `{userId}` wildcard can perform write operations, while read access might be granted to others based on public profile settings (managed by rules based on a hypothetical `UserProfile.isPublic` field, though not explicit in schema, it's a common extension). This makes `list` operations for a user's private data inherently secure.\n*   `/mediaItems` and `/liveStreams` are public-readable collections. This enables the 'Mixed Content Feed' feature, where the client application can query these collections directly for all public content. Rules enforce that only the `uploaderId` or `broadcasterId` (denormalized in the document) can modify their respective content. This eliminates server-side filtering and allows efficient client-side content discovery.\n*   `/moderationEvents` is a dedicated collection for administrative actions, secured by a Database Access Control (DBAC) mechanism using `/adminUsers/{userId}`. This ensures that moderation data is only accessible to authorized personnel.\n\n**Access Modeling & DBAC:**\n*   **Private User Data:** `/users/{userId}` serves as the root for all user-specific, private, or semi-private data using path-based ownership.\n*   **User 1:N Entities:** Entities like `MediaItem` and `LiveStream` are stored at the root, referencing the `broadcasterId` or `uploaderId` internally. For relationships where the "
+  }
+}

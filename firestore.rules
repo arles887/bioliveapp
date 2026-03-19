@@ -1,0 +1,205 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * BioLive Security Rules Philosophy
+     * 
+     * Core Philosophy: This ruleset implements an Authorization Independence model. By denormalizing 
+     * essential ownership IDs (like uploaderId, broadcasterId, or recipientId) directly into documents, 
+     * we ensure that security decisions are fast, performant, and do not require expensive cross-document 
+     * lookups (get() calls) for standard operations.
+     * 
+     * Data Structure: 
+     * - Top-level collections (/mediaItems, /liveStreams) contain public content and are globally readable.
+     * - User-specific data is nested under /users/{userId}, enforcing strict path-based ownership.
+     * - Administrative access is controlled via a Database Access Control (DBAC) pattern using the /adminUsers collection.
+     * 
+     * Key Security Decisions:
+     * - Ownership Validation: All write operations verify that the authenticated user matches the owner ID 
+     *   stored within the document and/or the path wildcard.
+     * - Relational Integrity: On creation, rules enforce that internal fields (e.g., senderId) match 
+     *   the authenticated user's UID to prevent identity spoofing.
+     * - Immutability: Critical relational fields are marked as immutable during updates.
+     * - Prototyping Flexibility: While authorization is strictly enforced, general data shapes and 
+     *   non-relational field types are not validated to allow for rapid development.
+     */
+
+    // --- HELPER FUNCTIONS ---
+
+    /** @description Checks if the user is authenticated. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the user matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Checks if the user has administrative privileges via the adminUsers collection. */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/adminUsers/$(request.auth.uid));
+    }
+
+    /** @description Checks if the document exists and the current user is the owner. */
+    function isExistingOwner(ownerId) {
+      return resource != null && isOwner(ownerId);
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for managing user profiles. Profiles are public for reading but strictly owned for writing.
+     * @path /users/{userId}
+     * @allow (create) User 'abc' creates document '/users/abc' with {id: 'abc'}.
+     * @deny (update) User 'abc' attempts to update '/users/xyz'.
+     * @principle Path-based ownership and internal ID consistency.
+     */
+    match /users/{userId} {
+      allow get, list: if isSignedIn();
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Records who a specific user is following.
+       * @path /users/{userId}/following/{followedUserId}
+       * @allow (create) User 'abc' follows 'def' by writing to /users/abc/following/def.
+       * @deny (create) User 'abc' attempts to follow someone on behalf of 'xyz'.
+       * @principle User-scoped subcollection ownership.
+       */
+      match /following/{followedUserId} {
+        allow get: if isSignedIn();
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.followerId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.followerId == resource.data.followerId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Records who is following a specific user.
+       * @path /users/{userId}/followers/{followerUserId}
+       * @allow (create) User 'def' follows 'abc' by writing to /users/abc/followers/def.
+       * @deny (list) User 'abc' lists followers of 'xyz'.
+       * @principle Cross-user write access based on actor identity.
+       */
+      match /followers/{followerUserId} {
+        allow get: if isSignedIn();
+        allow list: if isOwner(userId);
+        allow create: if isOwner(followerUserId) && request.resource.data.followerId == followerUserId;
+        allow update: if isExistingOwner(followerUserId) && request.resource.data.followerId == resource.data.followerId;
+        allow delete: if isExistingOwner(followerUserId);
+      }
+
+      /**
+       * @description Stores private likes for a user.
+       * @path /users/{userId}/likes/{mediaItemId}
+       * @allow (create) User 'abc' likes a video by writing to /users/abc/likes/video123.
+       * @deny (delete) User 'xyz' attempts to remove a like from 'abc's' list.
+       * @principle Private user-owned relationship data.
+       */
+      match /likes/{mediaItemId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Private notifications for the user.
+       * @path /users/{userId}/notifications/{notificationId}
+       * @allow (get) User 'abc' reads their own notification.
+       * @deny (list) User 'abc' attempts to see notifications for 'xyz'.
+       * @principle Strict private access for recipient.
+       */
+      match /notifications/{notificationId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isAdmin(); // Notifications usually created by system/admin logic
+        allow update: if isExistingOwner(userId) && request.resource.data.recipientId == resource.data.recipientId;
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Role-based access control collection. Presence of ID defines admin status.
+     * @path /adminUsers/{userId}
+     * @allow (get) System checks if user is admin.
+     * @deny (write) Any client-side write attempt.
+     * @principle Existence-based role checks (DBAC).
+     */
+    match /adminUsers/{userId} {
+      allow get: if isSignedIn();
+      allow list, write: if false; 
+    }
+
+    /**
+     * @description Public media items (reels/videos).
+     * @path /mediaItems/{mediaItemId}
+     * @allow (list) Any signed-in user browses the feed.
+     * @deny (update) User 'abc' tries to edit a video uploaded by 'xyz'.
+     * @principle Public consumption with owner-only writes via denormalized uploaderId.
+     */
+    match /mediaItems/{mediaItemId} {
+      allow get, list: if true;
+      allow create: if isOwner(request.resource.data.uploaderId);
+      allow update: if isExistingOwner(resource.data.uploaderId) && request.resource.data.uploaderId == resource.data.uploaderId;
+      allow delete: if isExistingOwner(resource.data.uploaderId);
+
+      /**
+       * @description Comments on a media item.
+       * @path /mediaItems/{mediaItemId}/comments/{commentId}
+       * @allow (create) User 'abc' comments on a public video.
+       * @deny (delete) User 'abc' tries to delete 'xyz's' comment.
+       * @principle Public subcollection with creator-based write control.
+       */
+      match /comments/{commentId} {
+        allow get, list: if true;
+        allow create: if isOwner(request.resource.data.userId) && request.resource.data.mediaItemId == mediaItemId;
+        allow update: if isExistingOwner(resource.data.userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(resource.data.userId) || isOwner(get(/databases/$(database)/documents/mediaItems/$(mediaItemId)).data.uploaderId);
+      }
+    }
+
+    /**
+     * @description Public or scheduled live streams.
+     * @path /liveStreams/{liveStreamId}
+     * @allow (get) Viewer opens a live stream page.
+     * @deny (create) User 'abc' tries to start a stream as 'xyz'.
+     * @principle Public discovery with broadcaster-only management.
+     */
+    match /liveStreams/{liveStreamId} {
+      allow get, list: if true;
+      allow create: if isOwner(request.resource.data.broadcasterId);
+      allow update: if isExistingOwner(resource.data.broadcasterId) && request.resource.data.broadcasterId == resource.data.broadcasterId;
+      allow delete: if isExistingOwner(resource.data.broadcasterId);
+
+      /**
+       * @description Real-time chat messages for a stream.
+       * @path /liveStreams/{liveStreamId}/chatMessages/{chatMessageId}
+       * @allow (create) Viewer sends a chat message.
+       * @deny (update) User tries to edit a chat message (if ephemeral/read-only).
+       * @principle Real-time interaction with sender validation.
+       */
+      match /chatMessages/{chatMessageId} {
+        allow get, list: if true;
+        allow create: if isOwner(request.resource.data.senderId) && request.resource.data.liveStreamId == liveStreamId;
+        allow update, delete: if isExistingOwner(resource.data.senderId) || isOwner(get(/databases/$(database)/documents/liveStreams/$(liveStreamId)).data.broadcasterId);
+      }
+    }
+
+    /**
+     * @description Audit log of moderation actions. Highly restricted.
+     * @path /moderationEvents/{moderationEventId}
+     * @allow (list) Admin reviews recent flags.
+     * @deny (get) Regular user attempts to see moderation history.
+     * @principle Admin-only access for internal auditing.
+     */
+    match /moderationEvents/{moderationEventId} {
+      allow get, list: if isAdmin();
+      allow create: if isAdmin() || isSignedIn(); // Allow users to trigger events (flags), but usually handled by backend
+      allow update, delete: if isAdmin();
+    }
+
+  }
+}
