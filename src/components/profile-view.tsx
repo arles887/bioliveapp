@@ -8,7 +8,7 @@ import {
   Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
   TrendingUp, Gift, DollarSign, PlusCircle, Bell, Shield, Moon, Eye, Globe,
   MessageSquare, Mail, Phone, Calendar, ArrowUpRight, ArrowDownLeft,
-  CreditCard, Smartphone, Ticket, RefreshCw, Star, Sparkles, Gem
+  CreditCard, Smartphone, Ticket, RefreshCw, Star, Sparkles, Gem, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,13 +26,6 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
 export function ProfileView({ 
@@ -53,13 +46,16 @@ export function ProfileView({
   const [walletView, setWalletView] = useState<"main" | "buy" | "withdraw">("main");
   const [selectedPackage, setSelectedPackage] = useState<number | "custom" | null>(null);
   const [customESP, setCustomESP] = useState("");
+  const [espBalance, setEspBalance] = useState(100000000);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
   const stats = [
     { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
     { label: "Siguiendo", value: isOwnProfile ? "842" : "120" },
-    { label: "ESP Tokens", value: isOwnProfile ? "100,000,000" : "800" }
+    { label: "ESP Tokens", value: isOwnProfile ? espBalance.toLocaleString() : "800" }
   ];
 
   const tokenPackages = [
@@ -88,6 +84,92 @@ export function ProfileView({
         description: isFollowing ? `Has dejado de seguir a @${profileName}` : `Siguiendo a @${profileName}` 
       });
     });
+  };
+
+  const handleProcessPayment = (methodLabel: string) => {
+    if (selectedPackage === null) {
+      toast({ 
+        variant: "destructive", 
+        title: "Selección Requerida", 
+        description: "Elige un paquete ESP para iniciar la sincronización neural." 
+      });
+      return;
+    }
+
+    if (selectedPackage === "custom" && (!customESP || Number(customESP) < 100)) {
+      toast({ 
+        variant: "destructive", 
+        title: "Carga Mínima", 
+        description: "La inyección personalizada debe ser de al menos 100 ESP." 
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    toast({ 
+      title: "Iniciando Protocolo", 
+      description: `Conectando con el nodo de pago: ${methodLabel}...` 
+    });
+
+    // Simulación de procesamiento neural
+    setTimeout(() => {
+      let addedAmount = 0;
+      if (selectedPackage === "custom") {
+        addedAmount = Number(customESP);
+      } else {
+        addedAmount = tokenPackages[selectedPackage as number].esp;
+      }
+
+      setEspBalance(prev => prev + addedAmount);
+      setIsProcessing(false);
+      setSelectedPackage(null);
+      setCustomESP("");
+      setWalletView("main");
+      
+      toast({ 
+        title: "Sincronización Exitosa", 
+        description: `Se han inyectado ${addedAmount.toLocaleString()} ESP en tu balance Gaia.` 
+      });
+    }, 2500);
+  };
+
+  const handleProcessWithdraw = () => {
+    const amount = Number(withdrawAmount);
+    if (!amount || amount < 500) {
+      toast({ 
+        variant: "destructive", 
+        title: "Error de Retiro", 
+        description: "El retiro mínimo es de 500 ESP." 
+      });
+      return;
+    }
+
+    if (amount > espBalance) {
+      toast({ 
+        variant: "destructive", 
+        title: "Fondos Insuficientes", 
+        description: "Tu balance neural no tiene suficientes tokens para esta operación." 
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    toast({ 
+      title: "Validación Biométrica", 
+      description: "Verificando identidad del titular para el nodo de salida..." 
+    });
+
+    setTimeout(() => {
+      setEspBalance(prev => prev - amount);
+      setIsProcessing(false);
+      setWithdrawAmount("");
+      setWalletView("main");
+      
+      toast({ 
+        title: "Protocolo de Retiro Iniciado", 
+        description: `S/ ${(amount / 100).toFixed(2)} PEN han sido enviados a tu cuenta verificada.` 
+      });
+    }, 3000);
   };
 
   const menuItems = [
@@ -180,7 +262,7 @@ export function ProfileView({
                                         <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Balance Bio-Neural</span>
                                         <Zap size={14} className="text-primary animate-pulse" />
                                       </div>
-                                      <div className="text-4xl font-black italic text-white leading-none">100,000,000 <span className="text-sm text-primary">ESP</span></div>
+                                      <div className="text-4xl font-black italic text-white leading-none">{espBalance.toLocaleString()} <span className="text-sm text-primary">ESP</span></div>
                                       <div className="grid grid-cols-2 gap-3 pt-2">
                                         <Button 
                                           onClick={() => setWalletView("buy")}
@@ -253,12 +335,14 @@ export function ProfileView({
                                           {tokenPackages.map((pkg, idx) => (
                                             <button
                                               key={idx}
+                                              disabled={isProcessing}
                                               onClick={() => setSelectedPackage(idx)}
                                               className={cn(
                                                 "relative flex flex-col items-center justify-center p-4 rounded-2xl border transition-all group overflow-hidden",
                                                 selectedPackage === idx 
                                                   ? "bg-primary/20 border-primary shadow-[0_0_20px_rgba(204,255,0,0.2)]" 
-                                                  : "bg-white/5 border-white/10 hover:border-primary/40"
+                                                  : "bg-white/5 border-white/10 hover:border-primary/40",
+                                                isProcessing && "opacity-50 pointer-events-none"
                                               )}
                                             >
                                               {pkg.badge && (
@@ -276,12 +360,14 @@ export function ProfileView({
                                           ))}
 
                                           <button
+                                            disabled={isProcessing}
                                             onClick={() => setSelectedPackage("custom")}
                                             className={cn(
                                               "flex flex-col items-center justify-center p-4 rounded-2xl border transition-all",
                                               selectedPackage === "custom" 
                                                 ? "bg-accent/20 border-accent shadow-[0_0_20px_rgba(0,255,187,0.2)]" 
-                                                : "bg-white/5 border-white/10 hover:border-accent/40"
+                                                : "bg-white/5 border-white/10 hover:border-accent/40",
+                                              isProcessing && "opacity-50 pointer-events-none"
                                             )}
                                           >
                                             <PlusCircle size={14} className={selectedPackage === "custom" ? "text-accent" : "text-white/20"} />
@@ -298,6 +384,7 @@ export function ProfileView({
                                               placeholder="Mínimo 100 ESP" 
                                               value={customESP}
                                               onChange={(e) => setCustomESP(e.target.value)}
+                                              disabled={isProcessing}
                                               className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black pr-16" 
                                             />
                                             <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[9px] font-black text-accent uppercase">ESP</span>
@@ -315,7 +402,15 @@ export function ProfileView({
                                             { id: 'paypal', label: 'PayPal Global', icon: Globe, color: 'text-blue-500' },
                                             { id: 'code', label: 'Código Regalo / Promo', icon: Ticket, color: 'text-yellow-400' },
                                           ].map((m) => (
-                                            <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 transition-all group text-left">
+                                            <button 
+                                              key={m.id} 
+                                              disabled={isProcessing}
+                                              onClick={() => handleProcessPayment(m.label)}
+                                              className={cn(
+                                                "flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 transition-all group text-left",
+                                                isProcessing && "opacity-50 pointer-events-none"
+                                              )}
+                                            >
                                               <div className="flex items-center gap-4">
                                                 <m.icon size={18} className={m.color} />
                                                 <span className="text-[10px] font-black text-white uppercase italic tracking-tight">{m.label}</span>
@@ -326,8 +421,16 @@ export function ProfileView({
                                         </div>
                                       </div>
 
-                                      <Button className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]">
-                                        Iniciar Transacción Gaia
+                                      <Button 
+                                        disabled={isProcessing || selectedPackage === null}
+                                        onClick={() => handleProcessPayment("Procesador Gaia Default")}
+                                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]"
+                                      >
+                                        {isProcessing ? (
+                                          <Loader2 size={16} className="animate-spin mr-2" />
+                                        ) : (
+                                          "Iniciar Transacción Gaia"
+                                        )}
                                       </Button>
                                     </div>
                                   </div>
@@ -348,13 +451,22 @@ export function ProfileView({
                                       <div className="space-y-2">
                                         <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Tokens a Retirar</label>
                                         <div className="relative">
-                                          <Input type="number" placeholder="Min: 500 ESP" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black pr-16" />
+                                          <Input 
+                                            type="number" 
+                                            placeholder="Min: 500 ESP" 
+                                            value={withdrawAmount}
+                                            onChange={(e) => setWithdrawAmount(e.target.value)}
+                                            disabled={isProcessing}
+                                            className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black pr-16" 
+                                          />
                                           <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-accent">ESP</span>
                                         </div>
                                       </div>
                                       <div className="pt-2 flex flex-col items-center">
                                         <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.5em] mb-2">Equivale a</span>
-                                        <div className="text-3xl font-black italic text-white leading-none">S/ 0.00</div>
+                                        <div className="text-3xl font-black italic text-white leading-none">
+                                          S/ {(Number(withdrawAmount) / 100).toFixed(2)}
+                                        </div>
                                       </div>
                                     </div>
 
@@ -366,7 +478,15 @@ export function ProfileView({
                                           { id: 'wcard', label: 'Transferencia Bancaria', icon: CreditCard, color: 'text-blue-400' },
                                           { id: 'wpaypal', label: 'PayPal (USD)', icon: Globe, color: 'text-blue-500' },
                                         ].map((m) => (
-                                          <button key={m.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-accent/40 transition-all group text-left">
+                                          <button 
+                                            key={m.id} 
+                                            disabled={isProcessing}
+                                            onClick={() => handleProcessWithdraw()}
+                                            className={cn(
+                                              "flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-accent/40 transition-all group text-left",
+                                              isProcessing && "opacity-50 pointer-events-none"
+                                            )}
+                                          >
                                             <div className="flex items-center gap-4">
                                               <m.icon size={18} className={m.color} />
                                               <span className="text-[10px] font-black text-white uppercase italic tracking-tight">{m.label}</span>
@@ -387,8 +507,16 @@ export function ProfileView({
                                       </p>
                                     </div>
 
-                                    <Button className="w-full h-16 bg-accent text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,255,187,0.3)]">
-                                      Confirmar Retiro Neural
+                                    <Button 
+                                      disabled={isProcessing || !withdrawAmount}
+                                      onClick={handleProcessWithdraw}
+                                      className="w-full h-16 bg-accent text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,255,187,0.3)]"
+                                    >
+                                      {isProcessing ? (
+                                        <Loader2 size={16} className="animate-spin mr-2" />
+                                      ) : (
+                                        "Confirmar Retiro Neural"
+                                      )}
                                     </Button>
                                   </div>
                                 )}
