@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -13,10 +14,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { ProfileView } from "@/components/profile-view";
 import { CreationHub } from "@/components/creation-hub";
 import { toast } from "@/hooks/use-toast";
+import { Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<NavItem>("inicio");
+  const [lastTab, setLastTab] = useState<NavItem>("inicio");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
@@ -57,6 +61,9 @@ export default function Home() {
   };
 
   const navigateToProfile = (username: string) => {
+    if (activeTab !== "profile") {
+      setLastTab(activeTab);
+    }
     setSelectedUser(username);
     setActiveTab("profile");
     setIsFullScreenMode(false);
@@ -97,7 +104,10 @@ export default function Home() {
               <ProfileView 
                 username={selectedUser || "BioEntity_01"} 
                 isOwnProfile={!selectedUser || selectedUser === "BioEntity_01"}
-                onBack={() => setSelectedUser(null)}
+                onBack={() => {
+                  setSelectedUser(null);
+                  setActiveTab(lastTab);
+                }}
                 requireAuth={requireAuth}
               />
             )}
@@ -142,11 +152,11 @@ export default function Home() {
           setActiveTab={(tab) => {
             if (tab === "upload" || tab === "notifications") {
               requireAuth(() => {
-                if (tab !== "profile") setSelectedUser(null);
+                setSelectedUser(null);
                 setActiveTab(tab);
               });
             } else {
-              if (tab !== "profile") setSelectedUser(null);
+              setSelectedUser(null);
               setActiveTab(tab);
             }
           }} 
@@ -169,5 +179,3 @@ export default function Home() {
     </main>
   );
 }
-
-import { Lock } from "lucide-react";
