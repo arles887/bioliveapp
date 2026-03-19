@@ -317,7 +317,7 @@ function ReelItem({
           </div>
         </div>
 
-        <div className="absolute bottom-[52px] right-3 flex flex-col items-center gap-6 z-50">
+        <div className="absolute bottom-[210px] right-3 flex flex-col items-center gap-6 z-50">
           <div 
             onClick={() => toggleLike(reel.id)}
             className="flex flex-col items-center gap-1.5 group cursor-pointer"
