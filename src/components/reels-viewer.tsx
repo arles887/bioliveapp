@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -121,7 +120,7 @@ function ReelItem({
       ([entry]) => {
         setIsActive(entry.isIntersecting);
       },
-      { threshold: 0.6 }
+      { threshold: 0.8 }
     );
 
     if (containerRef.current) observer.observe(containerRef.current);

@@ -328,7 +328,7 @@ function LiveStreamRoom({
       ([entry]) => {
         setIsActive(entry.isIntersecting);
       },
-      { threshold: 0.6 }
+      { threshold: 0.8 }
     );
     if (containerRef.current) observer.observe(containerRef.current);
     return () => {
