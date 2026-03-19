@@ -163,6 +163,12 @@ function ReelItem({
   }, [isYouTube]);
 
   const handleInteraction = (e: React.MouseEvent) => {
+    // On click/tap, we unmute the global state if it was muted
+    if (globalMuted) {
+      setGlobalMuted(false);
+      return;
+    }
+
     if (isYouTube) return;
     
     if (videoRef.current) {
@@ -197,18 +203,17 @@ function ReelItem({
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
     setGlobalMuted(!globalMuted);
-    if (!globalMuted) {
-      window.dispatchEvent(new CustomEvent('bio-video-playing'));
-    }
   };
 
   const getYouTubeSrc = () => {
     if (!isYouTube) return "";
     let url = reel.video;
-    // Solo reproducir con sonido si está activo Y el globalMuted es falso
+    // Sound only plays if the reel is active AND globalMuted is false
     const finalMute = !isActive || globalMuted;
     url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
     url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
+    // Fallback if the URL doesn't have the parameters
+    if (!url.includes('mute=')) url += `&mute=${finalMute ? 1 : 0}`;
     return url;
   };
 
@@ -216,11 +221,13 @@ function ReelItem({
     <div ref={containerRef} className="relative h-full w-full snap-start shrink-0 flex flex-col items-center justify-center">
       <div className="relative w-full h-full max-w-[500px] bg-black">
         {isYouTube ? (
-          <iframe 
-            src={getYouTubeSrc()} 
-            className="h-full w-full object-cover opacity-80 pointer-events-none" 
-            allow="autoplay; encrypted-media"
-          />
+          <div className="h-full w-full" onClick={handleInteraction}>
+            <iframe 
+              src={getYouTubeSrc()} 
+              className="h-full w-full object-cover opacity-80 pointer-events-none" 
+              allow="autoplay; encrypted-media"
+            />
+          </div>
         ) : (
           <video 
             ref={videoRef}
@@ -275,7 +282,7 @@ function ReelItem({
 
         <button 
           onClick={toggleMute}
-          className="absolute top-12 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
+          className="absolute top-20 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
         >
           {globalMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
@@ -313,7 +320,7 @@ function ReelItem({
           </div>
         </div>
 
-        <div className="absolute bottom-[230px] right-3 flex flex-col items-center gap-8 z-50">
+        <div className="absolute bottom-[115px] right-3 flex flex-col items-center gap-8 z-50">
           <div 
             onClick={() => toggleLike(reel.id)}
             className="flex flex-col items-center gap-2 group cursor-pointer"
