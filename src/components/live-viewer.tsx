@@ -244,7 +244,6 @@ function LiveStreamRoom({
 
   const isYouTube = live.video.includes('youtube.com') || live.video.includes('youtu.be');
 
-  // Generación de 50+ regalos
   const giftGallery = {
     Casuales: [
       { name: "Bio-Seed", icon: Leaf, cost: 5, color: "text-green-400" },
@@ -372,14 +371,13 @@ function LiveStreamRoom({
       setEspBalance(prev => prev - gift.cost);
       const newGiftAnim = { id: Date.now(), icon: gift.icon, color: gift.color };
       setActiveGifts(prev => [...prev, newGiftAnim]);
-      setTimeout(() => setActiveGifts(prev => prev.filter(g => g.id !== newGiftAnim.id)), 2000);
+      setTimeout(() => setActiveGifts(prev => prev.filter(g => g.id !== newGiftAnim.id)), 3000);
       setMessages(prev => [...prev, { id: Date.now(), user: "SISTEMA", text: `🎁 Enviado: ${gift.name}`, isSpecial: true }]);
 
-      // Auto-close logic: 1.5s after last gift
       if (giftTimerRef.current) clearTimeout(giftTimerRef.current);
       giftTimerRef.current = setTimeout(() => {
         setIsGiftPopoverOpen(false);
-      }, 1500);
+      }, 1000);
     });
   };
 
