@@ -163,7 +163,6 @@ function ReelItem({
   }, [isYouTube]);
 
   const handleInteraction = (e: React.MouseEvent) => {
-    // On click/tap, we unmute the global state if it was muted
     if (globalMuted) {
       setGlobalMuted(false);
       return;
@@ -208,11 +207,9 @@ function ReelItem({
   const getYouTubeSrc = () => {
     if (!isYouTube) return "";
     let url = reel.video;
-    // Sound only plays if the reel is active AND globalMuted is false
     const finalMute = !isActive || globalMuted;
     url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
     url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
-    // Fallback if the URL doesn't have the parameters
     if (!url.includes('mute=')) url += `&mute=${finalMute ? 1 : 0}`;
     return url;
   };
@@ -282,7 +279,7 @@ function ReelItem({
 
         <button 
           onClick={toggleMute}
-          className="absolute top-20 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
+          className="absolute top-32 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary transition-all active:scale-90"
         >
           {globalMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
@@ -320,10 +317,10 @@ function ReelItem({
           </div>
         </div>
 
-        <div className="absolute bottom-[115px] right-3 flex flex-col items-center gap-8 z-50">
+        <div className="absolute bottom-[52px] right-3 flex flex-col items-center gap-6 z-50">
           <div 
             onClick={() => toggleLike(reel.id)}
-            className="flex flex-col items-center gap-2 group cursor-pointer"
+            className="flex flex-col items-center gap-1.5 group cursor-pointer"
           >
             <div className={cn(
               "h-14 w-14 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center transition-all active:scale-75 shadow-2xl",
@@ -336,7 +333,7 @@ function ReelItem({
 
           <div 
             onClick={() => requireAuth(() => toast({ title: "Signal Chat", description: "Bandeja de comentarios protegida." }))}
-            className="flex flex-col items-center gap-2 cursor-pointer group"
+            className="flex flex-col items-center gap-1.5 cursor-pointer group"
           >
             <div className="h-14 w-14 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center text-white group-hover:text-primary transition-all shadow-2xl">
               <MessageCircle size={28} />
@@ -346,7 +343,7 @@ function ReelItem({
 
           <div 
             onClick={() => handleShare(reel.user)}
-            className="flex flex-col items-center gap-2 group cursor-pointer"
+            className="flex flex-col items-center group cursor-pointer"
           >
             <div className="h-14 w-14 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center text-white group-hover:text-primary transition-all shadow-2xl">
               <Share2 size={28} />
