@@ -236,9 +236,11 @@ function LiveStreamRoom({
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isActive, setIsActive] = useState(false);
+  const [isGiftPopoverOpen, setIsGiftPopoverOpen] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const giftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isYouTube = live.video.includes('youtube.com') || live.video.includes('youtu.be');
 
@@ -318,7 +320,10 @@ function LiveStreamRoom({
       { threshold: 0.6 }
     );
     if (containerRef.current) observer.observe(containerRef.current);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (giftTimerRef.current) clearTimeout(giftTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
@@ -369,6 +374,12 @@ function LiveStreamRoom({
       setActiveGifts(prev => [...prev, newGiftAnim]);
       setTimeout(() => setActiveGifts(prev => prev.filter(g => g.id !== newGiftAnim.id)), 2000);
       setMessages(prev => [...prev, { id: Date.now(), user: "SISTEMA", text: `🎁 Enviado: ${gift.name}`, isSpecial: true }]);
+
+      // Auto-close logic: 1.5s after last gift
+      if (giftTimerRef.current) clearTimeout(giftTimerRef.current);
+      giftTimerRef.current = setTimeout(() => {
+        setIsGiftPopoverOpen(false);
+      }, 1500);
     });
   };
 
@@ -501,7 +512,7 @@ function LiveStreamRoom({
         </div>
 
         <div className="flex items-center gap-2 h-11 w-full" onClick={(e) => e.stopPropagation()}>
-          <Popover>
+          <Popover open={isGiftPopoverOpen} onOpenChange={setIsGiftPopoverOpen}>
             <PopoverTrigger asChild>
               <button className="h-11 w-11 shrink-0 bg-white/10 backdrop-blur-3xl rounded-xl flex items-center justify-center text-white border border-white/10 shadow-2xl active:scale-90 transition-all overflow-hidden">
                 <Gift size={18} />
