@@ -7,7 +7,11 @@ import {
   Search, Lock, Zap, Flame, Key,
   X, Users, Eye, EyeOff,
   Gift, Sparkles, Trophy, Gem, Dna, UserPlus, Check,
-  Volume2, VolumeX, Heart, Send
+  Volume2, VolumeX, Heart, Send, Crown, Star, Coffee, 
+  Music, Rocket, Moon, Sun, Ghost, Pizza, IceCream, 
+  Grape, Apple, Cherry, Cloud, Wind, Anchor, Award, 
+  BadgeCheck, Beer, Bell, Binary, Bird, Bomb, Bone, 
+  Bot, Box, Briefcase, Bug, Cake, Camera, Car, Castle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProtocolWindow } from "@/components/protocol-window";
@@ -19,6 +23,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const VIDEO_SOURCES = [
   "https://www.youtube.com/embed/gCsemG6ip54?autoplay=0&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
@@ -236,13 +242,64 @@ function LiveStreamRoom({
 
   const isYouTube = live.video.includes('youtube.com') || live.video.includes('youtu.be');
 
-  const gifts = [
-    { name: "Bio-Seed", icon: Leaf, cost: 50, color: "text-green-400" },
-    { name: "Cyber-Spark", icon: Sparkles, cost: 150, color: "text-primary" },
-    { name: "Eco-Trophy", icon: Trophy, cost: 500, color: "text-yellow-400" },
-    { name: "Gaia-Gem", icon: Gem, cost: 1200, color: "text-cyan-400" },
-    { name: "DNA-Helix", icon: Dna, cost: 2500, color: "text-primary" },
-  ];
+  // Generación de 50+ regalos
+  const giftGallery = {
+    Casuales: [
+      { name: "Bio-Seed", icon: Leaf, cost: 5, color: "text-green-400" },
+      { name: "Coffee", icon: Coffee, cost: 10, color: "text-amber-600" },
+      { name: "Pizza", icon: Pizza, cost: 15, color: "text-orange-400" },
+      { name: "Ice Cream", icon: IceCream, cost: 20, color: "text-pink-300" },
+      { name: "Grape", icon: Grape, cost: 25, color: "text-purple-400" },
+      { name: "Apple", icon: Apple, cost: 30, color: "text-red-500" },
+      { name: "Cherry", icon: Cherry, cost: 35, color: "text-red-400" },
+      { name: "Cloud", icon: Cloud, cost: 40, color: "text-blue-200" },
+      { name: "Wind", icon: Wind, cost: 45, color: "text-cyan-200" },
+      { name: "Anchor", icon: Anchor, cost: 50, color: "text-slate-400" },
+      { name: "Bell", icon: Bell, cost: 55, color: "text-yellow-500" },
+      { name: "Bird", icon: Bird, cost: 60, color: "text-sky-400" },
+      { name: "Bone", icon: Bone, cost: 65, color: "text-stone-300" }
+    ],
+    Fan: [
+      { name: "Cyber-Spark", icon: Sparkles, cost: 100, color: "text-primary" },
+      { name: "Star", icon: Star, cost: 150, color: "text-yellow-400" },
+      { name: "Music", icon: Music, cost: 200, color: "text-purple-400" },
+      { name: "Controller", icon: Gamepad2, cost: 250, color: "text-indigo-400" },
+      { name: "Sun", icon: Sun, cost: 300, color: "text-amber-500" },
+      { name: "Moon", icon: Moon, cost: 350, color: "text-slate-200" },
+      { name: "Ghost", icon: Ghost, cost: 400, color: "text-white" },
+      { name: "Award", icon: Award, cost: 450, color: "text-orange-500" },
+      { name: "Badge", icon: BadgeCheck, cost: 500, color: "text-blue-500" },
+      { name: "Binary", icon: Binary, cost: 550, color: "text-emerald-500" },
+      { name: "Bot", icon: Bot, cost: 600, color: "text-zinc-400" },
+      { name: "Box", icon: Box, cost: 650, color: "text-amber-800" },
+      { name: "Briefcase", icon: Briefcase, cost: 700, color: "text-brown-500" }
+    ],
+    Premium: [
+      { name: "Eco-Trophy", icon: Trophy, cost: 1000, color: "text-yellow-400" },
+      { name: "Gaia-Gem", icon: Gem, cost: 1500, color: "text-cyan-400" },
+      { name: "Rocket", icon: Rocket, cost: 2000, color: "text-red-500" },
+      { name: "Bomb", icon: Bomb, cost: 2500, color: "text-zinc-600" },
+      { name: "Castle", icon: Castle, cost: 3000, color: "text-indigo-600" },
+      { name: "Car", icon: Car, cost: 3500, color: "text-blue-500" },
+      { name: "Camera", icon: Camera, cost: 4000, color: "text-zinc-200" },
+      { name: "Bug", icon: Bug, cost: 4500, color: "text-red-600" },
+      { name: "Cake", icon: Cake, cost: 5000, color: "text-pink-500" },
+      { name: "Flaming", icon: Flame, cost: 5500, color: "text-orange-600" },
+      { name: "Beer", icon: Beer, cost: 6000, color: "text-yellow-600" }
+    ],
+    Exclusivos: [
+      { name: "DNA-Helix", icon: Dna, cost: 10000, color: "text-primary" },
+      { name: "Bio-Crown", icon: Crown, cost: 25000, color: "text-yellow-500" },
+      { name: "Earth-Node", icon: Globe, cost: 50000, color: "text-blue-400" },
+      { name: "Hyper-Zap", icon: Zap, cost: 75000, color: "text-primary" },
+      { name: "Grand-Trophy", icon: Trophy, cost: 100000, color: "text-yellow-300" },
+      { name: "Neural-Link", icon: Binary, cost: 150000, color: "text-emerald-400" },
+      { name: "Cyber-City", icon: Castle, cost: 200000, color: "text-indigo-500" },
+      { name: "Solar-Core", icon: Sun, cost: 300000, color: "text-orange-500" },
+      { name: "Diamond-Bio", icon: Gem, cost: 500000, color: "text-cyan-200" },
+      { name: "Gaia-Heart", icon: Heart, cost: 1000000, color: "text-red-500" }
+    ]
+  };
 
   const [messages, setMessages] = useState<any[]>([
     { id: 1, user: "BioEntity_Alpha_Centauri", text: "Increíble la calidad 🌿" },
@@ -286,7 +343,6 @@ function LiveStreamRoom({
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     
-    // Obtener coordenadas relativas al contenedor para el efecto visual
     const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : rect.width / 2);
     const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : rect.height / 2);
     
@@ -451,30 +507,51 @@ function LiveStreamRoom({
                 <Gift size={18} />
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="start" className="w-[300px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2rem] p-5 z-[9999] shadow-[0_0_50px_rgba(0,0,0,1)]">
-              <div className="space-y-4">
-                <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between">
+            <PopoverContent side="top" align="start" className="w-[320px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-0 z-[9999] shadow-[0_0_50px_rgba(0,0,0,1)] overflow-hidden">
+              <div className="p-5 pb-0">
+                <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-between mb-4">
                   <div className="space-y-0.5">
                     <span className="text-[8px] font-black text-primary uppercase italic tracking-widest">Bio-Wallet</span>
                     <div className="text-lg font-black text-white italic leading-none">{espBalance} <span className="text-[9px] text-primary">ESP</span></div>
                   </div>
                   <Zap size={14} className="text-primary animate-pulse" />
                 </div>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {gifts.map(g => (
-                    <button 
-                      key={g.name} 
-                      onClick={() => handleSendGift(g)} 
-                      className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-primary/40 group transition-all"
+              </div>
+
+              <Tabs defaultValue="Casuales" className="w-full">
+                <TabsList className="flex w-full bg-white/5 h-10 px-4 rounded-none gap-0 border-b border-white/5">
+                  {Object.keys(giftGallery).map((cat) => (
+                    <TabsTrigger 
+                      key={cat} 
+                      value={cat} 
+                      className="flex-1 data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-0 font-black uppercase text-[8px] tracking-widest transition-all"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <g.icon size={16} className={g.color} />
-                        <span className="text-[10px] font-black text-white italic uppercase">{g.name}</span>
-                      </div>
-                      <span className="text-[9px] text-primary font-black uppercase">{g.cost} ESP</span>
-                    </button>
+                      {cat}
+                    </TabsTrigger>
                   ))}
-                </div>
+                </TabsList>
+                
+                <ScrollArea className="h-[280px] w-full">
+                  {Object.entries(giftGallery).map(([cat, items]) => (
+                    <TabsContent key={cat} value={cat} className="p-4 grid grid-cols-3 gap-2 m-0">
+                      {items.map((g) => (
+                        <button 
+                          key={g.name} 
+                          onClick={() => handleSendGift(g)} 
+                          className="flex flex-col items-center justify-center p-3 rounded-2xl bg-white/5 hover:bg-primary/10 border border-white/5 hover:border-primary/40 group transition-all"
+                        >
+                          <g.icon size={24} className={cn("mb-2 transition-transform group-hover:scale-125", g.color)} />
+                          <span className="text-[8px] font-black text-white/80 italic uppercase truncate w-full text-center">{g.name}</span>
+                          <span className="text-[7px] text-primary font-black uppercase mt-1">{g.cost}</span>
+                        </button>
+                      ))}
+                    </TabsContent>
+                  ))}
+                </ScrollArea>
+              </Tabs>
+              
+              <div className="p-4 bg-white/5 border-t border-white/5 flex justify-center">
+                 <p className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em] italic">Gaia Neural Gift Protocol</p>
               </div>
             </PopoverContent>
           </Popover>
