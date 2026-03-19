@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -8,7 +9,8 @@ import {
   Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
   TrendingUp, Gift, DollarSign, PlusCircle, Bell, Shield, Moon, Eye, Globe,
   MessageSquare, Mail, Phone, Calendar, ArrowUpRight, ArrowDownLeft,
-  CreditCard, Smartphone, Ticket, RefreshCw, Star, Sparkles, Gem, Loader2
+  CreditCard, Smartphone, Ticket, RefreshCw, Star, Sparkles, Gem, Loader2,
+  Fingerprint, CreditCard as CardIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -49,6 +51,7 @@ export function ProfileView({
   const [espBalance, setEspBalance] = useState(100000000);
   const [isProcessing, setIsProcessing] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
@@ -86,32 +89,13 @@ export function ProfileView({
     });
   };
 
-  const handleProcessPayment = (methodLabel: string) => {
-    if (selectedPackage === null) {
-      toast({ 
-        variant: "destructive", 
-        title: "Selección Requerida", 
-        description: "Elige un paquete ESP para iniciar la sincronización neural." 
-      });
-      return;
-    }
-
-    if (selectedPackage === "custom" && (!customESP || Number(customESP) < 100)) {
-      toast({ 
-        variant: "destructive", 
-        title: "Carga Mínima", 
-        description: "La inyección personalizada debe ser de al menos 100 ESP." 
-      });
-      return;
-    }
-
+  const handleProcessPayment = () => {
     setIsProcessing(true);
     toast({ 
-      title: "Iniciando Protocolo", 
-      description: `Conectando con el nodo de pago: ${methodLabel}...` 
+      title: "Validación Neural", 
+      description: "Sincronizando con el nodo de pago seguro Gaia..." 
     });
 
-    // Simulación de procesamiento neural
     setTimeout(() => {
       let addedAmount = 0;
       if (selectedPackage === "custom") {
@@ -123,6 +107,7 @@ export function ProfileView({
       setEspBalance(prev => prev + addedAmount);
       setIsProcessing(false);
       setSelectedPackage(null);
+      setSelectedMethod(null);
       setCustomESP("");
       setWalletView("main");
       
@@ -130,7 +115,7 @@ export function ProfileView({
         title: "Sincronización Exitosa", 
         description: `Se han inyectado ${addedAmount.toLocaleString()} ESP en tu balance Gaia.` 
       });
-    }, 2500);
+    }, 3000);
   };
 
   const handleProcessWithdraw = () => {
@@ -203,7 +188,7 @@ export function ProfileView({
               <Share2 size={18} />
            </button>
            {isOwnProfile && (
-             <Sheet onOpenChange={() => { setActiveMenuSection(null); setWalletView("main"); }}>
+             <Sheet onOpenChange={() => { setActiveMenuSection(null); setWalletView("main"); setSelectedMethod(null); }}>
                <SheetTrigger asChild>
                  <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
                     <Menu size={18} />
@@ -239,7 +224,9 @@ export function ProfileView({
                           <div className="space-y-8 animate-in slide-in-from-right duration-300">
                             <button 
                               onClick={() => {
-                                if (activeMenuSection === "wallet" && walletView !== "main") {
+                                if (selectedMethod) {
+                                  setSelectedMethod(null);
+                                } else if (activeMenuSection === "wallet" && walletView !== "main") {
                                   setWalletView("main");
                                 } else {
                                   setActiveMenuSection(null);
@@ -249,7 +236,7 @@ export function ProfileView({
                             >
                               <ChevronLeft size={16} />
                               <span className="text-[9px] font-black uppercase tracking-widest">
-                                {walletView === "main" ? "Volver" : "Volver a Billetera"}
+                                {selectedMethod ? "Volver a Métodos" : (walletView === "main" ? "Volver" : "Volver a Billetera")}
                               </span>
                             </button>
 
@@ -321,7 +308,7 @@ export function ProfileView({
                                   </div>
                                 )}
 
-                                {walletView === "buy" && (
+                                {walletView === "buy" && !selectedMethod && (
                                   <div className="space-y-8 animate-in slide-in-from-right duration-300">
                                     <div className="space-y-2">
                                       <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Inyectar <span className="text-primary">Señal ESP</span></h3>
@@ -404,11 +391,11 @@ export function ProfileView({
                                           ].map((m) => (
                                             <button 
                                               key={m.id} 
-                                              disabled={isProcessing}
-                                              onClick={() => handleProcessPayment(m.label)}
+                                              disabled={isProcessing || selectedPackage === null}
+                                              onClick={() => setSelectedMethod(m.id)}
                                               className={cn(
                                                 "flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/40 transition-all group text-left",
-                                                isProcessing && "opacity-50 pointer-events-none"
+                                                (isProcessing || selectedPackage === null) && "opacity-50 cursor-not-allowed"
                                               )}
                                             >
                                               <div className="flex items-center gap-4">
@@ -420,18 +407,115 @@ export function ProfileView({
                                           ))}
                                         </div>
                                       </div>
+                                    </div>
+                                  </div>
+                                )}
 
+                                {walletView === "buy" && selectedMethod && (
+                                  <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                                    <div className="p-6 rounded-[2.5rem] bg-primary/5 border border-primary/20 flex flex-col items-center gap-4">
+                                      <Zap size={24} className="text-primary animate-pulse" />
+                                      <div className="text-center">
+                                        <h3 className="text-sm font-black text-white uppercase italic">Resumen de Inyección</h3>
+                                        <p className="text-2xl font-black text-primary">
+                                          {selectedPackage === "custom" ? Number(customESP).toLocaleString() : tokenPackages[selectedPackage as number].esp.toLocaleString()} ESP
+                                        </p>
+                                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">
+                                          Total: S/ {selectedPackage === "custom" ? (Number(customESP) / 100).toFixed(2) : tokenPackages[selectedPackage as number].pen}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    {selectedMethod === 'card' && (
+                                      <div className="space-y-4">
+                                        <div className="flex justify-center gap-4 opacity-50 mb-6">
+                                          <CardIcon className="text-blue-500" size={32} />
+                                          <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center text-[8px] font-black text-white">VISA</div>
+                                          <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center text-[8px] font-black text-white">MC</div>
+                                          <div className="h-8 w-12 bg-white/10 rounded flex items-center justify-center text-[8px] font-black text-white">AMEX</div>
+                                        </div>
+                                        <div className="space-y-4">
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">Número de Tarjeta</label>
+                                            <Input placeholder="XXXX XXXX XXXX XXXX" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black tracking-widest" />
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1.5">
+                                              <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">Expira</label>
+                                              <Input placeholder="MM / AA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black text-center" />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                              <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">CVV</label>
+                                              <Input placeholder="***" type="password" maxLength={3} className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black text-center" />
+                                            </div>
+                                          </div>
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em] ml-1">Titular</label>
+                                            <Input placeholder="NOMBRE COMPLETO" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black uppercase" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {selectedMethod === 'yape' && (
+                                      <div className="space-y-6 text-center">
+                                        <div className="h-20 w-20 bg-purple-500/10 rounded-[2rem] border border-purple-500/20 flex items-center justify-center mx-auto">
+                                          <Smartphone size={40} className="text-purple-400" />
+                                        </div>
+                                        <div className="space-y-4">
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Número Yape / Plin</label>
+                                            <Input placeholder="9XX XXX XXX" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black text-center text-xl tracking-widest" />
+                                          </div>
+                                          <p className="text-[8px] text-white/30 uppercase tracking-widest">Confirma la operación en tu app tras inyectar la señal</p>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {selectedMethod === 'paypal' && (
+                                      <div className="space-y-6 text-center">
+                                        <div className="h-20 w-20 bg-blue-500/10 rounded-[2rem] border border-blue-500/20 flex items-center justify-center mx-auto">
+                                          <Globe size={40} className="text-blue-400" />
+                                        </div>
+                                        <div className="space-y-4">
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Email PayPal</label>
+                                            <Input type="email" placeholder="EMAIL@CYBER.GAIA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black text-center" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {selectedMethod === 'code' && (
+                                      <div className="space-y-6 text-center">
+                                        <div className="h-20 w-20 bg-yellow-500/10 rounded-[2rem] border border-yellow-500/20 flex items-center justify-center mx-auto">
+                                          <Ticket size={40} className="text-yellow-400" />
+                                        </div>
+                                        <div className="space-y-4">
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-primary uppercase tracking-[0.3em]">Código de Inyección</label>
+                                            <Input placeholder="XXXX-XXXX-XXXX" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black text-center tracking-[0.2em] uppercase" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    <div className="flex flex-col gap-4">
                                       <Button 
-                                        disabled={isProcessing || selectedPackage === null}
-                                        onClick={() => handleProcessPayment("Procesador Gaia Default")}
+                                        onClick={handleProcessPayment}
+                                        disabled={isProcessing}
                                         className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]"
                                       >
                                         {isProcessing ? (
                                           <Loader2 size={16} className="animate-spin mr-2" />
                                         ) : (
-                                          "Iniciar Transacción Gaia"
+                                          "Confirmar Transacción"
                                         )}
                                       </Button>
+                                      <div className="flex items-center justify-center gap-2 text-white/20">
+                                        <Shield size={12} />
+                                        <span className="text-[7px] font-black uppercase tracking-widest italic">Cifrado Quantum de 4096 Bits Activo</span>
+                                      </div>
                                     </div>
                                   </div>
                                 )}
@@ -855,3 +939,4 @@ export function ProfileView({
     </div>
   );
 }
+
