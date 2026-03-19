@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -16,6 +15,11 @@ import { CreationHub } from "@/components/creation-hub";
 import { toast } from "@/hooks/use-toast";
 import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+/**
+ * @fileOverview Orquestador Principal de BioLive. 
+ * Implementa arquitectura de contenedores desacoplados.
+ */
 
 export default function Home() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
@@ -70,6 +74,12 @@ export default function Home() {
     if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
   };
 
+  const handleBack = () => {
+    setSelectedUser(null);
+    setActiveTab(lastTab);
+    setIsFullScreenMode(false);
+  };
+
   if (!isAppLoaded) return <LoadingScreen />;
 
   const showChrome = isNavVisible && !isFullScreenMode;
@@ -104,10 +114,7 @@ export default function Home() {
               <ProfileView 
                 username={selectedUser || "BioEntity_01"} 
                 isOwnProfile={!selectedUser || selectedUser === "BioEntity_01"}
-                onBack={() => {
-                  setSelectedUser(null);
-                  setActiveTab(lastTab);
-                }}
+                onBack={handleBack}
                 requireAuth={requireAuth}
               />
             )}
