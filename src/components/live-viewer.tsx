@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -393,10 +392,7 @@ function LiveStreamRoom({
             <img src={`https://picsum.photos/seed/${live.user}/100/100`} className="object-cover h-full w-full" alt="Avatar" />
           </div>
           <div className="cursor-pointer min-w-0 flex-1" onClick={(e) => { e.stopPropagation(); onBack(); onProfileClick(live.user); }}>
-            <h4 className="text-[9px] font-black italic text-white uppercase leading-none mb-0.5 truncate">@{live.user}</h4>
-            <div className="flex items-center gap-1">
-              <span className="text-[7px] font-black text-white/40 uppercase tracking-widest">Bio-Streaming</span>
-            </div>
+            <h4 className="text-[9px] font-black italic text-white uppercase leading-none truncate">@{live.user}</h4>
           </div>
           <button 
             onClick={handleFollow}
@@ -409,7 +405,6 @@ function LiveStreamRoom({
           </button>
         </div>
 
-        {/* Nuevo Contador de Espectadores entre Perfil y Ojito */}
         <div className="h-10 px-3 bg-transparent backdrop-blur-2xl rounded-xl flex items-center gap-2 text-white border border-white/10 shrink-0">
           <Users size={14} className="text-primary" />
           <span className="text-[9px] font-black uppercase tracking-widest leading-none">{live.watchers}</span>
