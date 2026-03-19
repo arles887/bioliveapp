@@ -59,7 +59,7 @@ export function ProfileView({
   const stats = [
     { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
     { label: "Siguiendo", value: isOwnProfile ? "842" : "120" },
-    { label: "ESP Tokens", value: isOwnProfile ? "2,500" : "800" }
+    { label: "ESP Tokens", value: isOwnProfile ? "100,000,000" : "800" }
   ];
 
   const tokenPackages = [
@@ -180,7 +180,7 @@ export function ProfileView({
                                         <span className="text-[9px] font-black uppercase text-primary tracking-widest italic">Balance Bio-Neural</span>
                                         <Zap size={14} className="text-primary animate-pulse" />
                                       </div>
-                                      <div className="text-4xl font-black italic text-white leading-none">2,500 <span className="text-sm text-primary">ESP</span></div>
+                                      <div className="text-4xl font-black italic text-white leading-none">100,000,000 <span className="text-sm text-primary">ESP</span></div>
                                       <div className="grid grid-cols-2 gap-3 pt-2">
                                         <Button 
                                           onClick={() => setWalletView("buy")}

@@ -232,7 +232,7 @@ function LiveStreamRoom({
 }) {
   const [hearts, setHearts] = useState<any[]>([]);
   const [activeGifts, setActiveGifts] = useState<any[]>([]);
-  const [espBalance, setEspBalance] = useState(2500);
+  const [espBalance, setEspBalance] = useState(100000000);
   const [isChatVisible, setIsChatVisible] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isActive, setIsActive] = useState(false);
@@ -258,7 +258,10 @@ function LiveStreamRoom({
       { name: "Anchor", icon: Anchor, cost: 50, color: "text-slate-400" },
       { name: "Bell", icon: Bell, cost: 55, color: "text-yellow-500" },
       { name: "Bird", icon: Bird, cost: 60, color: "text-sky-400" },
-      { name: "Bone", icon: Bone, cost: 65, color: "text-stone-300" }
+      { name: "Bone", icon: Bone, cost: 65, color: "text-stone-300" },
+      { name: "Micro-Zap", icon: Zap, cost: 70, color: "text-yellow-300" },
+      { name: "Dna-Frag", icon: Dna, cost: 80, color: "text-primary" },
+      { name: "Leaf-Drop", icon: Leaf, cost: 90, color: "text-green-300" }
     ],
     Fan: [
       { name: "Cyber-Spark", icon: Sparkles, cost: 100, color: "text-primary" },
@@ -273,7 +276,10 @@ function LiveStreamRoom({
       { name: "Binary", icon: Binary, cost: 550, color: "text-emerald-500" },
       { name: "Bot", icon: Bot, cost: 600, color: "text-zinc-400" },
       { name: "Box", icon: Box, cost: 650, color: "text-amber-800" },
-      { name: "Briefcase", icon: Briefcase, cost: 700, color: "text-brown-500" }
+      { name: "Briefcase", icon: Briefcase, cost: 700, color: "text-brown-500" },
+      { name: "Flame-On", icon: Flame, cost: 800, color: "text-red-500" },
+      { name: "Cyber-Eye", icon: Eye, cost: 900, color: "text-cyan-400" },
+      { name: "Zap-Burst", icon: Zap, cost: 950, color: "text-primary" }
     ],
     Premium: [
       { name: "Eco-Trophy", icon: Trophy, cost: 1000, color: "text-yellow-400" },
@@ -286,7 +292,10 @@ function LiveStreamRoom({
       { name: "Bug", icon: Bug, cost: 4500, color: "text-red-600" },
       { name: "Cake", icon: Cake, cost: 5000, color: "text-pink-500" },
       { name: "Flaming", icon: Flame, cost: 5500, color: "text-orange-600" },
-      { name: "Beer", icon: Beer, cost: 6000, color: "text-yellow-600" }
+      { name: "Beer", icon: Beer, cost: 6000, color: "text-yellow-600" },
+      { name: "Crown-Lux", icon: Crown, cost: 7000, color: "text-amber-400" },
+      { name: "Dna-Core", icon: Dna, cost: 8000, color: "text-primary" },
+      { name: "Globe-Pulse", icon: Globe, cost: 9000, color: "text-blue-500" }
     ],
     Exclusivos: [
       { name: "DNA-Helix", icon: Dna, cost: 10000, color: "text-primary" },
@@ -298,7 +307,10 @@ function LiveStreamRoom({
       { name: "Cyber-City", icon: Castle, cost: 200000, color: "text-indigo-500" },
       { name: "Solar-Core", icon: Sun, cost: 300000, color: "text-orange-500" },
       { name: "Diamond-Bio", icon: Gem, cost: 500000, color: "text-cyan-200" },
-      { name: "Gaia-Heart", icon: Heart, cost: 1000000, color: "text-red-500" }
+      { name: "Gaia-Heart", icon: Heart, cost: 1000000, color: "text-red-500" },
+      { name: "Galaxy-Node", icon: Globe, cost: 2500000, color: "text-indigo-400" },
+      { name: "Master-Key", icon: Key, cost: 5000000, color: "text-yellow-400" },
+      { name: "Zero-Point", icon: Zap, cost: 10000000, color: "text-white" }
     ]
   };
 
@@ -521,7 +533,7 @@ function LiveStreamRoom({
                 <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-between mb-4">
                   <div className="space-y-0.5">
                     <span className="text-[8px] font-black text-primary uppercase italic tracking-widest">Bio-Wallet</span>
-                    <div className="text-lg font-black text-white italic leading-none">{espBalance} <span className="text-[9px] text-primary">ESP</span></div>
+                    <div className="text-lg font-black text-white italic leading-none">{espBalance.toLocaleString()} <span className="text-[9px] text-primary">ESP</span></div>
                   </div>
                   <Zap size={14} className="text-primary animate-pulse" />
                 </div>
