@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 
 /**
  * @fileOverview Orquestador Principal de BioLive. 
- * Implementa arquitectura de contenedores desacoplados.
+ * Implementa arquitectura de contenedores desacoplados y soporte Safe-Area.
  */
 
 export default function Home() {
@@ -93,7 +93,8 @@ export default function Home() {
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
-          <div className="pt-24 pb-32">
+          {/* pt-28 para compensar la nueva altura de la TopBar con Status Bar (10 + 16 = 26 + respiro = 28) */}
+          <div className="pt-28 pb-32">
             {activeTab === "inicio" && (
               <MainFeed 
                 onProfileClick={navigateToProfile} 
