@@ -286,6 +286,8 @@ function LiveStreamRoom({
   const handleTikiTiki = (e: any) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
+    
+    // Obtener coordenadas relativas al contenedor para el efecto visual
     const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : rect.width / 2);
     const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : rect.height / 2);
     
@@ -393,8 +395,7 @@ function LiveStreamRoom({
           <div className="cursor-pointer min-w-0 flex-1" onClick={(e) => { e.stopPropagation(); onBack(); onProfileClick(live.user); }}>
             <h4 className="text-[9px] font-black italic text-white uppercase leading-none mb-0.5 truncate">@{live.user}</h4>
             <div className="flex items-center gap-1">
-              <Users size={8} className="text-primary" />
-              <span className="text-[7px] font-black text-white/70 uppercase">{live.watchers}</span>
+              <span className="text-[7px] font-black text-white/40 uppercase tracking-widest">Bio-Streaming</span>
             </div>
           </div>
           <button 
@@ -406,6 +407,12 @@ function LiveStreamRoom({
           >
             {isFollowing ? <Check size={8} /> : <UserPlus size={8} />}
           </button>
+        </div>
+
+        {/* Nuevo Contador de Espectadores entre Perfil y Ojito */}
+        <div className="h-10 px-3 bg-transparent backdrop-blur-2xl rounded-xl flex items-center gap-2 text-white border border-white/10 shrink-0">
+          <Users size={14} className="text-primary" />
+          <span className="text-[9px] font-black uppercase tracking-widest leading-none">{live.watchers}</span>
         </div>
         
         <button 
