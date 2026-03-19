@@ -110,7 +110,7 @@ export function LiveViewer({
     return (
       <div className="fixed inset-y-0 left-1/2 -translate-x-1/2 w-full max-w-[500px] z-[100] bg-black overflow-y-scroll snap-y snap-mandatory no-scrollbar border-x border-white/5">
         {INITIAL_LIVES.filter(l => !l.locked).map((live) => (
-          <div key={live.id} className="h-full w-full snap-start shrink-0">
+          <div key={live.id} className="h-full w-full snap-start snap-always shrink-0">
             <LiveStreamRoom 
               live={live} 
               globalMuted={globalMuted}

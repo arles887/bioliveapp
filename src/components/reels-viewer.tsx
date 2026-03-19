@@ -214,7 +214,7 @@ function ReelItem({
   };
 
   return (
-    <div ref={containerRef} className="relative h-full w-full snap-start shrink-0 flex flex-col items-center justify-center">
+    <div ref={containerRef} className="relative h-full w-full snap-start snap-always shrink-0 flex flex-col items-center justify-center">
       <div className="relative w-full h-full max-w-[500px] bg-black">
         {isYouTube ? (
           <div className="h-full w-full" onClick={handleInteraction}>
