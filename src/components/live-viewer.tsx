@@ -248,6 +248,9 @@ function LiveStreamRoom({
   const [messages, setMessages] = useState<any[]>([
     { id: 1, user: "BioEntity_Alpha_Centauri", text: "Increíble la calidad 🌿" },
     { id: 2, user: "CyberFan_Zero_One", text: "¡Bio-luz!" },
+    { id: 3, user: "GaiaGuard", text: "Sincronización al 100%." },
+    { id: 4, user: "NeonExplorer", text: "Ese bioma es único." },
+    { id: 5, user: "Watcher_42", text: "BioLive es el futuro." },
   ]);
   const [inputText, setInputText] = useState("");
 
@@ -281,25 +284,21 @@ function LiveStreamRoom({
   }, [globalMuted, isActive]);
 
   const handleTikiTiki = (e: any) => {
-    requireAuth(() => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : rect.width / 2);
-      const constrainedX = Math.max(40, Math.min(clientX - rect.left, 460));
-      const newHeart = { id: Date.now(), x: constrainedX };
-      setHearts(prev => [...prev, newHeart]);
-      setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
-      
-      // Auto-unmute on first interaction within room if user hasn't unmuted yet
-      if (globalMuted) {
-        setGlobalMuted(false);
-      }
-    });
-  };
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setGlobalMuted(!globalMuted);
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : rect.width / 2);
+    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : rect.height / 2);
+    
+    const x = Math.max(40, Math.min(clientX - rect.left, 460));
+    const y = clientY - rect.top;
+    
+    const newHeart = { id: Date.now(), x, y };
+    setHearts(prev => [...prev, newHeart]);
+    setTimeout(() => setHearts(prev => prev.filter(h => h.id !== newHeart.id)), 1000);
+    
+    if (globalMuted) {
+      setGlobalMuted(false);
+    }
   };
 
   const handleSendGift = (gift: any) => {
@@ -338,7 +337,6 @@ function LiveStreamRoom({
   const getYouTubeSrc = () => {
     if (!isYouTube) return "";
     let url = live.video;
-    // Silencio estricto si no es el activo o si el feed está silenciado
     const finalMute = !isActive || globalMuted;
     url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
     url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
@@ -370,7 +368,7 @@ function LiveStreamRoom({
 
       <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
         {hearts.map(h => (
-          <div key={h.id} className="absolute bottom-24 animate-heart-float text-primary" style={{ left: `${h.x}px` }}>
+          <div key={h.id} className="absolute animate-heart-float text-primary" style={{ left: `${h.x}px`, top: `${h.y}px` }}>
             <Heart fill="currentColor" size={28} />
           </div>
         ))}
@@ -409,13 +407,6 @@ function LiveStreamRoom({
             {isFollowing ? <Check size={8} /> : <UserPlus size={8} />}
           </button>
         </div>
-
-        <button 
-          onClick={toggleMute}
-          className="h-10 w-10 shrink-0 bg-transparent backdrop-blur-2xl rounded-xl flex items-center justify-center text-primary border border-white/10 hover:border-primary/40 transition-all"
-        >
-          {globalMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-        </button>
         
         <button 
           onClick={(e) => { e.stopPropagation(); setIsChatVisible(!isChatVisible); }} 
@@ -435,11 +426,18 @@ function LiveStreamRoom({
       <div className="flex-1"></div>
 
       <div className={cn("relative z-40 px-6 pb-12 transition-all duration-500", isChatVisible ? "opacity-100" : "opacity-0 pointer-events-none")}>
-        <div className="max-h-40 overflow-y-auto no-scrollbar space-y-1.5 mb-2.5">
+        <div className="max-h-56 overflow-y-auto no-scrollbar space-y-2 mb-4 [mask-image:linear-gradient(to_bottom,transparent,black_20%)]">
           {messages.map((msg) => (
             <div key={msg.id} className="text-left animate-in fade-in slide-in-from-left-2">
-              <span className={cn("text-[8px] font-black uppercase italic tracking-widest block truncate", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
-              <p className={cn("text-[9px] backdrop-blur-md px-2.5 py-1 rounded-xl rounded-tl-none border border-white/5 inline-block max-w-[85%] leading-relaxed", msg.isSpecial ? "bg-primary/20 text-primary" : "bg-black/60 text-white/90")}>{msg.text}</p>
+              <span className={cn("text-[8px] font-black uppercase italic tracking-widest block truncate ml-2 mb-0.5", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
+              <p className={cn(
+                "text-[9px] backdrop-blur-md px-3 py-1.5 rounded-2xl rounded-tl-none border border-white/10 inline-block max-w-[85%] leading-relaxed transition-all",
+                msg.isSpecial 
+                  ? "bg-primary/10 text-primary border-primary/20" 
+                  : "bg-white/5 text-white/90"
+              )}>
+                {msg.text}
+              </p>
             </div>
           ))}
         </div>
@@ -484,7 +482,7 @@ function LiveStreamRoom({
               value={inputText} 
               onChange={(e) => setInputText(e.target.value)} 
               placeholder="Inyectar respuesta..." 
-              className="flex-1 h-full bg-black/60 backdrop-blur-3xl border border-white/10 rounded-xl px-4 text-[10px] text-white focus:outline-none focus:border-primary/40" 
+              className="flex-1 h-full bg-white/5 backdrop-blur-3xl border border-white/10 rounded-xl px-4 text-[10px] text-white focus:outline-none focus:border-primary/40" 
             />
             <button 
               type="submit" 
