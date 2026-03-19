@@ -148,6 +148,7 @@ export function ProfileView({
       setEspBalance(prev => prev - amount);
       setIsProcessing(false);
       setWithdrawAmount("");
+      setSelectedMethod(null);
       setWalletView("main");
       
       toast({ 
@@ -520,7 +521,7 @@ export function ProfileView({
                                   </div>
                                 )}
 
-                                {walletView === "withdraw" && (
+                                {walletView === "withdraw" && !selectedMethod && (
                                   <div className="space-y-8 animate-in slide-in-from-right duration-300">
                                     <div className="space-y-2">
                                       <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Convertir a <span className="text-accent">Soles (PEN)</span></h3>
@@ -558,17 +559,17 @@ export function ProfileView({
                                       <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em] ml-1">Destino de Fondos</label>
                                       <div className="grid grid-cols-1 gap-2">
                                         {[
-                                          { id: 'wyape', label: 'Retiro vía Yape', icon: Smartphone, color: 'text-purple-400' },
+                                          { id: 'wyape', label: 'Retiro vía Yape / Plin', icon: Smartphone, color: 'text-purple-400' },
                                           { id: 'wcard', label: 'Transferencia Bancaria', icon: CreditCard, color: 'text-blue-400' },
-                                          { id: 'wpaypal', label: 'PayPal (USD)', icon: Globe, color: 'text-blue-500' },
+                                          { id: 'wpaypal', label: 'PayPal (USD Global)', icon: Globe, color: 'text-blue-500' },
                                         ].map((m) => (
                                           <button 
                                             key={m.id} 
-                                            disabled={isProcessing}
-                                            onClick={() => handleProcessWithdraw()}
+                                            disabled={isProcessing || !withdrawAmount || Number(withdrawAmount) < 500}
+                                            onClick={() => setSelectedMethod(m.id)}
                                             className={cn(
                                               "flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-accent/40 transition-all group text-left",
-                                              isProcessing && "opacity-50 pointer-events-none"
+                                              (isProcessing || !withdrawAmount || Number(withdrawAmount) < 500) && "opacity-50 cursor-not-allowed"
                                             )}
                                           >
                                             <div className="flex items-center gap-4">
@@ -580,7 +581,7 @@ export function ProfileView({
                                         ))}
                                       </div>
                                     </div>
-
+                                    
                                     <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/10 space-y-3">
                                       <div className="flex items-center gap-2 text-red-400">
                                         <Shield size={14} />
@@ -590,18 +591,87 @@ export function ProfileView({
                                         Los retiros se efectuarán <span className="text-red-400">únicamente al titular</span> de la cuenta BioLive verificado. El tiempo de procesamiento es de 24 a 48 ciclos horarios.
                                       </p>
                                     </div>
+                                  </div>
+                                )}
 
-                                    <Button 
-                                      disabled={isProcessing || !withdrawAmount}
-                                      onClick={handleProcessWithdraw}
-                                      className="w-full h-16 bg-accent text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,255,187,0.3)]"
-                                    >
-                                      {isProcessing ? (
-                                        <Loader2 size={16} className="animate-spin mr-2" />
-                                      ) : (
-                                        "Confirmar Retiro Neural"
-                                      )}
-                                    </Button>
+                                {walletView === "withdraw" && selectedMethod && (
+                                  <div className="space-y-8 animate-in slide-in-from-right duration-300">
+                                    <div className="p-6 rounded-[2.5rem] bg-accent/5 border border-accent/20 flex flex-col items-center gap-4">
+                                      <Fingerprint size={24} className="text-accent animate-pulse" />
+                                      <div className="text-center">
+                                        <h3 className="text-sm font-black text-white uppercase italic">Resumen de Retiro</h3>
+                                        <p className="text-2xl font-black text-accent">
+                                          {Number(withdrawAmount).toLocaleString()} ESP
+                                        </p>
+                                        <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">
+                                          Recibirás: S/ {(Number(withdrawAmount) / 100).toFixed(2)} PEN
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    {selectedMethod === 'wyape' && (
+                                      <div className="space-y-6 text-center">
+                                        <div className="h-20 w-20 bg-purple-500/10 rounded-[2rem] border border-purple-500/20 flex items-center justify-center mx-auto">
+                                          <Smartphone size={40} className="text-purple-400" />
+                                        </div>
+                                        <div className="space-y-4">
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Número Yape / Plin Destino</label>
+                                            <Input placeholder="9XX XXX XXX" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black text-center text-xl tracking-widest" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {selectedMethod === 'wcard' && (
+                                      <div className="space-y-6">
+                                        <div className="h-20 w-20 bg-blue-500/10 rounded-[2rem] border border-blue-500/20 flex items-center justify-center mx-auto">
+                                          <CreditCard size={40} className="text-blue-400" />
+                                        </div>
+                                        <div className="space-y-4">
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Número de Cuenta o Tarjeta</label>
+                                            <Input placeholder="XXXX-XXXX-XXXX-XXXX" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black tracking-widest" />
+                                          </div>
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Banco / Entidad</label>
+                                            <Input placeholder="NOMBRE DEL BANCO" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black uppercase" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {selectedMethod === 'wpaypal' && (
+                                      <div className="space-y-6 text-center">
+                                        <div className="h-20 w-20 bg-blue-500/10 rounded-[2rem] border border-blue-500/20 flex items-center justify-center mx-auto">
+                                          <Globe size={40} className="text-blue-400" />
+                                        </div>
+                                        <div className="space-y-4">
+                                          <div className="space-y-1.5">
+                                            <label className="text-[8px] font-black text-accent uppercase tracking-[0.3em]">Email PayPal Destino</label>
+                                            <Input type="email" placeholder="EMAIL@CYBER.GAIA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white font-black text-center" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    <div className="flex flex-col gap-4">
+                                      <Button 
+                                        onClick={handleProcessWithdraw}
+                                        disabled={isProcessing}
+                                        className="w-full h-16 bg-accent text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(0,255,187,0.3)]"
+                                      >
+                                        {isProcessing ? (
+                                          <Loader2 size={16} className="animate-spin mr-2" />
+                                        ) : (
+                                          "Confirmar Retiro Neural"
+                                        )}
+                                      </Button>
+                                      <div className="flex items-center justify-center gap-2 text-white/20">
+                                        <Shield size={12} />
+                                        <span className="text-[7px] font-black uppercase tracking-widest italic">Protocolo de Verificación Gaia Activo</span>
+                                      </div>
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -939,4 +1009,3 @@ export function ProfileView({
     </div>
   );
 }
-
