@@ -39,10 +39,32 @@ const VIDEO_SOURCES = [
   "https://www.youtube.com/embed/5GGyhbKOWtY?autoplay=0&mute=1&loop=1&playlist=5GGyhbKOWtY&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/lrQRSltwU8E?autoplay=0&mute=1&loop=1&playlist=lrQRSltwU8E&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/gCsemG6ip54?autoplay=0&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0"
+  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/PAxTNbCZkFQ?autoplay=0&mute=1&loop=1&playlist=PAxTNbCZkFQ&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/lH7l2IsK3RM?autoplay=0&mute=1&loop=1&playlist=lH7l2IsK3RM&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/Ui__qfTW9tM?autoplay=0&mute=1&loop=1&playlist=Ui__qfTW9tM&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/omE_zwN_ItQ?autoplay=0&mute=1&loop=1&playlist=omE_zwN_ItQ&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/CocEMWdc7Ck?autoplay=0&mute=1&loop=1&playlist=CocEMWdc7Ck&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/1Yici7VYZxU?autoplay=0&mute=1&loop=1&playlist=1Yici7VYZxU&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/HL9VoQ-er_U?autoplay=0&mute=1&loop=1&playlist=HL9VoQ-er_U&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/5ospiemGG3M?autoplay=0&mute=1&loop=1&playlist=5ospiemGG3M&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/mLugzKRTf-0?autoplay=0&mute=1&loop=1&playlist=mLugzKRTf-0&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/ZA7ZKB8Mo9k?autoplay=0&mute=1&loop=1&playlist=ZA7ZKB8Mo9k&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/xp6706wVdCI?autoplay=0&mute=1&loop=1&playlist=xp6706wVdCI&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/oiGCL2Ld534?autoplay=0&mute=1&loop=1&playlist=oiGCL2Ld534&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/6EEW-9NDM5k?autoplay=0&mute=1&loop=1&playlist=6EEW-9NDM5k&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/RcwMEFwrjrg?autoplay=0&mute=1&loop=1&playlist=RcwMEFwrjrg&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/pdHfmklCxbE?autoplay=0&mute=1&loop=1&playlist=pdHfmklCxbE&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/b_unC2uLMwM?autoplay=0&mute=1&loop=1&playlist=b_unC2uLMwM&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VRUjdlCynU0?autoplay=0&mute=1&loop=1&playlist=VRUjdlCynU0&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/PbVc_cFGaAE?autoplay=0&mute=1&loop=1&playlist=PbVc_cFGaAE&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/Z_QUHmD85YQ?autoplay=0&mute=1&loop=1&playlist=Z_QUHmD85YQ&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/HOocBkeswqQ?autoplay=0&mute=1&loop=1&playlist=HOocBkeswqQ&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/X195LGfOxlg?autoplay=0&mute=1&loop=1&playlist=X195LGfOxlg&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/AhSEA30GSOw?autoplay=0&mute=1&loop=1&playlist=AhSEA30GSOw&controls=0&modestbranding=1&rel=0"
 ];
 
-const INITIAL_LIVES = Array.from({ length: 25 }, (_, i) => ({
+const INITIAL_LIVES = Array.from({ length: 60 }, (_, i) => ({
   id: `live-${i}`,
   title: [
     "Amazon Rainforest 4K", 
@@ -50,14 +72,17 @@ const INITIAL_LIVES = Array.from({ length: 25 }, (_, i) => ({
     "Coral Reef Flow", 
     "Arctic Bio-Node", 
     "Desert Winds Live", 
-    "Bioluminescent Cave"
-  ][i % 6],
-  category: ["Naturaleza", "Global", "Trending", "Naturaleza", "Global", "Trending"][i % 6],
+    "Bioluminescent Cave",
+    "Gaia Protocol Alpha",
+    "Neural Forest Sync",
+    "Deep Tech Ecosystem"
+  ][i % 9],
+  category: ["Naturaleza", "Global", "Trending", "Gaming", "Naturaleza", "Global", "Trending"][i % 7],
   user: `Watcher_${i + 50}`,
-  watchers: `${(Math.random() * 10 + 1).toFixed(1)}K`,
+  watchers: `${(Math.random() * 15 + 1).toFixed(1)}K`,
   img: `https://picsum.photos/seed/live${i}/600/1000`,
   video: VIDEO_SOURCES[i % VIDEO_SOURCES.length],
-  locked: i === 2
+  locked: i === 2 || i === 15
 }));
 
 export function LiveViewer({ 
