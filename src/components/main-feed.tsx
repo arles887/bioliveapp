@@ -13,7 +13,7 @@ import { toast } from "@/hooks/use-toast";
 
 /**
  * @fileOverview Feed principal estandarizado.
- * Corregidos anchos de historias y truncado de textos largos.
+ * Corregidos anchos de historias, truncado de textos largos y scroll.
  */
 
 const INITIAL_CONTENT = Array.from({ length: 25 }, (_, i) => ({
@@ -157,7 +157,7 @@ export function MainFeed({
                  </div>
                  <div className="space-y-1">
                    <h2 className="text-xl font-black italic uppercase text-white tracking-tighter truncate leading-tight drop-shadow-md">{item.title}</h2>
-                   <p className="text-[8px] text-white/50 font-black uppercase tracking-widest">{item.viewers} Sincronizados</p>
+                   <p className="text-[8px] text-white/50 font-black uppercase tracking-widest truncate">{item.viewers} Sincronizados</p>
                  </div>
               </div>
             </div>

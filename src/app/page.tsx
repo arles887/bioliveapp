@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 /**
  * @fileOverview Orquestador Principal de BioLive. 
  * Implementa arquitectura de contenedores de 500px centrados y soporte Safe-Area.
+ * Solucionado: El scroll ahora se resetea al cambiar de pestaña.
  */
 
 export default function Home() {
@@ -38,6 +39,13 @@ export default function Home() {
     const timer = setTimeout(() => setIsAppLoaded(true), 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Reset scroll on tab or user change
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [activeTab, selectedUser]);
 
   const handleScroll = () => {
     if (!scrollContainerRef.current || isFullScreenMode) return;
@@ -71,7 +79,6 @@ export default function Home() {
     setSelectedUser(username);
     setActiveTab("profile");
     setIsFullScreenMode(false);
-    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
   };
 
   const handleBack = () => {
@@ -94,7 +101,7 @@ export default function Home() {
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
-          {/* pt-28 para compensar la TopBar con Status Bar */}
+          {/* Espaciado para compensar TopBar con Status Bar */}
           <div className="pt-28 pb-32">
             {activeTab === "inicio" && (
               <MainFeed 

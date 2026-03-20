@@ -28,7 +28,7 @@ import { WalletService } from "@/services/wallet-service";
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
- * Corregidos tamaños y visibilidad de botones.
+ * Corregidos tamaños, truncado de texto y visibilidad de botones.
  */
 
 export function ProfileView({ 
@@ -119,9 +119,9 @@ export function ProfileView({
   ];
 
   return (
-    <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 max-w-[500px] mx-auto">
+    <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 max-w-[500px] mx-auto overflow-x-hidden">
       {/* Banner Area */}
-      <div className="relative h-32 w-full bg-gradient-to-b from-primary/10 to-transparent">
+      <div className="relative h-32 w-full bg-gradient-to-b from-primary/10 to-transparent shrink-0">
         <div className="absolute top-6 left-6 z-20">
            {!isOwnProfile && (
              <button onClick={onBack} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
@@ -151,11 +151,11 @@ export function ProfileView({
                       <div className="p-6">
                         {menuItems.map((item) => (
                           <button key={item.id} onClick={item.action} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
-                            <div className="flex items-center gap-4">
-                              <item.icon size={20} className={item.color} />
-                              <span className="text-xs font-black uppercase tracking-widest text-white/80">{item.label}</span>
+                            <div className="flex items-center gap-4 min-w-0">
+                              <item.icon size={20} className={cn("shrink-0", item.color)} />
+                              <span className="text-xs font-black uppercase tracking-widest text-white/80 truncate">{item.label}</span>
                             </div>
-                            <ChevronLeft size={16} className="rotate-180 text-white/20 group-hover:text-primary" />
+                            <ChevronLeft size={16} className="rotate-180 text-white/20 group-hover:text-primary shrink-0" />
                           </button>
                         ))}
                       </div>
@@ -192,7 +192,7 @@ export function ProfileView({
         <div className="space-y-1">
           <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter truncate leading-none">{profileName}</h2>
           <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest truncate">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
-          <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-[90%] line-clamp-3">
+          <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-full line-clamp-3">
             Explorador de biomas digitales y coleccionista de señales orgánicas. 🌱⚡ #BioCyber #NatureTech #Enterprise #Global
           </p>
         </div>
@@ -200,8 +200,8 @@ export function ProfileView({
         <div className="flex gap-4 py-4 border-y border-white/5 overflow-x-auto no-scrollbar">
           {stats.map((stat) => (
             <div key={stat.label} className="flex flex-col shrink-0 min-w-[80px]">
-              <span className="text-lg font-black text-white italic leading-none tracking-tight">{stat.value}</span>
-              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1">{stat.label}</span>
+              <span className="text-lg font-black text-white italic leading-none tracking-tight truncate">{stat.value}</span>
+              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1 truncate">{stat.label}</span>
             </div>
           ))}
         </div>
@@ -269,8 +269,8 @@ export function ProfileView({
                 <div className="space-y-2">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5">
-                      <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary/60">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary/60 shrink-0">
                           {i % 2 === 0 ? <ArrowUpRight size={18} /> : <ArrowDownLeft size={18} />}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -301,7 +301,7 @@ export function ProfileView({
                     {walletView === "buy" ? (
                       <>
                         <button onClick={() => setPaymentMethod("card")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                          <CreditCard className="text-primary group-hover:scale-110 transition-transform" />
+                          <CreditCard className="text-primary group-hover:scale-110 transition-transform shrink-0" />
                           <div className="text-left truncate">
                             <p className="text-sm font-black text-white italic uppercase truncate">Tarjeta Crédito/Débito</p>
                             <div className="flex gap-2 mt-1">
@@ -311,30 +311,30 @@ export function ProfileView({
                           </div>
                         </button>
                         <button onClick={() => setPaymentMethod("yape")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                          <Smartphone className="text-accent group-hover:scale-110 transition-transform" />
+                          <Smartphone className="text-accent group-hover:scale-110 transition-transform shrink-0" />
                           <p className="text-sm font-black text-white italic uppercase truncate">Yape / Plin</p>
                         </button>
                         <button onClick={() => setPaymentMethod("paypal")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                          <Globe className="text-blue-400 group-hover:scale-110 transition-transform" />
+                          <Globe className="text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
                           <p className="text-sm font-black text-white italic uppercase truncate">PayPal Global</p>
                         </button>
                         <button onClick={() => setPaymentMethod("code")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                          <Gift className="text-yellow-400 group-hover:scale-110 transition-transform" />
+                          <Gift className="text-yellow-400 group-hover:scale-110 transition-transform shrink-0" />
                           <p className="text-sm font-black text-white italic uppercase truncate">Código Promocional</p>
                         </button>
                       </>
                     ) : (
                       <>
                         <button onClick={() => setPaymentMethod("yape")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                          <Smartphone className="text-accent" />
+                          <Smartphone className="text-accent shrink-0" />
                           <p className="text-sm font-black text-white italic uppercase truncate">Retiro a Yape</p>
                         </button>
                         <button onClick={() => setPaymentMethod("bank")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                          <Building2 className="text-primary" />
+                          <Building2 className="text-primary shrink-0" />
                           <p className="text-sm font-black text-white italic uppercase truncate">Transferencia Bancaria</p>
                         </button>
                         <button onClick={() => setPaymentMethod("paypal")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                          <Globe className="text-blue-400" />
+                          <Globe className="text-blue-400 shrink-0" />
                           <p className="text-sm font-black text-white italic uppercase truncate">PayPal (USD)</p>
                         </button>
                       </>

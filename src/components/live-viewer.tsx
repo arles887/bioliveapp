@@ -153,14 +153,14 @@ export function LiveViewer({
   }
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#020503] animate-in fade-in duration-500 pb-24">
+    <div className="flex flex-col w-full h-full bg-[#020503] animate-in fade-in duration-500 pb-24 overflow-x-hidden">
       <div className="p-6 pb-4 space-y-6">
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
             <h2 className="text-3xl font-black italic uppercase text-white tracking-tighter leading-none truncate">Bio<span className="text-primary">Live</span></h2>
             <p className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/40 mt-2 truncate">Exploración en Tiempo Real</p>
           </div>
-          <button className="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 border border-white/10 shrink-0">
+          <button className="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 border border-white/10 shrink-0 ml-4">
             <Search size={18} />
           </button>
         </div>
@@ -177,8 +177,8 @@ export function LiveViewer({
                   : "bg-white/5 border-white/5 text-white/30"
               )}
             >
-              <cat.icon size={12} />
-              <span className="text-[9px] font-black uppercase tracking-widest">{cat.id}</span>
+              <cat.icon size={12} className="shrink-0" />
+              <span className="text-[9px] font-black uppercase tracking-widest truncate">{cat.id}</span>
             </button>
           ))}
         </div>
@@ -192,20 +192,20 @@ export function LiveViewer({
             className="group relative aspect-[3/4] rounded-3xl overflow-hidden bg-white/5 border border-white/10 hover:border-primary/30 transition-all cursor-pointer shadow-xl"
           >
             <Image src={live.img} fill alt="Live" className="object-cover opacity-60 grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none"></div>
             
             {live.locked && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm pointer-events-none">
                 <Lock size={20} className="text-primary animate-pulse" />
               </div>
             )}
 
-            <div className="absolute top-3 left-3 flex gap-1.5 items-center bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">
+            <div className="absolute top-3 left-3 flex gap-1.5 items-center bg-black/40 backdrop-blur-md px-2 py-1 rounded-full border border-white/10 z-10">
               <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_5px_rgba(239,68,68,1)]"></div>
-              <span className="text-[8px] font-black text-white uppercase">{live.watchers}</span>
+              <span className="text-[8px] font-black text-white uppercase truncate max-w-[40px]">{live.watchers}</span>
             </div>
 
-            <div className="absolute bottom-4 left-4 right-4 space-y-1">
+            <div className="absolute bottom-4 left-4 right-4 space-y-1 z-10">
               <span className="text-[8px] font-black text-primary/60 uppercase tracking-widest italic truncate block">@{live.user}</span>
               <h4 className="text-[11px] font-black text-white uppercase italic leading-tight line-clamp-2">{live.title}</h4>
             </div>
@@ -556,21 +556,21 @@ function LiveStreamRoom({
             <PopoverContent side="top" align="start" className="w-[320px] bg-[#020503]/95 backdrop-blur-3xl border-white/10 rounded-[2.5rem] p-0 z-[9999] shadow-[0_0_50px_rgba(0,0,0,1)] overflow-hidden">
               <div className="p-5 pb-0">
                 <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-between mb-4">
-                  <div className="space-y-0.5">
+                  <div className="space-y-0.5 min-w-0 flex-1">
                     <span className="text-[8px] font-black text-primary uppercase italic tracking-widest">Bio-Wallet</span>
                     <div className="text-lg font-black text-white italic leading-none truncate">{espBalance.toLocaleString()} <span className="text-[9px] text-primary">ESP</span></div>
                   </div>
-                  <Zap size={14} className="text-primary animate-pulse shrink-0" />
+                  <Zap size={14} className="text-primary animate-pulse shrink-0 ml-3" />
                 </div>
               </div>
 
               <Tabs defaultValue="Casuales" className="w-full">
-                <TabsList className="flex w-full bg-white/5 h-10 px-4 rounded-none gap-0 border-b border-white/5">
+                <TabsList className="flex w-full bg-white/5 h-10 px-4 rounded-none gap-0 border-b border-white/5 overflow-x-auto no-scrollbar">
                   {Object.keys(giftGallery).map((cat) => (
                     <TabsTrigger 
                       key={cat} 
                       value={cat} 
-                      className="flex-1 data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-0 font-black uppercase text-[8px] tracking-widest transition-all"
+                      className="flex-1 min-w-[70px] data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-0 font-black uppercase text-[8px] tracking-widest transition-all"
                     >
                       {cat}
                     </TabsTrigger>
@@ -602,12 +602,12 @@ function LiveStreamRoom({
             </PopoverContent>
           </Popover>
 
-          <form onSubmit={handleSendMessage} className="flex-1 flex gap-2 h-full">
+          <form onSubmit={handleSendMessage} className="flex-1 flex gap-2 h-full min-w-0">
             <input 
               value={inputText} 
               onChange={(e) => setInputText(e.target.value)} 
               placeholder="Inyectar respuesta..." 
-              className="flex-1 h-full bg-white/5 backdrop-blur-3xl border border-white/10 rounded-xl px-4 text-[10px] text-white focus:outline-none focus:border-primary/40" 
+              className="flex-1 h-full bg-white/5 backdrop-blur-3xl border border-white/10 rounded-xl px-4 text-[10px] text-white focus:outline-none focus:border-primary/40 min-w-0 truncate" 
             />
             <button 
               type="submit" 
