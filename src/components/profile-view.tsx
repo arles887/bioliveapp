@@ -8,7 +8,7 @@ import {
   Wallet, BarChart3, Edit, ArrowUpRight, ArrowDownLeft, 
   Users, Loader2, Activity, PieChart as PieChartIcon,
   TrendingUp, TrendingDown, MapPin, Award, Heart, Eye,
-  Target, BarChart
+  Target, BarChart, Key
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -52,9 +52,9 @@ import {
 import { Progress } from "@/components/ui/progress";
 
 /**
- * @fileOverview Vista de Perfil con Bio-Inteligencia Analítica Avanzada.
+ * @fileOverview Vista de Perfil con Bio-Inteligencia Analítica Avanzada y Billetera Blindada.
  * Blindaje: Ancho estricto de 390px para centrado absoluto.
- * Se han integrado métricas de alcance, demografía, viralidad y aceptación.
+ * Se ha integrado bloqueo por clave (2025) para el acceso a la billetera.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment";
@@ -99,6 +99,8 @@ export function ProfileView({
   
   // Wallet State
   const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const [isWalletAuthenticated, setIsWalletAuthenticated] = useState(false);
+  const [walletPassword, setWalletPassword] = useState("");
   const [walletView, setWalletView] = useState<WalletTab>("main");
   const [rechargeStep, setRechargeStep] = useState<RechargeStep>("gallery");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -133,6 +135,16 @@ export function ProfileView({
         description: newStatus ? `Siguiendo a @${profileName}` : `Has dejado de seguir a @${profileName}` 
       });
     });
+  };
+
+  const handleWalletAuth = () => {
+    if (walletPassword === "2025") {
+      setIsWalletAuthenticated(true);
+      setWalletPassword("");
+      toast({ title: "Acceso Concedido", description: "Billetera ESP desbloqueada." });
+    } else {
+      toast({ variant: "destructive", title: "Error de Encriptación", description: "Clave neural incorrecta." });
+    }
   };
 
   const executeTransaction = async () => {
@@ -200,7 +212,7 @@ export function ProfileView({
                     </SheetHeader>
                     <ScrollArea className="flex-1">
                       <div className="p-6">
-                        <button onClick={() => { setIsWalletOpen(true); setWalletView("main"); }} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
+                        <button onClick={() => { setIsWalletOpen(true); setIsWalletAuthenticated(false); setWalletView("main"); }} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
                           <div className="flex items-center gap-4">
                             <Wallet size={20} className="text-primary" />
                             <span className="text-xs font-black uppercase tracking-widest text-white/80">Billetera ESP</span>
@@ -274,7 +286,7 @@ export function ProfileView({
         </div>
       </ProtocolWindow>
 
-      {/* Bio-Analítica Avanzada - Blindado a 390px */}
+      {/* Bio-Analítica Avanzada */}
       <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Analítica">
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] px-0">
           <div className="flex flex-col items-center w-full space-y-8 pb-24 pt-6 overflow-x-hidden">
@@ -332,7 +344,7 @@ export function ProfileView({
               </div>
             </div>
 
-            {/* Crecimiento Neto: Seguidores y Likes */}
+            {/* Crecimiento Neto */}
             <div className="w-full max-w-[390px] px-4 grid grid-cols-2 gap-4">
               <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
                  <div className="flex items-center justify-between">
@@ -421,7 +433,6 @@ export function ProfileView({
 
             {/* Videos Virales + Aceptación */}
             <div className="w-full max-w-[390px] px-4 space-y-4">
-              {/* Videos Virales */}
               <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -449,7 +460,6 @@ export function ProfileView({
                 </div>
               </div>
 
-              {/* Nivel de Aceptación */}
               <div className="p-8 rounded-[2.5rem] bg-primary text-black space-y-4 shadow-[0_0_50px_rgba(204,255,0,0.3)]">
                 <div className="flex items-center justify-between">
                   <h4 className="text-[10px] font-black uppercase tracking-[0.3em] italic">Bio-Aceptación</h4>
@@ -472,115 +482,148 @@ export function ProfileView({
         </ScrollArea>
       </ProtocolWindow>
 
-      {/* Wallet Protocol Window - Blindado a 390px */}
-      <ProtocolWindow isOpen={isWalletOpen} onClose={() => setIsWalletOpen(false)} title="Billetera ESP">
+      {/* Wallet Protocol Window */}
+      <ProtocolWindow 
+        isOpen={isWalletOpen} 
+        onClose={() => { setIsWalletOpen(false); setIsWalletAuthenticated(false); }} 
+        title="Billetera ESP"
+      >
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] overflow-x-hidden">
           <div className="flex flex-col items-center justify-start w-full gap-8 pb-24 pt-6 overflow-x-hidden">
             
-            {/* Balance Card: Blindado a 390px */}
-            {walletView === "main" && (
-              <div className="w-full flex flex-col items-center px-4 animate-in fade-in duration-500">
-                <div className="w-full max-w-[390px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
-                  <div className="relative z-10">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
-                    <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
-                      {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
-                    </div>
-                    <div className="mt-8 flex gap-3">
-                      <button 
-                        onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} 
-                        className="flex-1 bg-black text-white rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl"
-                      >
-                        <ArrowDownLeft className="mr-2" size={14} /> Recargar
-                      </button>
-                      <button 
-                        onClick={() => { setWalletView("withdraw"); setAmount(""); }} 
-                        className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-                      >
-                        <ArrowUpRight className="mr-2" size={14} /> Retirar
-                      </button>
+            {/* Bloqueo por Clave Neural */}
+            {!isWalletAuthenticated ? (
+              <div className="w-full max-w-[390px] px-6 py-12 flex flex-col items-center gap-8 animate-in fade-in duration-500">
+                <div className="h-20 w-20 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_30px_rgba(204,255,0,0.2)]">
+                  <Key size={32} />
+                </div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl text-white font-black italic uppercase tracking-tighter">Acceso Blindado</h3>
+                  <p className="text-[10px] text-white/30 font-black uppercase tracking-widest leading-relaxed">Inyecta la clave neural para auditar tus activos.</p>
+                </div>
+                <Input 
+                  type="password" 
+                  placeholder="****" 
+                  value={walletPassword}
+                  onChange={(e) => setWalletPassword(e.target.value)}
+                  className="h-14 bg-white/5 border-white/10 rounded-2xl text-center text-2xl tracking-[1em] text-primary focus-visible:ring-primary w-full" 
+                />
+                <Button 
+                  onClick={handleWalletAuth}
+                  className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_20px_rgba(204,255,0,0.3)]"
+                >
+                  Validar Protocolo
+                </Button>
+                <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest">Tip: 2025</p>
+              </div>
+            ) : (
+              <>
+                {/* Balance Card */}
+                {walletView === "main" && (
+                  <div className="w-full flex flex-col items-center px-4 animate-in fade-in duration-500">
+                    <div className="w-full max-w-[390px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
+                      <div className="relative z-10">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
+                        <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
+                          {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
+                        </div>
+                        <div className="mt-8 flex gap-3">
+                          <button 
+                            onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} 
+                            className="flex-1 bg-black text-white rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl"
+                          >
+                            <ArrowDownLeft className="mr-2" size={14} /> Recargar
+                          </button>
+                          <button 
+                            onClick={() => { setWalletView("withdraw"); setAmount(""); }} 
+                            className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                          >
+                            <ArrowUpRight className="mr-2" size={14} /> Retirar
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            {/* Buy View - Blindado a 390px */}
-            {walletView === "buy" && (
-              <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
-                <div className="w-full max-w-[390px] space-y-6">
-                  <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
-                    <ChevronLeft size={16} />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
-                  </button>
-                  
-                  {rechargeStep === "gallery" && (
-                    <div className="grid grid-cols-2 gap-4 w-full">
-                      {Array.from({ length: 4 }).map((_, i) => (
-                        <button 
-                          key={i}
-                          onClick={() => { setAmount(((i + 1) * 1000).toString()); setRechargeStep("confirm"); }}
-                          className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center group active:scale-95 shadow-xl"
-                        >
-                          <Zap size={24} className="text-primary/40 group-hover:text-primary mx-auto mb-4 transition-colors" />
-                          <p className="text-2xl font-black text-white italic truncate leading-none">{((i + 1) * 1000).toLocaleString()}</p>
-                          <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mt-3">+15% regalo</p>
-                        </button>
-                      ))}
+                {/* Buy View */}
+                {walletView === "buy" && (
+                  <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
+                    <div className="w-full max-w-[390px] space-y-6">
+                      <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
+                        <ChevronLeft size={16} />
+                        <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
+                      </button>
+                      
+                      {rechargeStep === "gallery" && (
+                        <div className="grid grid-cols-2 gap-4 w-full">
+                          {Array.from({ length: 4 }).map((_, i) => (
+                            <button 
+                              key={i}
+                              onClick={() => { setAmount(((i + 1) * 1000).toString()); setRechargeStep("confirm"); }}
+                              className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center group active:scale-95 shadow-xl"
+                            >
+                              <Zap size={24} className="text-primary/40 group-hover:text-primary mx-auto mb-4 transition-colors" />
+                              <p className="text-2xl font-black text-white italic truncate leading-none">{((i + 1) * 1000).toLocaleString()}</p>
+                              <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mt-3">+15% regalo</p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {rechargeStep === "confirm" && (
+                        <div className="w-full space-y-8 animate-in zoom-in-95 duration-300">
+                          <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
+                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-3">Monto Seleccionado</span>
+                             <div className="text-5xl font-black text-white italic tracking-tighter truncate">{Number(amount).toLocaleString()} ESP</div>
+                          </div>
+                          <button 
+                            onClick={executeTransaction} 
+                            disabled={isProcessing}
+                            className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                          >
+                            {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Recarga"}
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {rechargeStep === "confirm" && (
-                    <div className="w-full space-y-8 animate-in zoom-in-95 duration-300">
+                  </div>
+                )}
+
+                {/* Withdraw View */}
+                {walletView === "withdraw" && (
+                  <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
+                    <div className="w-full max-w-[390px] space-y-6">
+                      <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
+                        <ChevronLeft size={16} />
+                        <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
+                      </button>
+
                       <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                         <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-3">Monto Seleccionado</span>
-                         <div className="text-5xl font-black text-white italic tracking-tighter truncate">{Number(amount).toLocaleString()} ESP</div>
+                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-4">Cantidad a Retirar</label>
+                         <Input 
+                          type="number" 
+                          value={amount} 
+                          onChange={(e) => setAmount(e.target.value)} 
+                          className="h-20 bg-transparent border-none text-center text-5xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
+                          placeholder="0"
+                         />
+                      </div>
+                      <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/20 w-full text-center">
+                         <p className="text-[9px] font-bold text-red-500/80 uppercase leading-relaxed italic">
+                           AVISO: Solo se procesarán retiros al titular de la cuenta sincronizada con el Nodo Central.
+                         </p>
                       </div>
                       <button 
                         onClick={executeTransaction} 
                         disabled={isProcessing}
-                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                       >
-                        {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Recarga"}
+                        {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Retiro"}
                       </button>
                     </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Withdraw View - Blindado a 390px */}
-            {walletView === "withdraw" && (
-              <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
-                <div className="w-full max-w-[390px] space-y-6">
-                  <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
-                    <ChevronLeft size={16} />
-                    <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
-                  </button>
-
-                  <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-4">Cantidad a Retirar</label>
-                     <Input 
-                      type="number" 
-                      value={amount} 
-                      onChange={(e) => setAmount(e.target.value)} 
-                      className="h-20 bg-transparent border-none text-center text-5xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
-                      placeholder="0"
-                     />
                   </div>
-                  <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/20 w-full text-center">
-                     <p className="text-[9px] font-bold text-red-500/80 uppercase leading-relaxed italic">
-                       AVISO: Solo se procesarán retiros al titular de la cuenta sincronizada con el Nodo Central.
-                     </p>
-                  </div>
-                  <button 
-                    onClick={executeTransaction} 
-                    disabled={isProcessing}
-                    className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                  >
-                    {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Retiro"}
-                  </button>
-                </div>
-              </div>
+                )}
+              </>
             )}
           </div>
         </ScrollArea>
