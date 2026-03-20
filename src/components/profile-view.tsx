@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { 
   Menu, Share2, Zap, Check, ChevronLeft,
-  Wallet, History, BarChart3, TrendingUp,
-  Edit, ArrowUpRight, ArrowDownLeft, 
-  Users, PlayCircle, Radio, Tag, RotateCcw, TrendingDown,
-  Loader2, Activity, PieChart as PieChartIcon, MapPin
+  Wallet, BarChart3, Edit, ArrowUpRight, ArrowDownLeft, 
+  Users, Loader2, Activity, PieChart as PieChartIcon
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,7 +28,6 @@ import {
   Area, 
   AreaChart, 
   XAxis,
-  ResponsiveContainer
 } from "recharts";
 import { 
   ChartContainer, 
@@ -47,13 +44,13 @@ import {
 } from "@/components/ui/select";
 
 /**
- * @fileOverview Vista de Perfil Enterprise con Billetera ESP Blindada.
- * Blindaje: Ancho estricto de 390px para centrado absoluto en todos los nodos de datos.
+ * @fileOverview Vista de Perfil con Billetera ESP Simplificada y Blindada.
+ * Blindaje: Ancho estricto de 390px para centrado absoluto.
+ * Se han eliminado los apartados de Analítica e Historial dentro de la billetera.
  */
 
-type RechargeStep = "gallery" | "confirm" | "payment" | "details";
-type WalletTab = "stats" | "history" | "buy" | "withdraw";
-type HistoryFilter = "all" | "egress" | "recharge" | "promo" | "refund";
+type RechargeStep = "gallery" | "confirm" | "payment";
+type WalletTab = "main" | "buy" | "withdraw";
 
 const MOCK_CHART_DATA = [
   { name: "00h", income: 4000, outcome: 2400 },
@@ -87,13 +84,12 @@ export function ProfileView({
   
   // Wallet State
   const [isWalletOpen, setIsWalletOpen] = useState(false);
-  const [walletView, setWalletView] = useState<WalletTab>("stats");
+  const [walletView, setWalletView] = useState<WalletTab>("main");
   const [rechargeStep, setRechargeStep] = useState<RechargeStep>("gallery");
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [amount, setAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
-  const [historyFilter, setHistoryFilter] = useState<HistoryFilter>("all");
   
   // Profile Stats State
   const [isProfileStatsOpen, setIsProfileStatsOpen] = useState(false);
@@ -106,18 +102,6 @@ export function ProfileView({
     { label: "Siguiendo", value: isOwnProfile ? "842" : "120", icon: Check },
     { label: "ESP Tokens", value: isOwnProfile ? espBalance.toLocaleString() : "800", icon: Zap }
   ];
-
-  const fullHistory = [
-    { id: "h1", type: "recharge", label: "Recarga Nodo Central", amount: 50000, date: "Hoy, 14:20", icon: ArrowDownLeft, color: "text-primary" },
-    { id: "h2", type: "egress", label: "Regalo Bio-Seed @Watcher_42", amount: -2500, date: "Hoy, 10:15", icon: TrendingDown, color: "text-red-500" },
-    { id: "h3", type: "promo", label: "Ingreso Publicidad Gaia", amount: 15000, date: "Ayer, 22:30", icon: Tag, color: "text-accent" },
-    { id: "h4", type: "refund", label: "Reembolso Error Protocolo", amount: 1200, date: "Hace 3d", icon: RotateCcw, color: "text-blue-400" },
-    { id: "h5", type: "egress", label: "Retiro Activos Nodo Local", amount: -100000, date: "Hace 1sem", icon: ArrowUpRight, color: "text-white/40" },
-  ];
-
-  const filteredHistory = historyFilter === "all" 
-    ? fullHistory 
-    : fullHistory.filter(h => h.type === historyFilter);
 
   const handleUpdateProfile = async () => {
     setIsEditing(false);
@@ -153,7 +137,7 @@ export function ProfileView({
         }
         setEspBalance(newBalance);
         setIsProcessing(false);
-        setWalletView("stats");
+        setWalletView("main");
         setRechargeStep("gallery");
         setAmount("");
       } catch (e) {
@@ -202,7 +186,7 @@ export function ProfileView({
                     </SheetHeader>
                     <ScrollArea className="flex-1">
                       <div className="p-6">
-                        <button onClick={() => setIsWalletOpen(true)} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
+                        <button onClick={() => { setIsWalletOpen(true); setWalletView("main"); }} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
                           <div className="flex items-center gap-4">
                             <Wallet size={20} className="text-primary" />
                             <span className="text-xs font-black uppercase tracking-widest text-white/80">Billetera ESP</span>
@@ -268,8 +252,8 @@ export function ProfileView({
 
       {/* Profile Edit Window */}
       <ProtocolWindow isOpen={isEditing} onClose={() => setIsEditing(false)} title="Identidad Digital">
-        <div className="space-y-6 w-full max-w-[320px] px-6">
-          <Input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6" />
+        <div className="space-y-6 w-full max-w-[390px] px-6 mx-auto flex flex-col items-center">
+          <Input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6 w-full" />
           <Button onClick={handleUpdateProfile} className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
             Sincronizar Protocolo
           </Button>
@@ -326,252 +310,127 @@ export function ProfileView({
           <div className="flex flex-col items-center justify-start w-full gap-8 pb-24 pt-6 overflow-x-hidden">
             
             {/* Balance Card: Blindado a 390px */}
-            <div className="w-full flex justify-center px-4">
-              <div className="w-full max-w-[390px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
-                <div className="relative z-10">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
-                  <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
-                    {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
-                  </div>
-                  <div className="mt-8 flex gap-3">
-                    <button 
-                      onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} 
-                      className="flex-1 bg-black text-white rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl"
-                    >
-                      <ArrowDownLeft className="mr-2" size={14} /> Recargar
-                    </button>
-                    <button 
-                      onClick={() => { setWalletView("withdraw"); setAmount(""); }} 
-                      className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-                    >
-                      <ArrowUpRight className="mr-2" size={14} /> Retirar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Wallet Selector Tabs: Blindado a 390px */}
-            <div className="w-full flex justify-center px-4">
-              <div className="w-full max-w-[390px] flex bg-white/5 p-1 rounded-2xl border border-white/5">
-                {[
-                  { id: "stats", label: "Analítica", icon: BarChart3 },
-                  { id: "history", label: "Historial", icon: History },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setWalletView(tab.id as WalletTab)}
-                    className={cn(
-                      "flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all",
-                      walletView === tab.id 
-                        ? "bg-white/10 text-primary shadow-inner" 
-                        : "text-white/30 hover:text-white/60"
-                    )}
-                  >
-                    <tab.icon size={14} />
-                    <span className="text-[7px] font-black uppercase tracking-widest truncate block w-full text-center">{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Content Views: Todas blindadas a 390px */}
-            <div className="w-full px-4 overflow-x-hidden flex justify-center">
-              <div className="w-full max-w-[390px]">
-                
-                {/* Stats View */}
-                {walletView === "stats" && (
-                  <div className="w-full space-y-8 animate-in fade-in duration-500">
-                    <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
-                      <div className="flex justify-between items-center mb-6 px-2">
-                        <div className="flex items-center gap-2">
-                          <Activity size={14} className="text-primary" />
-                          <span className="text-[9px] font-black text-white uppercase tracking-widest">Flujo de Activos</span>
-                        </div>
-                        <span className="text-[8px] font-black text-primary/60 uppercase italic">Bio-Live Sync</span>
-                      </div>
-                      <ChartContainer config={chartConfig} className="h-[220px] w-full">
-                        <AreaChart data={MOCK_CHART_DATA}>
-                          <defs>
-                            <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                            </linearGradient>
-                            <linearGradient id="colorOutcome" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
-                              <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <XAxis dataKey="name" hide />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
-                          <Area type="monotone" dataKey="outcome" stroke="hsl(var(--accent))" strokeWidth={3} fillOpacity={1} fill="url(#colorOutcome)" />
-                        </AreaChart>
-                      </ChartContainer>
+            {walletView === "main" && (
+              <div className="w-full flex flex-col items-center px-4 animate-in fade-in duration-500">
+                <div className="w-full max-w-[390px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
+                  <div className="relative z-10">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
+                    <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
+                      {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3 w-full">
-                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
-                         <span className="text-[7px] font-black uppercase text-primary/60 block truncate">Rendimiento</span>
-                         <p className="text-sm font-black text-white italic truncate">+24% Gaia</p>
-                      </div>
-                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
-                         <span className="text-[7px] font-black uppercase text-accent/60 block truncate">Retiros Pendientes</span>
-                         <p className="text-sm font-black text-white italic truncate">12.5K ESP</p>
-                      </div>
-                    </div>
-
-                    <div className="w-full space-y-4">
-                      <div className="flex items-center gap-2 ml-2">
-                        <PieChartIcon size={12} className="text-primary/60" />
-                        <h4 className="text-[9px] font-black uppercase tracking-widest text-white/40">Origen de Tokens</h4>
-                      </div>
-                      <div className="space-y-2">
-                         {[
-                           { name: "Live Stream Tips", val: "45%", color: "text-primary" },
-                           { name: "Bio-Reels Ads", val: "30%", color: "text-accent" },
-                           { name: "Node Referrals", val: "25%", color: "text-white" }
-                         ].map(item => (
-                           <div key={item.name} className="p-5 rounded-3xl bg-white/[0.01] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all">
-                             <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{item.name}</span>
-                             <span className={cn("text-xs font-black italic", item.color)}>{item.val}</span>
-                           </div>
-                         ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* History View */}
-                {walletView === "history" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full justify-start">
-                      {[
-                        { id: "all", label: "Todo" },
-                        { id: "egress", label: "Egresos" },
-                        { id: "recharge", label: "Recargas" },
-                        { id: "promo", label: "Promos" },
-                        { id: "refund", label: "Refunds" }
-                      ].map((filter) => (
-                        <button
-                          key={filter.id}
-                          onClick={() => setHistoryFilter(filter.id as HistoryFilter)}
-                          className={cn(
-                            "whitespace-nowrap px-4 py-2.5 rounded-xl text-[7px] font-black uppercase tracking-widest border transition-all shrink-0",
-                            historyFilter === filter.id 
-                              ? "bg-primary text-black border-primary shadow-lg" 
-                              : "bg-white/5 text-white/40 border-white/10"
-                          )}
-                        >
-                          {filter.label}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="w-full space-y-3">
-                      {filteredHistory.length > 0 ? filteredHistory.map((item) => (
-                        <div key={item.id} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all w-full">
-                          <div className="flex items-center gap-4 min-w-0 flex-1">
-                            <div className={cn("h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0", item.color)}>
-                              <item.icon size={18} />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[11px] font-black text-white uppercase italic truncate">{item.label}</p>
-                              <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest">{item.date}</p>
-                            </div>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <span className={cn("text-xs font-black italic block", item.amount > 0 ? "text-primary" : "text-white/40")}>
-                              {item.amount > 0 ? `+${item.amount.toLocaleString()}` : item.amount.toLocaleString()}
-                            </span>
-                            <span className="text-[6px] font-black uppercase tracking-widest text-white/10 italic">Secure Protocol</span>
-                          </div>
-                        </div>
-                      )) : (
-                        <div className="py-20 flex flex-col items-center justify-center opacity-20">
-                          <History size={40} className="mb-4" />
-                          <p className="text-[8px] font-black uppercase tracking-widest">Sin Protocolos Registrados</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Buy View */}
-                {walletView === "buy" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
-                    {rechargeStep === "gallery" && (
-                      <div className="grid grid-cols-2 gap-4 w-full">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <button 
-                            key={i}
-                            onClick={() => { setAmount(((i + 1) * 1000).toString()); setRechargeStep("confirm"); }}
-                            className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center group active:scale-95 shadow-xl"
-                          >
-                            <Zap size={24} className="text-primary/40 group-hover:text-primary mx-auto mb-4 transition-colors" />
-                            <p className="text-2xl font-black text-white italic truncate leading-none">{((i + 1) * 1000).toLocaleString()}</p>
-                            <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mt-3">+15% regalo</p>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {rechargeStep === "confirm" && (
-                      <div className="w-full space-y-8 animate-in zoom-in-95 duration-300">
-                        <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-3">Monto Seleccionado</span>
-                           <div className="text-5xl font-black text-white italic tracking-tighter truncate">{Number(amount).toLocaleString()} ESP</div>
-                        </div>
-                        <button 
-                          onClick={() => setPaymentMethod("card")} 
-                          className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
-                        >
-                          Siguiente Protocolo
-                        </button>
-                      </div>
-                    )}
-                    {paymentMethod && (
-                      <div className="w-full animate-in fade-in slide-in-from-bottom-4">
-                        <button 
-                          onClick={executeTransaction} 
-                          disabled={isProcessing} 
-                          className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
-                        >
-                          {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Recarga"}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Withdraw View */}
-                {walletView === "withdraw" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
-                    <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-4">Cantidad a Retirar</label>
-                       <Input 
-                        type="number" 
-                        value={amount} 
-                        onChange={(e) => setAmount(e.target.value)} 
-                        className="h-20 bg-transparent border-none text-center text-5xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
-                        placeholder="0"
-                       />
-                    </div>
-                    <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/20 w-full">
-                       <p className="text-[9px] font-bold text-red-500/80 uppercase leading-relaxed text-center italic">
-                         AVISO: Solo se procesarán retiros al titular de la cuenta sincronizada con el Nodo Central.
-                       </p>
-                    </div>
-                    <div className="w-full pt-4">
+                    <div className="mt-8 flex gap-3">
                       <button 
-                        onClick={executeTransaction} 
-                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
+                        onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} 
+                        className="flex-1 bg-black text-white rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl"
                       >
-                        Confirmar Retiro
+                        <ArrowDownLeft className="mr-2" size={14} /> Recargar
+                      </button>
+                      <button 
+                        onClick={() => { setWalletView("withdraw"); setAmount(""); }} 
+                        className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                      >
+                        <ArrowUpRight className="mr-2" size={14} /> Retirar
                       </button>
                     </div>
                   </div>
-                )}
+                </div>
+
+                <div className="mt-12 w-full max-w-[390px] p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Activity size={14} className="text-primary" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Estado de Cuenta</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                      <span className="text-[7px] font-black uppercase text-primary/40 block mb-1">Rendimiento Semanal</span>
+                      <p className="text-xs font-black text-white italic">+12% ESP</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+                      <span className="text-[7px] font-black uppercase text-primary/40 block mb-1">Sincronización</span>
+                      <p className="text-xs font-black text-white italic">Optima</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Buy View - Blindado a 390px */}
+            {walletView === "buy" && (
+              <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
+                <div className="w-full max-w-[390px] space-y-6">
+                  <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
+                    <ChevronLeft size={16} />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
+                  </button>
+                  
+                  {rechargeStep === "gallery" && (
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <button 
+                          key={i}
+                          onClick={() => { setAmount(((i + 1) * 1000).toString()); setRechargeStep("confirm"); }}
+                          className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center group active:scale-95 shadow-xl"
+                        >
+                          <Zap size={24} className="text-primary/40 group-hover:text-primary mx-auto mb-4 transition-colors" />
+                          <p className="text-2xl font-black text-white italic truncate leading-none">{((i + 1) * 1000).toLocaleString()}</p>
+                          <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mt-3">+15% regalo</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {rechargeStep === "confirm" && (
+                    <div className="w-full space-y-8 animate-in zoom-in-95 duration-300">
+                      <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
+                         <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-3">Monto Seleccionado</span>
+                         <div className="text-5xl font-black text-white italic tracking-tighter truncate">{Number(amount).toLocaleString()} ESP</div>
+                      </div>
+                      <button 
+                        onClick={executeTransaction} 
+                        disabled={isProcessing}
+                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+                      >
+                        {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Recarga"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Withdraw View - Blindado a 390px */}
+            {walletView === "withdraw" && (
+              <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
+                <div className="w-full max-w-[390px] space-y-6">
+                  <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
+                    <ChevronLeft size={16} />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
+                  </button>
+
+                  <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
+                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-4">Cantidad a Retirar</label>
+                     <Input 
+                      type="number" 
+                      value={amount} 
+                      onChange={(e) => setAmount(e.target.value)} 
+                      className="h-20 bg-transparent border-none text-center text-5xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
+                      placeholder="0"
+                     />
+                  </div>
+                  <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/20 w-full text-center">
+                     <p className="text-[9px] font-bold text-red-500/80 uppercase leading-relaxed italic">
+                       AVISO: Solo se procesarán retiros al titular de la cuenta sincronizada con el Nodo Central.
+                     </p>
+                  </div>
+                  <button 
+                    onClick={executeTransaction} 
+                    disabled={isProcessing}
+                    className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Retiro"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
       </ProtocolWindow>
