@@ -8,7 +8,7 @@ import {
   Wallet, History, UserCircle, LifeBuoy, Settings, Lock,
   Loader2, CreditCard, Smartphone, Globe, Gift, 
   Shield, ArrowUpRight, ArrowDownLeft, Building2,
-  Edit, Coins, BadgePercent, TrendingUp, Landmark
+  Edit, Coins, BadgePercent, TrendingUp, Landmark, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ import { WalletService } from "@/services/wallet-service";
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
- * Actualizado: Protocolo de Retiro Secuencial con Galería de 60 paquetes y Pasarelas de Salida.
+ * Actualizado: Protocolo de Retiro con entrada manual y cláusula de titularidad.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
@@ -73,19 +73,6 @@ export function ProfileView({
       gift: giftAmount,
       price: (finalAmount * 0.05).toFixed(2),
       label: i % 4 === 0 ? "OFERTA" : "BONO"
-    };
-  });
-
-  // Generar 60 paquetes de retiro
-  const withdrawPackages = Array.from({ length: 60 }, (_, i) => {
-    const baseAmount = (i + 1) * 200;
-    const multiplier = i < 15 ? 5 : i < 30 ? 50 : 500;
-    const finalAmount = baseAmount * multiplier;
-    return {
-      id: `wpkg-${i}`,
-      amount: finalAmount,
-      price: (finalAmount * 0.045).toFixed(2), // Valor de cambio ligeramente menor para retiro
-      label: "RETIRO"
     };
   });
 
@@ -423,7 +410,7 @@ export function ProfileView({
               </div>
             )}
 
-            {/* View Logic: Retiro (Similar al flujo de recarga) */}
+            {/* View Logic: Retiro (Manual Input) */}
             {walletView === "withdraw" && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500">
                 <div className="flex items-center gap-4">
@@ -443,36 +430,37 @@ export function ProfileView({
                 </div>
 
                 {rechargeStep === "gallery" && (
-                  <div className="grid grid-cols-2 gap-3">
-                    {withdrawPackages.map((pkg) => (
-                      <button 
-                        key={pkg.id}
-                        onClick={() => { setAmount(pkg.amount.toString()); setRechargeStep("confirm"); }}
-                        className="group relative flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center overflow-hidden"
-                      >
-                        <div className="absolute top-3 left-3 flex gap-1">
-                          <ArrowUpRight size={10} className="text-primary" />
-                          <span className="text-[7px] font-black text-primary uppercase">{pkg.label}</span>
-                        </div>
-                        <Coins size={24} className="text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all mb-3" />
-                        <div className="space-y-1">
-                          <p className="text-2xl font-black text-white italic leading-none truncate">{pkg.amount.toLocaleString()}</p>
-                        </div>
-                        <div className="mt-4 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-white">
-                          S/ {pkg.price}
-                        </div>
-                      </button>
-                    ))}
-                    <button 
-                      onClick={() => { setAmount(""); setRechargeStep("confirm"); }}
-                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2"
-                    >
-                      <Coins size={32} className="text-primary mx-auto group-hover:rotate-12 transition-transform" />
-                      <div>
-                        <p className="text-lg font-black text-white italic uppercase">Monto Exacto</p>
-                        <p className="text-[8px] text-white/40 font-black uppercase tracking-widest">Retiro personalizado</p>
+                  <div className="space-y-8 animate-in fade-in duration-500">
+                    <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 space-y-6">
+                      <div className="space-y-2 text-center">
+                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic">Cantidad a Retirar</label>
+                         <Input 
+                          type="number"
+                          placeholder="0.00" 
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          className="h-20 bg-transparent border-none text-center text-4xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
+                         />
+                         <p className="text-[9px] text-white/20 font-black uppercase tracking-widest">Saldo Disponible: {espBalance.toLocaleString()} ESP</p>
                       </div>
-                    </button>
+                    </div>
+
+                    <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20 flex gap-4 items-start">
+                      <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={16} />
+                      <p className="text-[10px] font-bold text-red-500/80 uppercase leading-relaxed italic">
+                        AVISO: Solo se procesarán retiros a cuentas que pertenezcan al titular registrado. Las transferencias a terceros serán rechazadas por el protocolo Gaia.
+                      </p>
+                    </div>
+
+                    <Button 
+                      onClick={() => {
+                        if (Number(amount) > 0 && Number(amount) <= espBalance) setRechargeStep("confirm");
+                        else toast({ variant: "destructive", title: "Monto Inválido", description: "Verifica tu saldo disponible." });
+                      }}
+                      className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
+                    >
+                      Siguiente Protocolo
+                    </Button>
                   </div>
                 )}
 
@@ -496,7 +484,7 @@ export function ProfileView({
                       >
                         Siguiente Protocolo
                       </Button>
-                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Volver a la Galería</button>
+                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Volver al Monto</button>
                     </div>
                   </div>
                 )}
