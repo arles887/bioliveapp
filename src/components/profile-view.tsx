@@ -9,7 +9,8 @@ import {
   Loader2, CreditCard, Smartphone, Globe, Gift, 
   Shield, ArrowUpRight, ArrowDownLeft, Landmark, 
   Edit, Coins, BadgePercent, TrendingUp, AlertCircle,
-  BarChart3, PieChart as PieChartIcon, Calendar, Filter
+  BarChart3, PieChart as PieChartIcon, Calendar, Filter,
+  Users, Heart, MessageCircle, BarChart, Bar, MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,13 @@ import {
   ChartTooltip, 
   ChartTooltipContent 
 } from "@/components/ui/chart";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP e Inteligencia de Datos.
@@ -66,6 +74,27 @@ const ORIGIN_DATA = [
   { name: "Regalos", value: 45, color: "hsl(var(--primary))" },
   { name: "Publicidad", value: 25, color: "hsl(var(--accent))" },
   { name: "Recargas", value: 30, color: "hsl(var(--secondary-foreground))" },
+];
+
+const AGE_DATA = [
+  { name: "13-17", value: 15, color: "#4ade80" },
+  { name: "18-24", value: 45, color: "hsl(var(--primary))" },
+  { name: "25-34", value: 30, color: "hsl(var(--accent))" },
+  { name: "35+", value: 10, color: "#3b82f6" },
+];
+
+const GENDER_DATA = [
+  { name: "Masc.", value: 52, color: "hsl(var(--primary))" },
+  { name: "Fem.", value: 46, color: "hsl(var(--accent))" },
+  { name: "Otro", value: 2, color: "#94a3b8" },
+];
+
+const LOCATION_DATA = [
+  { name: "Lima", value: 8500 },
+  { name: "Bogotá", value: 5200 },
+  { name: "CDMX", value: 4800 },
+  { name: "Madrid", value: 3100 },
+  { name: "Santiago", value: 2900 },
 ];
 
 export function ProfileView({ 
@@ -91,6 +120,9 @@ export function ProfileView({
   const [isProcessing, setIsProcessing] = useState(false);
   const [amount, setAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
+  
+  // Profile Stats State
+  const [isProfileStatsOpen, setIsProfileStatsOpen] = useState(false);
   const [statsTimeframe, setStatsTimeframe] = useState("Día");
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
@@ -109,10 +141,10 @@ export function ProfileView({
     };
   }), []);
 
-  const stats = [
-    { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
-    { label: "Siguiendo", value: isOwnProfile ? "842" : "120" },
-    { label: "ESP Tokens", value: isOwnProfile ? espBalance.toLocaleString() : "800" }
+  const statsSummary = [
+    { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K", icon: Users },
+    { label: "Siguiendo", value: isOwnProfile ? "842" : "120", icon: Check },
+    { label: "ESP Tokens", value: isOwnProfile ? espBalance.toLocaleString() : "800", icon: Zap }
   ];
 
   const handleUpdateProfile = async () => {
@@ -192,6 +224,14 @@ export function ProfileView({
            )}
         </div>
         <div className="absolute top-6 right-6 flex gap-3 z-20">
+           {isOwnProfile && (
+             <button 
+              onClick={() => setIsProfileStatsOpen(true)}
+              className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
+             >
+                <BarChart3 size={18} />
+             </button>
+           )}
            <button onClick={() => toast({ title: "Copiado", description: "Enlace de perfil copiado." })} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
               <Share2 size={18} />
            </button>
@@ -261,7 +301,7 @@ export function ProfileView({
         </div>
 
         <div className="flex gap-4 py-4 border-y border-white/5 overflow-x-auto no-scrollbar">
-          {stats.map((stat) => (
+          {statsSummary.map((stat) => (
             <div key={stat.label} className="flex flex-col shrink-0 min-w-[80px]">
               <span className="text-lg font-black text-white italic leading-none tracking-tight truncate">{stat.value}</span>
               <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1 truncate">{stat.label}</span>
@@ -297,6 +337,121 @@ export function ProfileView({
             Sincronizar Protocolo
           </Button>
         </div>
+      </ProtocolWindow>
+
+      {/* Profile Analytics Window */}
+      <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Perfil">
+        <ScrollArea className="w-full max-w-[400px] h-full max-h-[85vh] px-6 py-4">
+          <div className="space-y-8 pb-12">
+            <div className="flex items-center justify-between px-2">
+               <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Performance</span></h3>
+               <Select value={statsTimeframe} onValueChange={setStatsTimeframe}>
+                 <SelectTrigger className="h-9 w-24 bg-white/5 border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest">
+                   <Calendar className="mr-2 h-3 w-3" /> {statsTimeframe}
+                 </SelectTrigger>
+                 <SelectContent className="bg-[#050906] border-white/10 text-white">
+                   {["Hora", "Día", "Semana", "Mes", "Año"].map(t => (
+                     <SelectItem key={t} value={t} className="text-[10px] font-black uppercase tracking-widest">{t}</SelectItem>
+                   ))}
+                 </SelectContent>
+               </Select>
+            </div>
+
+            {/* Main Views Chart */}
+            <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Visualizaciones de Perfil</span>
+              <div className="h-[200px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={MOCK_CHART_DATA}>
+                    <defs>
+                      <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="name" hide />
+                    <Tooltip content={<ChartTooltipContent hideLabel />} />
+                    <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: "Vistas Perfil", value: "84.2K", icon: BarChart3, color: "text-primary" },
+                { label: "Me Gusta", value: "12.5K", icon: Heart, color: "text-red-500" },
+                { label: "Comentarios", value: "3.2K", icon: MessageCircle, color: "text-accent" },
+                { label: "Compartidos", value: "1.8K", icon: Share2, color: "text-blue-400" },
+              ].map((metric) => (
+                <div key={metric.label} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-2">
+                   <div className="flex items-center justify-between">
+                     <metric.icon size={14} className={metric.color} />
+                     <span className="text-[7px] font-black uppercase text-white/20 tracking-widest">Global</span>
+                   </div>
+                   <p className="text-xl font-black text-white italic tracking-tight truncate">{metric.value}</p>
+                   <p className="text-[8px] font-black uppercase text-white/40 tracking-widest">{metric.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Demographics */}
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 px-2">Audiencia Neural</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                  <p className="text-[8px] font-black uppercase text-white/40 text-center">Rango de Edad</p>
+                  <div className="h-[120px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={AGE_DATA} innerRadius={25} outerRadius={40} dataKey="value">
+                          {AGE_DATA.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                  <p className="text-[8px] font-black uppercase text-white/40 text-center">Distribución Sexo</p>
+                  <div className="h-[120px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={GENDER_DATA} innerRadius={25} outerRadius={40} dataKey="value">
+                          {GENDER_DATA.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Location Bar Chart */}
+            <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
+              <div className="flex items-center gap-3">
+                <MapPin size={14} className="text-primary" />
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-white/60 italic">Ubicaciones de Señal</h4>
+              </div>
+              <div className="space-y-4">
+                {LOCATION_DATA.map((loc) => (
+                  <div key={loc.name} className="space-y-1.5">
+                    <div className="flex justify-between text-[9px] font-black uppercase italic">
+                      <span className="text-white/80">{loc.name}</span>
+                      <span className="text-primary">{loc.value.toLocaleString()}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary" 
+                        style={{ width: `${(loc.value / 8500) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
       </ProtocolWindow>
 
       {/* Wallet Protocol Window */}
@@ -760,11 +915,3 @@ export function ProfileView({
     </div>
   );
 }
-
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
