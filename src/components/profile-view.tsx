@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
@@ -363,12 +362,12 @@ export function ProfileView({
 
       {/* Wallet Protocol Window */}
       <ProtocolWindow isOpen={isWalletOpen} onClose={() => setIsWalletOpen(false)} title="Billetera ESP">
-        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh]">
-          <div className="flex flex-col items-center justify-start w-full gap-6 pb-20 pt-4">
+        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] overflow-x-hidden">
+          <div className="flex flex-col items-center justify-start w-full gap-6 pb-20 pt-4 overflow-x-hidden">
             
-            {/* Balance Card: Centrado con Blindaje */}
+            {/* Balance Card: Blindado y Centrado */}
             <div className="w-full px-6">
-              <div className="mx-auto w-full p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
+              <div className="mx-auto w-full max-w-[400px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
                 <div className="relative z-10">
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
                   <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
@@ -386,9 +385,9 @@ export function ProfileView({
               </div>
             </div>
 
-            {/* Wallet Selector Tabs: Centrado con Blindaje */}
+            {/* Wallet Selector Tabs: Blindado y Centrado */}
             <div className="w-full px-6">
-              <div className="mx-auto w-full flex bg-white/5 p-1 rounded-2xl border border-white/5">
+              <div className="mx-auto w-full max-w-[400px] flex bg-white/5 p-1 rounded-2xl border border-white/5">
                 {[
                   { id: "stats", label: "Analítica", icon: BarChart3 },
                   { id: "income", label: "Ingresos", icon: TrendingUp },
@@ -409,14 +408,14 @@ export function ProfileView({
               </div>
             </div>
 
-            {/* Content Views: Centrado absoluto mediante max-w y mx-auto */}
+            {/* Content Views: Estandarizados a un contenedor único max-w-[400px] */}
             <div className="w-full px-6 overflow-x-hidden">
-              <div className="mx-auto w-full">
+              <div className="mx-auto w-full max-w-[400px] flex flex-col items-center">
                 
                 {/* Stats View */}
                 {walletView === "stats" && (
-                  <div className="space-y-8 animate-in fade-in duration-500 w-full flex flex-col items-center">
-                    <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full max-w-[400px] mx-auto">
+                  <div className="w-full space-y-8 animate-in fade-in duration-500 flex flex-col items-center">
+                    <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
                       <ChartContainer config={chartConfig} className="h-[180px] w-full">
                         <AreaChart data={MOCK_CHART_DATA}>
                           <defs>
@@ -431,14 +430,14 @@ export function ProfileView({
                         </AreaChart>
                       </ChartContainer>
                     </div>
-                    <div className="grid grid-cols-2 gap-3 w-full max-w-[400px] mx-auto">
+                    <div className="grid grid-cols-2 gap-3 w-full">
                       <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
                          <span className="text-[7px] font-black uppercase text-primary/60 block truncate">Saldo Recargado</span>
-                         <p className="text-sm font-black text-white italic truncate">1,450,200 ESP</p>
+                         <p className="text-sm font-black text-white italic truncate">1.4M ESP</p>
                       </div>
                       <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
                          <span className="text-[7px] font-black uppercase text-accent/60 block truncate">Retiros Totales</span>
-                         <p className="text-sm font-black text-white italic truncate">240,500 ESP</p>
+                         <p className="text-sm font-black text-white italic truncate">240K ESP</p>
                       </div>
                     </div>
                   </div>
@@ -446,8 +445,8 @@ export function ProfileView({
 
                 {/* Income View */}
                 {walletView === "income" && (
-                  <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full flex flex-col items-center">
-                    <div className="grid grid-cols-2 gap-3 w-full max-w-[400px] mx-auto">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
+                    <div className="grid grid-cols-2 gap-3 w-full">
                       <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
                          <span className="text-[7px] font-black uppercase text-primary/60 block truncate">Total Videos</span>
                          <p className="text-sm font-black text-white italic truncate">20.9K ESP</p>
@@ -457,7 +456,7 @@ export function ProfileView({
                          <p className="text-sm font-black text-white italic truncate">45.0K ESP</p>
                       </div>
                     </div>
-                    <div className="space-y-3 w-full max-w-[400px] mx-auto">
+                    <div className="w-full space-y-3">
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-2">Ingresos por Señal</h4>
                       {incomeDetails.map((item) => (
                         <div key={item.id} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all w-full">
@@ -470,7 +469,7 @@ export function ProfileView({
                               <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest">{item.date}</p>
                             </div>
                           </div>
-                          <span className="text-xs font-black text-primary italic shrink-0">+{item.amount.toLocaleString()} ESP</span>
+                          <span className="text-xs font-black text-primary italic shrink-0">+{item.amount.toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
@@ -479,20 +478,19 @@ export function ProfileView({
 
                 {/* History View */}
                 {walletView === "history" && (
-                  <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full flex flex-col items-center">
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full max-w-[400px] mx-auto justify-center">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full justify-start sm:justify-center">
                       {[
                         { id: "all", label: "Todo" },
                         { id: "egress", label: "Egresos" },
                         { id: "recharge", label: "Recargas" },
                         { id: "promo", label: "Promos" },
-                        { id: "refund", label: "Reembolsos" },
                       ].map((filter) => (
                         <button
                           key={filter.id}
                           onClick={() => setHistoryFilter(filter.id as HistoryFilter)}
                           className={cn(
-                            "whitespace-nowrap px-4 py-2 rounded-xl text-[7px] font-black uppercase tracking-widest border transition-all",
+                            "whitespace-nowrap px-4 py-2 rounded-xl text-[7px] font-black uppercase tracking-widest border transition-all shrink-0",
                             historyFilter === filter.id ? "bg-primary text-black border-primary" : "bg-white/5 text-white/40 border-white/10"
                           )}
                         >
@@ -500,7 +498,7 @@ export function ProfileView({
                         </button>
                       ))}
                     </div>
-                    <div className="space-y-3 w-full max-w-[400px] mx-auto">
+                    <div className="w-full space-y-3">
                       {filteredHistory.map((item) => (
                         <div key={item.id} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all w-full">
                           <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -513,7 +511,7 @@ export function ProfileView({
                             </div>
                           </div>
                           <span className={cn("text-xs font-black italic shrink-0", item.amount > 0 ? "text-primary" : "text-white/40")}>
-                            {item.amount > 0 ? `+${item.amount.toLocaleString()}` : item.amount.toLocaleString()} ESP
+                            {item.amount > 0 ? `+${item.amount.toLocaleString()}` : item.amount.toLocaleString()}
                           </span>
                         </div>
                       ))}
@@ -523,9 +521,9 @@ export function ProfileView({
 
                 {/* Buy View */}
                 {walletView === "buy" && (
-                  <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full flex flex-col items-center">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
                     {rechargeStep === "gallery" && (
-                      <div className="grid grid-cols-2 gap-3 w-full max-w-[400px] mx-auto">
+                      <div className="grid grid-cols-2 gap-3 w-full">
                         {Array.from({ length: 4 }).map((_, i) => (
                           <button 
                             key={i}
@@ -540,7 +538,7 @@ export function ProfileView({
                       </div>
                     )}
                     {rechargeStep === "confirm" && (
-                      <div className="space-y-8 animate-in zoom-in-95 duration-300 w-full max-w-[400px] mx-auto">
+                      <div className="w-full space-y-8 animate-in zoom-in-95 duration-300">
                         <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-2">Monto Seleccionado</span>
                            <div className="text-5xl font-black text-white italic tracking-tighter truncate">{Number(amount).toLocaleString()} ESP</div>
@@ -551,7 +549,7 @@ export function ProfileView({
                       </div>
                     )}
                     {paymentMethod && (
-                      <div className="w-full max-w-[400px] mx-auto">
+                      <div className="w-full">
                         <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
                           {isProcessing ? <Loader2 className="animate-spin mr-2" /> : "Confirmar Recarga"}
                         </Button>
@@ -562,17 +560,17 @@ export function ProfileView({
 
                 {/* Withdraw View */}
                 {walletView === "withdraw" && (
-                  <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full flex flex-col items-center">
-                    <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full max-w-[400px] mx-auto">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
+                    <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-2">Cantidad a Retirar</label>
                        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-20 bg-transparent border-none text-center text-4xl font-black text-white focus-visible:ring-0" />
                     </div>
-                    <div className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20 w-full max-w-[400px] mx-auto">
+                    <div className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20 w-full">
                        <p className="text-[9px] font-bold text-red-500/80 uppercase leading-relaxed text-center italic">
                          AVISO: Solo se procesarán retiros al titular de la cuenta.
                        </p>
                     </div>
-                    <div className="w-full max-w-[400px] mx-auto">
+                    <div className="w-full">
                       <Button onClick={executeTransaction} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
                         Confirmar Retiro
                       </Button>
