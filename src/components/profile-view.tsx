@@ -13,7 +13,8 @@ import {
   Send, Building2, Landmark, HeartHandshake, Receipt, Camera,
   CheckCircle2, Sparkles, Flag, Ban, MessageSquare, UserPlus,
   Settings, Shield, Clock, Info, HelpCircle, Bell, ChevronRight,
-  Globe, Lock, Mail, Trash2, Search, Filter, PieChart, MousePointer2
+  Globe, Lock, Mail, Trash2, Search, Filter, PieChart, MousePointer2,
+  Music
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
