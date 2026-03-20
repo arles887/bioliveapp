@@ -79,6 +79,7 @@ const MOCK_AGE_DATA = [
 
 const chartConfig = {
   views: { label: "Visualizaciones", color: "hsl(var(--primary))" },
+  value: { label: "Usuarios", color: "hsl(var(--primary))" },
 } satisfies ChartConfig;
 
 export function ProfileView({ 
@@ -397,7 +398,7 @@ export function ProfileView({
                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Distribución de Edad</h4>
                   </div>
                   <div className="h-[120px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ChartContainer config={chartConfig} className="h-full w-full">
                       <RechartsBarChart data={MOCK_AGE_DATA}>
                         <XAxis dataKey="age" hide />
                         <Bar dataKey="value" radius={[10, 10, 0, 0]}>
@@ -407,8 +408,8 @@ export function ProfileView({
                         </Bar>
                         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                       </RechartsBarChart>
-                    </ResponsiveContainer>
-                    <div className="flex justify-between mt-4">
+                    </ChartContainer>
+                    <div className="flex justify-between mt-4 px-2">
                       {MOCK_AGE_DATA.map(d => (
                         <span key={d.age} className="text-[8px] font-black uppercase text-white/30 tracking-widest">{d.age}</span>
                       ))}
