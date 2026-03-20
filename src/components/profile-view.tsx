@@ -43,7 +43,8 @@ import {
 import { 
   ChartContainer, 
   ChartTooltip, 
-  ChartTooltipContent 
+  ChartTooltipContent,
+  type ChartConfig
 } from "@/components/ui/chart";
 import { 
   Select, 
@@ -55,6 +56,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP e Inteligencia de Datos.
+ * Corregido: Error de contexto de gráficos solucionado envolviendo con ChartContainer.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
@@ -96,6 +98,12 @@ const LOCATION_DATA = [
   { name: "Madrid", value: 3100 },
   { name: "Santiago", value: 2900 },
 ];
+
+const chartConfig = {
+  income: { label: "Ingresos", color: "hsl(var(--primary))" },
+  outcome: { label: "Egresos", color: "hsl(var(--accent))" },
+  views: { label: "Vistas", color: "hsl(var(--primary))" }
+} satisfies ChartConfig;
 
 export function ProfileView({ 
   username = "BioEntity_01", 
@@ -279,6 +287,7 @@ export function ProfileView({
             {isOwnProfile ? (
               <Button 
                 onClick={() => setIsEditing(true)} 
+                variant="outline"
                 className="rounded-2xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest h-10 px-6 hover:bg-white/5 transition-all flex items-center gap-2 active:scale-95"
               >
                 <Edit size={14} />
@@ -360,21 +369,19 @@ export function ProfileView({
             {/* Main Views Chart */}
             <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
               <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Visualizaciones de Perfil</span>
-              <div className="h-[200px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={MOCK_CHART_DATA}>
-                    <defs>
-                      <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" hide />
-                    <Tooltip content={<ChartTooltipContent hideLabel />} />
-                    <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              <ChartContainer config={chartConfig} className="h-[200px] w-full aspect-auto">
+                <AreaChart data={MOCK_CHART_DATA}>
+                  <defs>
+                    <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="name" hide />
+                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                  <Area type="monotone" dataKey="income" name="views" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                </AreaChart>
+              </ChartContainer>
             </div>
 
             {/* Metrics Cards */}
@@ -402,27 +409,23 @@ export function ProfileView({
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
                   <p className="text-[8px] font-black uppercase text-white/40 text-center">Rango de Edad</p>
-                  <div className="h-[120px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie data={AGE_DATA} innerRadius={25} outerRadius={40} dataKey="value">
-                          {AGE_DATA.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ChartContainer config={{}} className="h-[120px] aspect-auto">
+                    <PieChart>
+                      <Pie data={AGE_DATA} innerRadius={25} outerRadius={40} dataKey="value">
+                        {AGE_DATA.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                      </Pie>
+                    </PieChart>
+                  </ChartContainer>
                 </div>
                 <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
                   <p className="text-[8px] font-black uppercase text-white/40 text-center">Distribución Sexo</p>
-                  <div className="h-[120px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie data={GENDER_DATA} innerRadius={25} outerRadius={40} dataKey="value">
-                          {GENDER_DATA.map((entry, index) => <Cell key={index} fill={entry.color} />)}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ChartContainer config={{}} className="h-[120px] aspect-auto">
+                    <PieChart>
+                      <Pie data={GENDER_DATA} innerRadius={25} outerRadius={40} dataKey="value">
+                        {GENDER_DATA.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+                      </Pie>
+                    </PieChart>
+                  </ChartContainer>
                 </div>
               </div>
             </div>
@@ -773,69 +776,54 @@ export function ProfileView({
                        </div>
                     </div>
                   </div>
-                  <div className="h-[200px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={MOCK_CHART_DATA}>
-                        <defs>
-                          <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id="colorOutcome" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <XAxis 
-                          dataKey="name" 
-                          stroke="rgba(255,255,255,0.1)" 
-                          fontSize={8} 
-                          tickLine={false} 
-                          axisLine={false} 
-                        />
-                        <Tooltip 
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="bg-[#050906] border border-white/10 p-3 rounded-xl shadow-2xl">
-                                  <p className="text-[9px] font-black text-white uppercase mb-1">{payload[0].payload.name}</p>
-                                  <p className="text-[10px] font-black text-primary">+{payload[0].value?.toLocaleString()} ESP</p>
-                                  <p className="text-[10px] font-black text-accent">-{payload[1].value?.toLocaleString()} ESP</p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
-                        <Area type="monotone" dataKey="outcome" stroke="hsl(var(--accent))" strokeWidth={3} fillOpacity={1} fill="url(#colorOutcome)" />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ChartContainer config={chartConfig} className="h-[200px] w-full aspect-auto">
+                    <AreaChart data={MOCK_CHART_DATA}>
+                      <defs>
+                        <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorOutcome" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis 
+                        dataKey="name" 
+                        stroke="rgba(255,255,255,0.1)" 
+                        fontSize={8} 
+                        tickLine={false} 
+                        axisLine={false} 
+                      />
+                      <ChartTooltip 
+                        content={<ChartTooltipContent />}
+                      />
+                      <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
+                      <Area type="monotone" dataKey="outcome" stroke="hsl(var(--accent))" strokeWidth={3} fillOpacity={1} fill="url(#colorOutcome)" />
+                    </AreaChart>
+                  </ChartContainer>
                 </div>
 
                 {/* Origin Pie Chart */}
                 <div className="grid grid-cols-1 gap-4">
                   <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex items-center gap-6">
-                     <div className="h-[120px] w-[120px] shrink-0">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={ORIGIN_DATA}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={35}
-                              outerRadius={50}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {ORIGIN_DATA.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                          </PieChart>
-                        </ResponsiveContainer>
-                     </div>
+                     <ChartContainer config={{}} className="h-[120px] w-[120px] shrink-0 aspect-auto">
+                        <PieChart>
+                          <Pie
+                            data={ORIGIN_DATA}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={35}
+                            outerRadius={50}
+                            paddingAngle={5}
+                            dataKey="value"
+                          >
+                            {ORIGIN_DATA.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                     </ChartContainer>
                      <div className="flex-1 space-y-3">
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-2">Origen de Señales</h4>
                         {ORIGIN_DATA.map((item) => (
