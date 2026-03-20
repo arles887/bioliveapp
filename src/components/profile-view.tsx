@@ -4,10 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 import { 
   Menu, Share2, Zap, UserPlus, Check, ChevronLeft,
-  Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
-  TrendingUp, DollarSign, PlusCircle, RefreshCw, Loader2, CreditCard,
-  Smartphone, Globe, Gift, Shield, ArrowUpRight, ArrowDownLeft, Building2,
-  AlertCircle
+  Wallet, History, UserCircle, LifeBuoy, Settings, Lock,
+  RefreshCw, Loader2, CreditCard, Smartphone, Globe, Gift, 
+  Shield, ArrowUpRight, ArrowDownLeft, Building2, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,7 @@ import { WalletService } from "@/services/wallet-service";
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
+ * Corregidos tamaños y visibilidad de botones.
  */
 
 export function ProfileView({ 
@@ -45,7 +45,6 @@ export function ProfileView({
   const [isEditing, setIsEditing] = useState(false);
   const [profileName, setProfileName] = useState(username);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
   
   // Wallet State
   const [isWalletOpen, setIsWalletOpen] = useState(false);
@@ -112,15 +111,15 @@ export function ProfileView({
 
   const menuItems = [
     { id: "wallet", label: "Billetera ESP", icon: Wallet, color: "text-primary", action: () => { setIsWalletOpen(true); setWalletView("main"); } },
-    { id: "activity", label: "Actividad", icon: History, color: "text-white/60" },
-    { id: "account", label: "Información", icon: UserCircle, color: "text-white/60" },
-    { id: "support", label: "Soporte", icon: LifeBuoy, color: "text-white/60" },
-    { id: "settings", label: "Ajustes", icon: Settings, color: "text-white/60" },
-    { id: "privacy", label: "Privacidad", icon: Lock, color: "text-accent" },
+    { id: "activity", label: "Actividad", icon: History, color: "text-white/40", action: () => toast({ title: "Módulo Actividad", description: "Historial de señales en proceso." }) },
+    { id: "account", label: "Información", icon: UserCircle, color: "text-white/40", action: () => toast({ title: "Módulo Info", description: "Detalles de cuenta encriptados." }) },
+    { id: "support", label: "Soporte", icon: LifeBuoy, color: "text-white/40", action: () => toast({ title: "Soporte", description: "Contactando con el nodo central." }) },
+    { id: "settings", label: "Ajustes", icon: Settings, color: "text-white/40", action: () => toast({ title: "Ajustes", description: "Configuración neural disponible pronto." }) },
+    { id: "privacy", label: "Privacidad", icon: Lock, color: "text-accent", action: () => toast({ title: "Privacidad", description: "Escudo Gaia activo." }) },
   ];
 
   return (
-    <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+    <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 max-w-[500px] mx-auto">
       {/* Banner Area */}
       <div className="relative h-32 w-full bg-gradient-to-b from-primary/10 to-transparent">
         <div className="absolute top-6 left-6 z-20">
@@ -144,7 +143,7 @@ export function ProfileView({
                <SheetContent side="right" className="bg-[#020503] border-white/5 p-0 w-full max-w-[500px]">
                  <div className="flex flex-col h-full">
                     <SheetHeader className="p-8 border-b border-white/5">
-                      <SheetTitle className="text-2xl font-black italic uppercase text-white tracking-tighter">
+                      <SheetTitle className="text-2xl font-black italic uppercase text-white tracking-tighter truncate">
                         Configuración <span className="text-primary">Neural</span>
                       </SheetTitle>
                     </SheetHeader>
@@ -176,7 +175,10 @@ export function ProfileView({
           </div>
           <div className="flex gap-2 mb-2">
             {isOwnProfile ? (
-              <Button onClick={() => setIsEditing(true)} className="rounded-2xl bg-primary text-black font-black uppercase tracking-widest h-10 px-6 shadow-[0_0_20px_rgba(204,255,0,0.3)]">
+              <Button 
+                onClick={() => setIsEditing(true)} 
+                className="rounded-2xl bg-primary text-black font-black uppercase tracking-widest h-10 px-6 shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:scale-105 transition-all"
+              >
                 Editar Perfil
               </Button>
             ) : (
@@ -189,7 +191,7 @@ export function ProfileView({
 
         <div className="space-y-1">
           <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter truncate leading-none">{profileName}</h2>
-          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
+          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest truncate">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
           <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-[90%] line-clamp-3">
             Explorador de biomas digitales y coleccionista de señales orgánicas. 🌱⚡ #BioCyber #NatureTech #Enterprise #Global
           </p>
@@ -246,7 +248,7 @@ export function ProfileView({
               </div>
               <div className="relative z-10">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
-                <div className="text-4xl font-black italic mt-1 tracking-tighter">
+                <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
                   {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
                 </div>
                 <div className="mt-6 flex gap-3">
@@ -271,12 +273,12 @@ export function ProfileView({
                         <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary/60">
                           {i % 2 === 0 ? <ArrowUpRight size={18} /> : <ArrowDownLeft size={18} />}
                         </div>
-                        <div>
-                          <p className="text-[10px] font-black text-white uppercase italic">{i % 2 === 0 ? "Retiro Externo" : "Inyección de Nodo"}</p>
-                          <p className="text-[8px] text-white/30 font-bold uppercase mt-0.5">Gaia Protocol #{1040 + i}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[10px] font-black text-white uppercase italic truncate">{i % 2 === 0 ? "Retiro Externo" : "Inyección de Nodo"}</p>
+                          <p className="text-[8px] text-white/30 font-bold uppercase mt-0.5 truncate">Gaia Protocol #{1040 + i}</p>
                         </div>
                       </div>
-                      <span className={cn("text-[11px] font-black italic", i % 2 === 0 ? "text-red-400" : "text-primary")}>
+                      <span className={cn("text-[11px] font-black italic shrink-0", i % 2 === 0 ? "text-red-400" : "text-primary")}>
                         {i % 2 === 0 ? "-" : "+"}{500 * i} ESP
                       </span>
                     </div>
@@ -289,7 +291,7 @@ export function ProfileView({
                    <button onClick={() => { setWalletView("main"); setPaymentMethod(null); }} className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10">
                      <ChevronLeft size={20} />
                    </button>
-                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">
+                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">
                      {walletView === "buy" ? "Inyectar" : "Retirar"} <span className="text-primary">Tokens</span>
                    </h3>
                 </div>
@@ -300,8 +302,8 @@ export function ProfileView({
                       <>
                         <button onClick={() => setPaymentMethod("card")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
                           <CreditCard className="text-primary group-hover:scale-110 transition-transform" />
-                          <div className="text-left">
-                            <p className="text-sm font-black text-white italic uppercase">Tarjeta Crédito/Débito</p>
+                          <div className="text-left truncate">
+                            <p className="text-sm font-black text-white italic uppercase truncate">Tarjeta Crédito/Débito</p>
                             <div className="flex gap-2 mt-1">
                                <div className="h-3 w-5 bg-blue-600 rounded-sm opacity-50" />
                                <div className="h-3 w-5 bg-red-600 rounded-sm opacity-50" />
@@ -310,30 +312,30 @@ export function ProfileView({
                         </button>
                         <button onClick={() => setPaymentMethod("yape")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
                           <Smartphone className="text-accent group-hover:scale-110 transition-transform" />
-                          <p className="text-sm font-black text-white italic uppercase">Yape / Plin</p>
+                          <p className="text-sm font-black text-white italic uppercase truncate">Yape / Plin</p>
                         </button>
                         <button onClick={() => setPaymentMethod("paypal")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
                           <Globe className="text-blue-400 group-hover:scale-110 transition-transform" />
-                          <p className="text-sm font-black text-white italic uppercase">PayPal Global</p>
+                          <p className="text-sm font-black text-white italic uppercase truncate">PayPal Global</p>
                         </button>
                         <button onClick={() => setPaymentMethod("code")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
                           <Gift className="text-yellow-400 group-hover:scale-110 transition-transform" />
-                          <p className="text-sm font-black text-white italic uppercase">Código Promocional</p>
+                          <p className="text-sm font-black text-white italic uppercase truncate">Código Promocional</p>
                         </button>
                       </>
                     ) : (
                       <>
                         <button onClick={() => setPaymentMethod("yape")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
                           <Smartphone className="text-accent" />
-                          <p className="text-sm font-black text-white italic uppercase">Retiro a Yape</p>
+                          <p className="text-sm font-black text-white italic uppercase truncate">Retiro a Yape</p>
                         </button>
                         <button onClick={() => setPaymentMethod("bank")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
                           <Building2 className="text-primary" />
-                          <p className="text-sm font-black text-white italic uppercase">Transferencia Bancaria</p>
+                          <p className="text-sm font-black text-white italic uppercase truncate">Transferencia Bancaria</p>
                         </button>
                         <button onClick={() => setPaymentMethod("paypal")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
                           <Globe className="text-blue-400" />
-                          <p className="text-sm font-black text-white italic uppercase">PayPal (USD)</p>
+                          <p className="text-sm font-black text-white italic uppercase truncate">PayPal (USD)</p>
                         </button>
                       </>
                     )}
@@ -348,12 +350,11 @@ export function ProfileView({
                         </div>
                         <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="h-16 bg-transparent border-none text-3xl font-black text-white italic focus-visible:ring-0 placeholder:text-white/10" />
                         <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                           <span className="text-[8px] text-white/30 font-bold uppercase">Conversión Estimada</span>
-                           <span className="text-[10px] text-white font-black italic">S/ {(Number(amount) * 0.05).toFixed(2)} PEN</span>
+                           <span className="text-[8px] text-white/30 font-bold uppercase">Conversión</span>
+                           <span className="text-[10px] text-white font-black italic truncate">S/ {(Number(amount) * 0.05).toFixed(2)} PEN</span>
                         </div>
                       </div>
 
-                      {/* Payment Method Details */}
                       <div className="grid grid-cols-1 gap-3">
                         {paymentMethod === 'card' && (
                           <>
@@ -377,23 +378,16 @@ export function ProfileView({
                            </>
                         )}
                         {paymentMethod === 'code' && (
-                           <Input placeholder="INGRESAR CÓDIGO GAIA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white uppercase" />
+                           <Input placeholder="CÓDIGO GAIA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white uppercase" />
                         )}
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex gap-3">
-                      <AlertCircle size={14} className="text-primary shrink-0 mt-0.5" />
-                      <p className="text-[8px] text-primary font-bold uppercase tracking-widest leading-relaxed">
-                        Protocolo de seguridad activo. Los {walletView === 'buy' ? 'fondos' : 'retiros'} se procesan a través del nodo central Gaia.
-                      </p>
-                    </div>
-
                     <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
                       {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <Zap size={16} fill="black" className="mr-2" />}
-                      {isProcessing ? "Sincronizando..." : `Confirmar ${walletView === 'buy' ? 'Inyección' : 'Retiro'}`}
+                      {isProcessing ? "Procesando..." : `Confirmar`}
                     </Button>
-                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Cancelar Operación</button>
+                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors truncate">Cancelar</button>
                   </div>
                 )}
               </div>

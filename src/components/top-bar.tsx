@@ -6,8 +6,8 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
 
 /**
- * @fileOverview Barra superior con soporte para Safe-Area (Status Bar).
- * Estandarizada a max-w-[500px] para consistencia global.
+ * @fileOverview Barra superior estandarizada a 500px con soporte Safe-Area.
+ * Corregidos truncados de texto.
  */
 
 export function TopBar({ 
@@ -26,7 +26,7 @@ export function TopBar({
       "fixed top-0 left-1/2 -translate-x-1/2 z-50 flex flex-col w-full max-w-[500px] bg-[#020503]/40 backdrop-blur-xl border-b border-white/5 transition-all duration-700 ease-in-out",
       isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
     )}>
-      {/* Simulación de Status Bar / Safe Area Top */}
+      {/* Zona de Seguridad Status Bar */}
       <div className="h-10 w-full" />
       
       <div className="flex h-16 w-full items-center justify-between px-6 pb-2">

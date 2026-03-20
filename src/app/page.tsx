@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 
 /**
  * @fileOverview Orquestador Principal de BioLive. 
- * Implementa arquitectura de contenedores desacoplados y soporte Safe-Area.
+ * Implementa arquitectura de contenedores de 500px centrados y soporte Safe-Area.
  */
 
 export default function Home() {
@@ -86,6 +86,7 @@ export default function Home() {
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden font-body">
+      {/* Shell Maestro de 500px */}
       <div className="relative w-full h-full max-w-[500px] bg-[#020503] flex flex-col overflow-hidden ring-1 ring-white/5 shadow-[0_0_80px_rgba(0,0,0,1)]">
         
         <div 
@@ -93,7 +94,7 @@ export default function Home() {
           onScroll={handleScroll}
           className="absolute inset-0 overflow-y-auto no-scrollbar z-10"
         >
-          {/* pt-28 para compensar la nueva altura de la TopBar con Status Bar (10 + 16 = 26 + respiro = 28) */}
+          {/* pt-28 para compensar la TopBar con Status Bar */}
           <div className="pt-28 pb-32">
             {activeTab === "inicio" && (
               <MainFeed 
@@ -127,8 +128,8 @@ export default function Home() {
                    <div className="h-20 w-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_30px_rgba(204,255,0,0.2)]">
                       <Lock className="w-10 h-10" />
                    </div>
-                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter">Nodo <span className="text-primary">Bloqueado</span></h2>
-                   <p className="text-[10px] font-black uppercase tracking-widest text-white/30 leading-relaxed">Debes sincronizar tu identidad digital para inyectar nuevas señales en la red.</p>
+                   <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter truncate">Nodo <span className="text-primary">Bloqueado</span></h2>
+                   <p className="text-[10px] font-black uppercase tracking-widest text-white/30 leading-relaxed max-w-[200px] mx-auto">Debes sincronizar tu identidad digital para inyectar señales.</p>
                    <Button 
                     onClick={() => setIsAuthModalOpen(true)}
                     className="h-14 px-8 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl"

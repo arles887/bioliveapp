@@ -4,8 +4,7 @@ import { Home, Radio, Plus, Heart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * @fileOverview Navegación inferior estandarizada.
- * Ajustada para encajar perfectamente en el contenedor de 500px.
+ * @fileOverview Navegación inferior estandarizada a 500px.
  */
 
 export type NavItem = "inicio" | "live" | "upload" | "notifications" | "profile";
