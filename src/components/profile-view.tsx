@@ -1,14 +1,15 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { 
   Menu, Share2, Zap, UserPlus, Check, ChevronLeft,
   Wallet, History, UserCircle, LifeBuoy, Settings, Lock,
   Loader2, CreditCard, Smartphone, Globe, Gift, 
-  Shield, ArrowUpRight, ArrowDownLeft, Building2,
-  Edit, Coins, BadgePercent, TrendingUp, Landmark, AlertCircle
+  Shield, ArrowUpRight, ArrowDownLeft, Landmark, 
+  Edit, Coins, BadgePercent, TrendingUp, AlertCircle,
+  BarChart3, PieChart as PieChartIcon, Calendar, Filter
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,13 +28,45 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserService } from "@/services/user-service";
 import { WalletService } from "@/services/wallet-service";
+import { 
+  Area, 
+  AreaChart, 
+  ResponsiveContainer, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  PieChart, 
+  Pie, 
+  Cell 
+} from "recharts";
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent 
+} from "@/components/ui/chart";
 
 /**
- * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
- * Actualizado: Protocolo de Retiro con entrada manual y cláusula de titularidad.
+ * @fileOverview Vista de Perfil Enterprise con Billetera ESP e Inteligencia de Datos.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
+type WalletTab = "main" | "buy" | "withdraw" | "stats" | "history";
+
+const MOCK_CHART_DATA = [
+  { name: "00h", income: 4000, outcome: 2400 },
+  { name: "04h", income: 3000, outcome: 1398 },
+  { name: "08h", income: 2000, outcome: 9800 },
+  { name: "12h", income: 2780, outcome: 3908 },
+  { name: "16h", income: 1890, outcome: 4800 },
+  { name: "20h", income: 2390, outcome: 3800 },
+  { name: "23h", income: 3490, outcome: 4300 },
+];
+
+const ORIGIN_DATA = [
+  { name: "Regalos", value: 45, color: "hsl(var(--primary))" },
+  { name: "Publicidad", value: 25, color: "hsl(var(--accent))" },
+  { name: "Recargas", value: 30, color: "hsl(var(--secondary-foreground))" },
+];
 
 export function ProfileView({ 
   username = "BioEntity_01", 
@@ -52,21 +85,21 @@ export function ProfileView({
   
   // Wallet State
   const [isWalletOpen, setIsWalletOpen] = useState(false);
-  const [walletView, setWalletView] = useState<"main" | "buy" | "withdraw">("main");
+  const [walletView, setWalletView] = useState<WalletTab>("main");
   const [rechargeStep, setRechargeStep] = useState<RechargeStep>("gallery");
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [amount, setAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
+  const [statsTimeframe, setStatsTimeframe] = useState("Día");
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
-  // Generar 60 paquetes de tokens con bonos para recarga
-  const tokenPackages = Array.from({ length: 60 }, (_, i) => {
+  const tokenPackages = useMemo(() => Array.from({ length: 60 }, (_, i) => {
     const baseAmount = (i + 1) * 100;
     const multiplier = i < 10 ? 1 : i < 20 ? 10 : i < 40 ? 100 : 1000;
     const finalAmount = baseAmount * multiplier;
-    const giftAmount = Math.floor(finalAmount * 0.15); // 15% de regalo
+    const giftAmount = Math.floor(finalAmount * 0.15);
     return {
       id: `pkg-${i}`,
       amount: finalAmount,
@@ -74,7 +107,7 @@ export function ProfileView({
       price: (finalAmount * 0.05).toFixed(2),
       label: i % 4 === 0 ? "OFERTA" : "BONO"
     };
-  });
+  }), []);
 
   const stats = [
     { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
@@ -292,6 +325,29 @@ export function ProfileView({
               </div>
             </div>
 
+            {/* Wallet Quick Navigation Tabs */}
+            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+              {[
+                { id: "main", label: "Inicio", icon: Wallet },
+                { id: "stats", label: "Analítica", icon: BarChart3 },
+                { id: "history", label: "Historial", icon: History },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setWalletView(tab.id as WalletTab)}
+                  className={cn(
+                    "flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl transition-all duration-300",
+                    walletView === tab.id 
+                      ? "bg-white/10 text-primary shadow-lg" 
+                      : "text-white/30 hover:text-white/60"
+                  )}
+                >
+                  <tab.icon size={14} className={cn(walletView === tab.id ? "text-primary" : "")} />
+                  <span className="text-[7px] font-black uppercase tracking-widest">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
             {/* View Logic: Recarga */}
             {walletView === "buy" && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500">
@@ -410,7 +466,7 @@ export function ProfileView({
               </div>
             )}
 
-            {/* View Logic: Retiro (Manual Input) */}
+            {/* View Logic: Retiro */}
             {walletView === "withdraw" && (
               <div className="space-y-6 animate-in slide-in-from-right duration-500">
                 <div className="flex items-center gap-4">
@@ -528,25 +584,171 @@ export function ProfileView({
               </div>
             )}
 
-            {/* View Logic: Main (Historial) */}
-            {walletView === "main" && (
-              <div className="space-y-4">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 ml-2 italic">Historial de Señales</h3>
+            {/* View Logic: Estadísticas (Analytics) */}
+            {walletView === "stats" && (
+              <div className="space-y-8 animate-in fade-in duration-500 pb-8">
+                <div className="flex items-center justify-between px-2">
+                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Analytics</span></h3>
+                   <div className="flex gap-2">
+                     <Select value={statsTimeframe} onValueChange={setStatsTimeframe}>
+                       <SelectTrigger className="h-9 w-24 bg-white/5 border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest">
+                         <Calendar className="mr-2 h-3 w-3" /> {statsTimeframe}
+                       </SelectTrigger>
+                       <SelectContent className="bg-[#050906] border-white/10 text-white">
+                         {["Hora", "Día", "Semana", "Mes", "Año"].map(t => (
+                           <SelectItem key={t} value={t} className="text-[10px] font-black uppercase tracking-widest">{t}</SelectItem>
+                         ))}
+                       </SelectContent>
+                     </Select>
+                   </div>
+                </div>
+
+                {/* Main Area Chart */}
+                <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Flujo de Activos</span>
+                    <div className="flex gap-4">
+                       <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-primary" />
+                          <span className="text-[8px] font-black text-white/60 uppercase">Ingresos</span>
+                       </div>
+                       <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-accent" />
+                          <span className="text-[8px] font-black text-white/60 uppercase">Egresos</span>
+                       </div>
+                    </div>
+                  </div>
+                  <div className="h-[200px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={MOCK_CHART_DATA}>
+                        <defs>
+                          <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                          </linearGradient>
+                          <linearGradient id="colorOutcome" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
+                            <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis 
+                          dataKey="name" 
+                          stroke="rgba(255,255,255,0.1)" 
+                          fontSize={8} 
+                          tickLine={false} 
+                          axisLine={false} 
+                        />
+                        <Tooltip 
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              return (
+                                <div className="bg-[#050906] border border-white/10 p-3 rounded-xl shadow-2xl">
+                                  <p className="text-[9px] font-black text-white uppercase mb-1">{payload[0].payload.name}</p>
+                                  <p className="text-[10px] font-black text-primary">+{payload[0].value?.toLocaleString()} ESP</p>
+                                  <p className="text-[10px] font-black text-accent">-{payload[1].value?.toLocaleString()} ESP</p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
+                        <Area type="monotone" dataKey="outcome" stroke="hsl(var(--accent))" strokeWidth={3} fillOpacity={1} fill="url(#colorOutcome)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Origin Pie Chart */}
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex items-center gap-6">
+                     <div className="h-[120px] w-[120px] shrink-0">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={ORIGIN_DATA}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={35}
+                              outerRadius={50}
+                              paddingAngle={5}
+                              dataKey="value"
+                            >
+                              {ORIGIN_DATA.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                          </PieChart>
+                        </ResponsiveContainer>
+                     </div>
+                     <div className="flex-1 space-y-3">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-2">Origen de Señales</h4>
+                        {ORIGIN_DATA.map((item) => (
+                          <div key={item.name} className="flex items-center justify-between">
+                             <div className="flex items-center gap-2">
+                                <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+                                <span className="text-[9px] font-black text-white uppercase italic">{item.name}</span>
+                             </div>
+                             <span className="text-[9px] font-black text-white/40">{item.value}%</span>
+                          </div>
+                        ))}
+                     </div>
+                  </div>
+                </div>
+
+                {/* Summary Widgets */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
+                     <span className="text-[7px] font-black uppercase tracking-widest text-primary/60">Saldo Recargado</span>
+                     <p className="text-sm font-black text-white italic truncate">1,450,200 ESP</p>
+                  </div>
+                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
+                     <span className="text-[7px] font-black uppercase tracking-widest text-accent/60">Retiros Totales</span>
+                     <p className="text-sm font-black text-white italic truncate">240,500 ESP</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* View Logic: Historial (History) */}
+            {(walletView === "main" || walletView === "history") && (
+              <div className="space-y-4 animate-in fade-in duration-500 pb-8">
+                <div className="flex items-center justify-between px-2">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 italic">Registro de Frecuencias</h3>
+                  {walletView === "main" && (
+                    <button onClick={() => setWalletView("history")} className="text-[8px] font-black text-primary uppercase tracking-widest hover:underline">Ver Todo</button>
+                  )}
+                </div>
                 <div className="space-y-2">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5">
+                  {[1, 2, 3, 4, 5, 6].map(i => (
+                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all">
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary/60 shrink-0">
-                          {i % 2 === 0 ? <ArrowUpRight size={18} /> : <ArrowDownLeft size={18} />}
+                        <div className={cn(
+                          "h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover:scale-110",
+                          i % 3 === 0 ? "bg-primary/10 text-primary" : i % 3 === 1 ? "bg-accent/10 text-accent" : "bg-white/5 text-white/40"
+                        )}>
+                          {i % 3 === 0 ? <ArrowDownLeft size={20} /> : i % 3 === 1 ? <ArrowUpRight size={20} /> : <Gift size={20} />}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-[10px] font-black text-white uppercase italic truncate">{i % 2 === 0 ? "Retiro Externo" : "Inyección de Nodo"}</p>
-                          <p className="text-[8px] text-white/30 font-bold uppercase mt-0.5 truncate">Gaia Protocol #{1040 + i}</p>
+                          <p className="text-[10px] font-black text-white uppercase italic truncate">
+                            {i % 3 === 0 ? "Inyección de Nodo" : i % 3 === 1 ? "Retiro de Activos" : "Regalo de Fan"}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest truncate">Gaia Protocol #{2045 - i}</span>
+                            <div className="h-1 w-1 rounded-full bg-white/10" />
+                            <span className="text-[8px] text-white/20 font-bold uppercase truncate">{10 + i}m atrás</span>
+                          </div>
                         </div>
                       </div>
-                      <span className={cn("text-[11px] font-black italic shrink-0", i % 2 === 0 ? "text-red-400" : "text-primary")}>
-                        {i % 2 === 0 ? "-" : "+"}{500 * i} ESP
-                      </span>
+                      <div className="text-right shrink-0">
+                        <span className={cn(
+                          "text-xs font-black italic block",
+                          i % 3 === 1 ? "text-red-400" : "text-primary"
+                        )}>
+                          {i % 3 === 1 ? "-" : "+"}{(500 * i).toLocaleString()} ESP
+                        </span>
+                        <span className="text-[7px] font-black uppercase text-white/10 tracking-widest">Sincronizado</span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -558,3 +760,11 @@ export function ProfileView({
     </div>
   );
 }
+
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
