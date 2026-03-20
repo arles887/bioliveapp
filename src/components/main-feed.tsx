@@ -259,28 +259,6 @@ function StoryCarousel({ stories, initialIndex, onClose, requireAuth }: { storie
           ))}
         </div>
       </div>
-      
-      {/* Botones de Navegación Visuales */}
-      <div className="flex gap-4 mt-8">
-        <button 
-          onClick={() => emblaApi?.scrollPrev()} 
-          className="h-12 w-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary transition-all"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <button 
-          onClick={onClose} 
-          className="h-12 px-8 bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 text-[9px] font-black text-white/60 uppercase tracking-widest hover:text-red-500 hover:border-red-500/40 transition-all"
-        >
-          Cerrar Nodo
-        </button>
-        <button 
-          onClick={() => emblaApi?.scrollNext()} 
-          className="h-12 w-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary transition-all"
-        >
-          <ChevronRight size={20} />
-        </button>
-      </div>
     </div>
   );
 }
