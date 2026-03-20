@@ -18,6 +18,7 @@ const VIDEO_SOURCES = [
   "https://www.youtube.com/embed/dn3mKOYeR20?autoplay=0&mute=1&loop=1&playlist=dn3mKOYeR20&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/A0I0CnYoFO8?autoplay=0&mute=1&loop=1&playlist=A0I0CnYoFO8&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/OKkle0WgDQQ?autoplay=0&mute=1&loop=1&playlist=OKkle0WgDQQ&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/OKkle0WgDQQ?autoplay=0&mute=1&loop=1&playlist=OKkle0WgDQQ&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/80aU_aT1VPA?autoplay=0&mute=1&loop=1&playlist=80aU_aT1VPA&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/sJTcMA3e7LI?autoplay=0&mute=1&loop=1&playlist=sJTcMA3e7LI&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/kMQLJC9aV9s?autoplay=0&mute=1&loop=1&playlist=kMQLJC9aV9s&controls=0&modestbranding=1&rel=0",
@@ -124,6 +125,9 @@ function ReelItem({
         id = url.split('v=')[1].split('&')[0];
     } else if (url.includes('/embed/')) {
         id = url.split('/embed/')[1].split('?')[0];
+    } else {
+        const parts = url.split('/');
+        id = parts[parts.length - 1].split('?')[0];
     }
 
     return `https://www.youtube.com/embed/${id}?autoplay=${isActive ? 1 : 0}&mute=${finalMute ? 1 : 0}&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
@@ -141,7 +145,7 @@ function ReelItem({
         
         <button 
           onClick={(e) => { e.stopPropagation(); setGlobalMuted(!globalMuted); }}
-          className="absolute top-28 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary"
+          className="absolute top-44 right-6 z-50 h-10 w-10 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-primary"
         >
           {globalMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>
@@ -174,7 +178,7 @@ function ReelItem({
           </div>
         </div>
 
-        <div className="absolute bottom-32 right-3 flex flex-col items-center gap-6 z-50">
+        <div className="absolute bottom-52 right-3 flex flex-col items-center gap-6 z-50">
           <div onClick={() => toggleLike(reel.id)} className="flex flex-col items-center gap-1 cursor-pointer">
             <div className={cn(
               "h-12 w-12 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center transition-all shadow-2xl",
