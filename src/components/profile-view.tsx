@@ -13,7 +13,7 @@ import {
   Send, Building2, Landmark, HeartHandshake, Receipt, Camera,
   CheckCircle2, Sparkles, Flag, Ban, MessageSquare, UserPlus,
   Settings, Shield, Clock, Info, HelpCircle, Bell, ChevronRight,
-  Globe, Lock, Mail, Trash2
+  Globe, Lock, Mail, Trash2, Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -238,7 +238,7 @@ export function ProfileView({
               onClick={() => setIsFollowing(!isFollowing)}
               className={cn(
                 "flex-1 h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all",
-                isFollowing ? "bg-white/10 text-white/40 border border-white/10" : "bg-primary text-black shadow-lg shadow-primary/20"
+                isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg shadow-primary/20"
               )}
             >
               {isFollowing ? <><Check size={14} className="mr-2" /> Siguiendo</> : <><UserPlus size={14} className="mr-2" /> Seguir</>}
