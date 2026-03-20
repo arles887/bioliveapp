@@ -177,7 +177,7 @@ export function ProfileView({
             {isOwnProfile ? (
               <Button 
                 onClick={() => setIsEditing(true)}
-                className="rounded-2xl border-white/10 bg-white/5 text-[9px] font-black uppercase tracking-widest h-10 px-6 hover:bg-primary hover:text-black transition-all"
+                className="rounded-2xl bg-primary text-black font-black uppercase tracking-widest h-10 px-6 shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:scale-105 transition-all"
               >
                 Editar Perfil
               </Button>
