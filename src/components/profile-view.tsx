@@ -6,7 +6,8 @@ import {
   Menu, Share2, Zap, UserPlus, Check, ChevronLeft,
   Wallet, History, UserCircle, LifeBuoy, Settings, Lock,
   RefreshCw, Loader2, CreditCard, Smartphone, Globe, Gift, 
-  Shield, ArrowUpRight, ArrowDownLeft, Building2, AlertCircle
+  Shield, ArrowUpRight, ArrowDownLeft, Building2, AlertCircle,
+  Edit
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ import { WalletService } from "@/services/wallet-service";
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
- * Corregidos tamaños, truncado de texto y visibilidad de botones.
+ * Botón de edición actualizado a transparente con icono.
  */
 
 export function ProfileView({ 
@@ -177,8 +178,9 @@ export function ProfileView({
             {isOwnProfile ? (
               <Button 
                 onClick={() => setIsEditing(true)} 
-                className="rounded-2xl bg-primary text-black font-black uppercase tracking-widest h-10 px-6 shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:scale-105 transition-all"
+                className="rounded-2xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest h-10 px-6 hover:bg-white/5 transition-all flex items-center gap-2 active:scale-95"
               >
+                <Edit size={14} />
                 Editar Perfil
               </Button>
             ) : (
