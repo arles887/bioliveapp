@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,7 +6,9 @@ import Image from "next/image";
 import { 
   Menu, Share2, Zap, Check, ChevronLeft,
   Wallet, BarChart3, Edit, ArrowUpRight, ArrowDownLeft, 
-  Users, Loader2, Activity, PieChart as PieChartIcon
+  Users, Loader2, Activity, PieChart as PieChartIcon,
+  TrendingUp, TrendingDown, MapPin, Award, Heart, Eye,
+  Target, BarChart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,6 +31,10 @@ import {
   Area, 
   AreaChart, 
   XAxis,
+  Bar,
+  BarChart as RechartsBarChart,
+  ResponsiveContainer,
+  Cell
 } from "recharts";
 import { 
   ChartContainer, 
@@ -42,29 +49,36 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
 
 /**
- * @fileOverview Vista de Perfil con Billetera ESP Simplificada y Blindada.
+ * @fileOverview Vista de Perfil con Bio-Inteligencia Analítica Avanzada.
  * Blindaje: Ancho estricto de 390px para centrado absoluto.
- * Se han eliminado los apartados de Analítica e Historial dentro de la billetera.
+ * Se han integrado métricas de alcance, demografía, viralidad y aceptación.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment";
 type WalletTab = "main" | "buy" | "withdraw";
 
-const MOCK_CHART_DATA = [
-  { name: "00h", income: 4000, outcome: 2400 },
-  { name: "04h", income: 3000, outcome: 1398 },
-  { name: "08h", income: 2000, outcome: 9800 },
-  { name: "12h", income: 2780, outcome: 3908 },
-  { name: "16h", income: 1890, outcome: 4800 },
-  { name: "20h", income: 2390, outcome: 3800 },
-  { name: "23h", income: 3490, outcome: 4300 },
+const MOCK_VIEWS_DATA = [
+  { name: "Lun", views: 4000 },
+  { name: "Mar", views: 3000 },
+  { name: "Mie", views: 5000 },
+  { name: "Jue", views: 2780 },
+  { name: "Vie", views: 1890 },
+  { name: "Sab", views: 2390 },
+  { name: "Dom", views: 3490 },
+];
+
+const MOCK_AGE_DATA = [
+  { age: "13-17", value: 15 },
+  { age: "18-24", value: 45 },
+  { age: "25-34", value: 25 },
+  { age: "35+", value: 15 },
 ];
 
 const chartConfig = {
-  income: { label: "Ingresos", color: "hsl(var(--primary))" },
-  outcome: { label: "Egresos", color: "hsl(var(--accent))" }
+  views: { label: "Visualizaciones", color: "hsl(var(--primary))" },
 } satisfies ChartConfig;
 
 export function ProfileView({ 
@@ -86,7 +100,6 @@ export function ProfileView({
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [walletView, setWalletView] = useState<WalletTab>("main");
   const [rechargeStep, setRechargeStep] = useState<RechargeStep>("gallery");
-  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [amount, setAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
@@ -260,12 +273,17 @@ export function ProfileView({
         </div>
       </ProtocolWindow>
 
-      {/* Profile Analytics Window - Blindado a 390px */}
-      <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Perfil">
-        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] px-0 py-4">
-          <div className="flex flex-col items-center w-full space-y-8 pb-12 overflow-x-hidden">
+      {/* Bio-Analítica Avanzada - Blindado a 390px */}
+      <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Analítica">
+        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] px-0">
+          <div className="flex flex-col items-center w-full space-y-8 pb-24 pt-6 overflow-x-hidden">
+            
+            {/* Cabecera Analítica */}
             <div className="w-full max-w-[390px] flex items-center justify-between px-4">
-               <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Performance</span></h3>
+               <div className="space-y-1">
+                 <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Signals</span></h3>
+                 <p className="text-[8px] font-black uppercase text-white/20 tracking-widest">Auditoría de Alcance Neural</p>
+               </div>
                <Select value={statsTimeframe} onValueChange={setStatsTimeframe}>
                  <SelectTrigger className="h-9 w-24 bg-white/5 border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest">
                    {statsTimeframe}
@@ -278,28 +296,177 @@ export function ProfileView({
                </Select>
             </div>
             
+            {/* Visualizaciones Alcanzadas */}
             <div className="w-full max-w-[390px] px-4">
-              <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
-                <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                  <AreaChart data={MOCK_CHART_DATA}>
+              <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full relative overflow-hidden group">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                      <Eye size={18} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Alcance Total</span>
+                      <p className="text-xl font-black text-white italic tracking-tighter">248,592 <span className="text-[10px] text-primary">VIEWS</span></p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-[8px] font-black text-primary uppercase tracking-widest">+12.4%</span>
+                    <TrendingUp size={14} className="text-primary" />
+                  </div>
+                </div>
+                <ChartContainer config={chartConfig} className="h-[180px] w-full">
+                  <AreaChart data={MOCK_VIEWS_DATA}>
                     <XAxis dataKey="name" hide />
                     <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                    <Area type="monotone" dataKey="income" name="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} />
+                    <Area 
+                      type="monotone" 
+                      dataKey="views" 
+                      stroke="hsl(var(--primary))" 
+                      fill="hsl(var(--primary))" 
+                      fillOpacity={0.15} 
+                      strokeWidth={3}
+                    />
                   </AreaChart>
                 </ChartContainer>
               </div>
             </div>
 
+            {/* Crecimiento Neto: Seguidores y Likes */}
             <div className="w-full max-w-[390px] px-4 grid grid-cols-2 gap-4">
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
-                 <span className="text-[7px] font-black uppercase text-primary/60 block">Visualizaciones</span>
-                 <p className="text-sm font-black text-white italic">24.5K</p>
+              <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
+                 <div className="flex items-center justify-between">
+                   <Users size={16} className="text-primary/60" />
+                   <div className="flex items-center gap-1 text-[8px] font-black text-primary uppercase tracking-widest">
+                     <TrendingUp size={10} /> +1.2K
+                   </div>
+                 </div>
+                 <div className="space-y-1">
+                   <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Seguidores Netos</span>
+                   <p className="text-lg font-black text-white italic tracking-tighter">12,402</p>
+                 </div>
               </div>
-              <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
-                 <span className="text-[7px] font-black uppercase text-accent/60 block">Engagement</span>
-                 <p className="text-sm font-black text-white italic">12.8%</p>
+              <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
+                 <div className="flex items-center justify-between">
+                   <Heart size={16} className="text-accent/60" />
+                   <div className="flex items-center gap-1 text-[8px] font-black text-accent uppercase tracking-widest">
+                     <TrendingUp size={10} /> +4.8K
+                   </div>
+                 </div>
+                 <div className="space-y-1">
+                   <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Me Gusta Netos</span>
+                   <p className="text-lg font-black text-white italic tracking-tighter">48,910</p>
+                 </div>
               </div>
             </div>
+
+            {/* Localización y Edad */}
+            <div className="w-full max-w-[390px] px-4 space-y-4">
+              <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-8">
+                {/* Localización */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <MapPin size={16} className="text-primary" />
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Localización de Nodos</h4>
+                  </div>
+                  <div className="space-y-4">
+                    {[
+                      { city: "Buenos Aires, AR", val: 42, color: "bg-primary" },
+                      { city: "Madrid, ES", val: 28, color: "bg-primary/60" },
+                      { city: "Mexico City, MX", val: 18, color: "bg-primary/30" },
+                      { city: "Otros", val: 12, color: "bg-white/10" }
+                    ].map(loc => (
+                      <div key={loc.city} className="space-y-2">
+                        <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
+                          <span className="text-white/60">{loc.city}</span>
+                          <span className="text-white">{loc.val}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                          <div className={cn("h-full rounded-full transition-all duration-1000", loc.color)} style={{ width: `${loc.val}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="h-px w-full bg-white/5" />
+
+                {/* Rango de Edad */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <Target size={16} className="text-accent" />
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Distribución de Edad</h4>
+                  </div>
+                  <div className="h-[120px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsBarChart data={MOCK_AGE_DATA}>
+                        <XAxis dataKey="age" hide />
+                        <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                          {MOCK_AGE_DATA.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={`rgba(204, 255, 0, ${0.2 + (index * 0.2)})`} />
+                          ))}
+                        </Bar>
+                        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                      </RechartsBarChart>
+                    </ResponsiveContainer>
+                    <div className="flex justify-between mt-4">
+                      {MOCK_AGE_DATA.map(d => (
+                        <span key={d.age} className="text-[8px] font-black uppercase text-white/30 tracking-widest">{d.age}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Videos Virales + Aceptación */}
+            <div className="w-full max-w-[390px] px-4 space-y-4">
+              {/* Videos Virales */}
+              <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Award size={18} className="text-primary" />
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Videos Virales</h4>
+                  </div>
+                  <span className="text-[8px] font-black text-primary uppercase tracking-widest">Top 3</span>
+                </div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex items-center gap-4 group cursor-pointer">
+                       <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative shrink-0">
+                          <Image src={`https://picsum.photos/seed/viral${i}/200/200`} fill alt="Viral" className="object-cover grayscale group-hover:grayscale-0 transition-all" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                          <h5 className="text-[10px] font-black text-white uppercase italic truncate">Protocolo de Síntesis Bio-#{i}</h5>
+                          <div className="flex items-center gap-3 mt-1 text-[8px] font-black uppercase tracking-widest text-primary/40">
+                             <span className="flex items-center gap-1"><Eye size={10} /> {(Math.random() * 100 + 50).toFixed(1)}K</span>
+                             <span className="flex items-center gap-1"><Heart size={10} /> {(Math.random() * 10 + 2).toFixed(1)}K</span>
+                          </div>
+                       </div>
+                       <ArrowUpRight size={14} className="text-white/10 group-hover:text-primary transition-colors" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Nivel de Aceptación */}
+              <div className="p-8 rounded-[2.5rem] bg-primary text-black space-y-4 shadow-[0_0_50px_rgba(204,255,0,0.3)]">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] italic">Bio-Aceptación</h4>
+                  <Activity size={16} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-4xl font-black italic tracking-tighter">98.4%</p>
+                    <span className="text-[8px] font-black uppercase tracking-widest">Nivel Óptimo</span>
+                  </div>
+                  <Progress value={98.4} className="h-2 bg-black/10 border-none" />
+                </div>
+                <p className="text-[8px] font-bold uppercase leading-relaxed opacity-60">
+                  Tu señal resuena positivamente en el 98% de los nodos receptores. Protocolo de influencia activo.
+                </p>
+              </div>
+            </div>
+
           </div>
         </ScrollArea>
       </ProtocolWindow>
@@ -331,23 +498,6 @@ export function ProfileView({
                       >
                         <ArrowUpRight className="mr-2" size={14} /> Retirar
                       </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-12 w-full max-w-[390px] p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Activity size={14} className="text-primary" />
-                    <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Estado de Cuenta</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                      <span className="text-[7px] font-black uppercase text-primary/40 block mb-1">Rendimiento Semanal</span>
-                      <p className="text-xs font-black text-white italic">+12% ESP</p>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                      <span className="text-[7px] font-black uppercase text-primary/40 block mb-1">Sincronización</span>
-                      <p className="text-xs font-black text-white italic">Optima</p>
                     </div>
                   </div>
                 </div>
