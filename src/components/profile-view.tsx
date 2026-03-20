@@ -13,7 +13,7 @@ import {
   Send, Building2, Landmark, HeartHandshake, Receipt, Camera,
   CheckCircle2, Sparkles, Flag, Ban, MessageSquare, UserPlus,
   Settings, Shield, Clock, Info, HelpCircle, Bell, ChevronRight,
-  Globe, Lock, Mail, Trash2, Search
+  Globe, Lock, Mail, Trash2, Search, Filter, PieChart, MousePointer2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,9 @@ import {
   XAxis,
   Bar,
   BarChart as RechartsBarChart,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer
 } from "recharts";
 import { 
   ChartContainer, 
@@ -42,7 +45,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Bio-Neural Avanzada.
- * Implementa Billetera, Analítica, Edición y ahora el Centro de Control Gaia (Menú de 3 líneas).
+ * Implementa Billetera, Analítica Extensa, Edición y Centro de Control Gaia.
  */
 
 type WalletTab = "main" | "buy" | "withdraw";
@@ -71,9 +74,9 @@ const PREDEFINED_PACKAGES = Array.from({ length: 50 }, (_, i) => {
 });
 
 const chartConfig = {
-  income: { label: "Ingresos", color: "hsl(var(--primary))" },
-  expense: { label: "Egresos", color: "hsl(var(--destructive))" },
   views: { label: "Visualizaciones", color: "hsl(var(--primary))" },
+  interactions: { label: "Interacciones", color: "hsl(var(--accent))" },
+  shares: { label: "Compartidos", color: "hsl(var(--destructive))" },
 } satisfies ChartConfig;
 
 export function ProfileView({ 
@@ -1050,7 +1053,7 @@ export function ProfileView({
         </ScrollArea>
       </ProtocolWindow>
 
-      {/* Analíticas Globales */}
+      {/* Analíticas Globales Extendidas (390px) */}
       <ProtocolWindow 
         isOpen={isAnalyticsOpen} 
         onClose={() => setIsAnalyticsOpen(false)} 
@@ -1058,69 +1061,178 @@ export function ProfileView({
       >
         <ScrollArea className="w-full h-full">
           <div className="flex flex-col items-center w-full gap-8 pb-32 pt-6">
-            <div className="w-full max-w-[390px] px-4 space-y-8 flex flex-col items-center animate-in fade-in duration-700 mx-auto">
+            <div className="w-full max-w-[390px] px-4 space-y-10 animate-in fade-in duration-700 mx-auto">
+               
+               {/* Encabezado y Filtros Temporales */}
+               <div className="space-y-6">
+                  <div className="text-center">
+                    <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Centro de <span className="text-primary">Datos</span></h3>
+                    <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Auditoría Neural de Impacto</p>
+                  </div>
+                  
+                  <Tabs defaultValue="mes" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4 bg-white/5 rounded-2xl h-12 p-1">
+                      <TabsTrigger value="hora" className="rounded-xl text-[8px] font-black uppercase tracking-widest">Hora</TabsTrigger>
+                      <TabsTrigger value="dia" className="rounded-xl text-[8px] font-black uppercase tracking-widest">Día</TabsTrigger>
+                      <TabsTrigger value="mes" className="rounded-xl text-[8px] font-black uppercase tracking-widest">Mes</TabsTrigger>
+                      <TabsTrigger value="año" className="rounded-xl text-[8px] font-black uppercase tracking-widest">Año</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+               </div>
+
+               {/* Métricas Clave (KPIs) */}
+               <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: "Visualizaciones", value: "248.5K", delta: "+12%", icon: Eye, color: "text-primary" },
+                    { label: "Interacción", value: "18.4%", delta: "+5.2%", icon: Zap, color: "text-accent" },
+                    { label: "Compartidos", value: "12.4K", delta: "+24%", icon: Share2, color: "text-destructive" },
+                    { label: "Comentarios", value: "842", delta: "+2.1%", icon: MessageSquare, color: "text-blue-400" }
+                  ].map((kpi) => (
+                    <div key={kpi.label} className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-3 group hover:border-primary/20 transition-all">
+                      <div className="flex justify-between items-center">
+                        <div className={cn("h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center", kpi.color)}>
+                          <kpi.icon size={16} />
+                        </div>
+                        <span className="text-[8px] font-black text-primary italic">{kpi.delta}</span>
+                      </div>
+                      <div>
+                        <span className="text-[8px] font-black uppercase text-white/20 tracking-widest block">{kpi.label}</span>
+                        <p className="text-xl font-black text-white italic tracking-tighter">{kpi.value}</p>
+                      </div>
+                    </div>
+                  ))}
+               </div>
+
+               {/* Gráfica de Resonancia Temporal */}
                <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Visualizaciones</span>
-                    <TrendingUp size={14} className="text-primary" />
+                    <div className="space-y-1">
+                      <h4 className="text-[10px] font-black uppercase text-white italic tracking-widest">Resonancia de Señal</h4>
+                      <p className="text-[8px] text-white/20 font-bold uppercase">Impacto acumulado por periodo</p>
+                    </div>
+                    <Filter size={14} className="text-primary/40" />
                   </div>
-                  <h3 className="text-3xl font-black text-white italic tracking-tighter">248,592</h3>
-                  <ChartContainer config={chartConfig} className="h-[120px] w-full">
+                  <ChartContainer config={chartConfig} className="h-[180px] w-full">
                     <AreaChart data={MOCK_FINANCE_FLOW}>
-                      <XAxis dataKey="name" hide />
+                      <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'rgba(255,255,255,0.3)', fontSize: 8}} />
                       <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                      <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={2} />
+                      <Area 
+                        type="monotone" 
+                        dataKey="income" 
+                        stroke="hsl(var(--primary))" 
+                        fill="hsl(var(--primary))" 
+                        fillOpacity={0.1} 
+                        strokeWidth={3} 
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="expense" 
+                        stroke="hsl(var(--accent))" 
+                        fill="hsl(var(--accent))" 
+                        fillOpacity={0.05} 
+                        strokeWidth={2} 
+                      />
                     </AreaChart>
                   </ChartContainer>
                </div>
 
-               <div className="w-full grid grid-cols-2 gap-4">
-                  <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
-                    <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Seguidores</p>
-                    <p className="text-xl font-black text-primary italic tracking-tighter">+1,240</p>
-                  </div>
-                  <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
-                    <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Me Gusta</p>
-                    <p className="text-xl font-black text-accent italic tracking-tighter">+8,420</p>
-                  </div>
-               </div>
-
-               <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-8">
-                  <h4 className="text-[10px] font-black uppercase text-white tracking-[0.2em] italic">Demografía</h4>
-                  <div className="space-y-4">
-                    <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Localización</span>
+               {/* Rendimiento por Tipo de Contenido */}
+               <div className="space-y-4">
+                  <h4 className="text-[10px] font-black uppercase text-white tracking-[0.2em] italic ml-2">Distribución de Impacto</h4>
+                  <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: "Latam North", val: 65, color: "bg-primary" },
-                      { label: "Euro Node", val: 20, color: "bg-accent" }
-                    ].map((loc) => (
-                      <div key={loc.label} className="space-y-1.5">
-                        <div className="flex justify-between text-[8px] font-black uppercase tracking-widest">
-                          <span className="text-white/40">{loc.label}</span>
-                          <span className="text-white">{loc.val}%</span>
-                        </div>
-                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className={cn("h-full rounded-full", loc.color)} style={{ width: `${loc.val}%` }}></div>
-                        </div>
+                      { label: "Videos", val: 65, icon: Clapperboard, color: "text-primary" },
+                      { label: "Lives", val: 25, icon: Radio, color: "text-accent" },
+                      { label: "Música", val: 10, icon: Music, color: "text-destructive" }
+                    ].map((item) => (
+                      <div key={item.label} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center gap-2 text-center">
+                        <item.icon size={14} className={item.color} />
+                        <span className="text-[8px] font-black uppercase text-white/40">{item.label}</span>
+                        <span className="text-xs font-black text-white italic">{item.val}%</span>
                       </div>
                     ))}
                   </div>
+               </div>
 
+               {/* Nodos Virales (Mejores Videos) */}
+               <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
+                  <div className="flex items-center gap-3">
+                    <TrendingUp className="text-primary" size={16} />
+                    <h4 className="text-[10px] font-black uppercase text-white italic tracking-widest">Nodos Virales</h4>
+                  </div>
                   <div className="space-y-4">
-                    <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Rango de Edad</span>
-                    <ChartContainer config={chartConfig} className="h-[100px] w-full">
-                       <RechartsBarChart data={[
-                         { age: '18-24', val: 40 },
-                         { age: '25-34', val: 35 },
-                         { age: '35-44', val: 15 },
-                         { age: '45+', val: 10 }
-                       ]}>
-                         <XAxis dataKey="age" hide />
-                         <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                         <Bar dataKey="val" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                       </RechartsBarChart>
-                    </ChartContainer>
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center gap-4 group cursor-pointer">
+                        <div className="h-14 w-14 rounded-xl bg-white/5 overflow-hidden border border-white/10 relative shrink-0">
+                          <Image src={`https://picsum.photos/seed/viral${i}/100/100`} fill alt="Viral" className="object-cover opacity-60 group-hover:scale-110 transition-all" />
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <p className="text-[10px] font-black text-white uppercase italic truncate">Bio-Resonancia Sector {i+4}</p>
+                          <div className="flex items-center gap-3 text-[8px] font-bold text-white/30">
+                            <span className="flex items-center gap-1"><Eye size={8} /> 45K</span>
+                            <span className="flex items-center gap-1 text-primary"><Zap size={8} /> 98%</span>
+                          </div>
+                        </div>
+                        <ChevronRight size={14} className="text-white/10" />
+                      </div>
+                    ))}
                   </div>
                </div>
+
+               {/* Demografía Avanzada */}
+               <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-8">
+                  <div className="flex items-center gap-3">
+                    <Users className="text-accent" size={16} />
+                    <h4 className="text-[10px] font-black uppercase text-white italic tracking-widest">Nodo de Audiencia</h4>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Rangos de Edad</span>
+                      <div className="space-y-3">
+                        {[
+                          { label: "18-24", val: 45, color: "bg-primary" },
+                          { label: "25-34", val: 30, color: "bg-accent" },
+                          { label: "35-44", val: 15, color: "bg-white/20" },
+                          { label: "45+", val: 10, color: "bg-white/10" }
+                        ].map((age) => (
+                          <div key={age.label} className="space-y-1.5">
+                            <div className="flex justify-between text-[8px] font-black uppercase tracking-widest">
+                              <span className="text-white/40">{age.label}</span>
+                              <span className="text-white">{age.val}%</span>
+                            </div>
+                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full", age.color)} style={{ width: `${age.val}%` }}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Nodos Geográficos</span>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 text-center space-y-1">
+                          <p className="text-[8px] font-black text-primary uppercase">Latam Node</p>
+                          <p className="text-lg font-black text-white italic">68%</p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 text-center space-y-1">
+                          <p className="text-[8px] font-black text-accent uppercase">Global Node</p>
+                          <p className="text-lg font-black text-white italic">32%</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+               </div>
+
+               <div className="p-6 rounded-[2rem] bg-primary/[0.03] border border-primary/10 flex flex-col items-center gap-3 text-center">
+                  <ShieldCheck size={20} className="text-primary" />
+                  <p className="text-[8px] font-black uppercase text-white/40 tracking-widest leading-relaxed">
+                    Tus datos son procesados localmente bajo el protocolo Gaia v.2.5.9. Sincronización neural encriptada.
+                  </p>
+               </div>
+
             </div>
           </div>
         </ScrollArea>
@@ -1128,4 +1240,3 @@ export function ProfileView({
     </div>
   );
 }
-
