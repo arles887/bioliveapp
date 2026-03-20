@@ -85,7 +85,6 @@ export function ProfileView({
     if (selectedPackage === "custom") {
       addedAmount = Number(customESP);
     } else {
-      // In a real app we'd fetch package details
       addedAmount = 1000; 
     }
     const newBalance = await WalletService.injectFunds(addedAmount);
@@ -206,9 +205,9 @@ export function ProfileView({
 
         <div className="flex gap-4 py-4 border-y border-white/5 overflow-x-auto no-scrollbar">
           {stats.map((stat) => (
-            <div key={stat.label} className="flex flex-col shrink-0">
-              <span className="text-lg font-black text-white italic leading-none tracking-tight">{stat.value}</span>
-              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1">{stat.label}</span>
+            <div key={stat.label} className="flex flex-col shrink-0 min-w-[80px]">
+              <span className="text-lg font-black text-white italic leading-none tracking-tight truncate">{stat.value}</span>
+              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1 truncate">{stat.label}</span>
             </div>
           ))}
         </div>

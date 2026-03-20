@@ -103,10 +103,8 @@ function ReelItem({
   toggleFollow, 
   requireAuth 
 }: any) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isActive, setIsActive] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setIsActive(entry.isIntersecting), { threshold: 0.8 });
@@ -117,11 +115,18 @@ function ReelItem({
   const getYouTubeSrc = () => {
     let url = reel.video;
     const finalMute = !isActive || globalMuted;
+    
+    // Extraer ID de cualquier formato de YouTube
+    let id = "";
     if (url.includes('shorts/')) {
-        const id = url.split('shorts/')[1].split('?')[0];
-        url = `https://www.youtube.com/embed/${id}?autoplay=${isActive ? 1 : 0}&mute=${finalMute ? 1 : 0}&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+        id = url.split('shorts/')[1].split('?')[0];
+    } else if (url.includes('watch?v=')) {
+        id = url.split('v=')[1].split('&')[0];
+    } else if (url.includes('/embed/')) {
+        id = url.split('/embed/')[1].split('?')[0];
     }
-    return url;
+
+    return `https://www.youtube.com/embed/${id}?autoplay=${isActive ? 1 : 0}&mute=${finalMute ? 1 : 0}&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
   };
 
   return (
@@ -165,7 +170,7 @@ function ReelItem({
           <p className="text-[11px] text-white/90 leading-relaxed font-medium line-clamp-3 pr-4">{reel.description}</p>
           <div className="flex items-center gap-3 bg-black/40 backdrop-blur-md w-fit px-4 py-1.5 rounded-xl border border-white/5">
             <Music size={10} className="text-primary animate-pulse" />
-            <span className="text-[8px] text-primary font-black uppercase tracking-widest italic">Signal v.01 • Active</span>
+            <span className="text-[8px] text-primary font-black uppercase tracking-widest italic truncate max-w-[120px]">Signal v.01 • Active</span>
           </div>
         </div>
 
@@ -177,13 +182,13 @@ function ReelItem({
             )}>
               <Heart size={24} fill={reel.liked ? "currentColor" : "none"} />
             </div>
-            <span className="text-[9px] font-black text-white/60 tracking-widest">{reel.likes}K</span>
+            <span className="text-[9px] font-black text-white/60 tracking-widest truncate">{reel.likes}K</span>
           </div>
           <div onClick={() => requireAuth(() => {})} className="flex flex-col items-center gap-1 cursor-pointer">
             <div className="h-12 w-12 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center text-white shadow-2xl">
               <MessageCircle size={24} />
             </div>
-            <span className="text-[9px] font-black text-white/60 tracking-widest">{reel.comments}</span>
+            <span className="text-[9px] font-black text-white/60 tracking-widest truncate">{reel.comments}</span>
           </div>
           <div onClick={() => toast({ title: "Enlace Copiado" })} className="h-12 w-12 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center text-white shadow-2xl cursor-pointer">
             <Share2 size={24} />

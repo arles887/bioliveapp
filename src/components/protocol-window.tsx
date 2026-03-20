@@ -20,7 +20,7 @@ export function ProtocolWindow({
     <DialogPrimitive.Root open={isOpen} onOpenChange={onClose}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-        <DialogPrimitive.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-[500px] h-full sm:h-[95vh] translate-x-[-50%] translate-y-[-50%] bg-[#020503] border-none shadow-[0_0_120px_rgba(0,0,0,1)] overflow-hidden focus:outline-none sm:rounded-[3.5rem]">
+        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-[500px] h-full sm:h-[95vh] -translate-x-1/2 -translate-y-1/2 bg-[#020503] border-none shadow-[0_0_120px_rgba(0,0,0,1)] overflow-hidden focus:outline-none sm:rounded-[3.5rem] flex flex-col">
           
           {/* Único Botón de Cierre: Limpio y bien ubicado */}
           <DialogPrimitive.Close className="absolute top-8 right-8 z-[200] h-12 w-12 rounded-2xl bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all active:scale-90 outline-none">
@@ -29,12 +29,12 @@ export function ProtocolWindow({
           </DialogPrimitive.Close>
 
           {/* Etiqueta de Sistema: Muy discreta */}
-          <div className="absolute top-10 left-10 z-[150] pointer-events-none opacity-20">
-             <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white italic">{title}</span>
+          <div className="absolute top-10 left-10 z-[150] pointer-events-none opacity-20 max-w-[200px]">
+             <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white italic truncate block">{title}</span>
           </div>
 
           {/* Contenedor de Contenido Principal */}
-          <div className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center">
+          <div className="flex-1 w-full relative overflow-hidden flex flex-col items-center justify-center">
             {children}
           </div>
         </DialogPrimitive.Content>

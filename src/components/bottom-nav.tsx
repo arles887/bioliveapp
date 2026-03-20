@@ -54,13 +54,13 @@ export function BottomNav({
               key={item.id}
               onClick={() => setActiveTab(item.id as NavItem)}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-all outline-none",
+                "flex flex-col items-center justify-center gap-1 transition-all outline-none min-w-[50px]",
                 isActive ? "text-primary scale-110" : "text-white/30 hover:text-white/60"
               )}
             >
               <Icon size={20} strokeWidth={isActive ? 3 : 2} />
               <span className={cn(
-                "text-[7px] font-black tracking-[0.1em] uppercase",
+                "text-[7px] font-black tracking-[0.1em] uppercase truncate w-full px-1",
                 isActive ? "opacity-100" : "hidden"
               )}>
                 {item.label}

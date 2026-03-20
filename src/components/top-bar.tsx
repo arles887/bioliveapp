@@ -34,9 +34,9 @@ export function TopBar({
           <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-black shadow-[0_0_15px_rgba(204,255,0,0.4)]">
              <Zap size={18} strokeWidth={3} />
           </div>
-          <div className="hidden xs:flex flex-col">
-              <h1 className="text-base font-black tracking-tighter text-white uppercase italic leading-none">Bio<span className="text-primary">Live</span></h1>
-              <span className="text-[5px] font-black uppercase tracking-[0.3em] text-primary/60">Neural OS</span>
+          <div className="hidden xs:flex flex-col min-w-0">
+              <h1 className="text-base font-black tracking-tighter text-white uppercase italic leading-none truncate">Bio<span className="text-primary">Live</span></h1>
+              <span className="text-[5px] font-black uppercase tracking-[0.3em] text-primary/60 truncate">Neural OS</span>
           </div>
         </div>
         

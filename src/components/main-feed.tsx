@@ -138,7 +138,7 @@ export function MainFeed({
                 </Badge>
               </div>
               <div className="absolute bottom-6 left-6 right-6 z-10 space-y-4">
-                 <div className="flex items-center justify-between min-w-0">
+                 <div className="flex items-center justify-between min-w-0 gap-2">
                     <div className="flex items-center gap-3 cursor-pointer min-w-0 flex-1" onClick={(e) => { e.stopPropagation(); onProfileClick(item.user); }}>
                       <div className="h-8 w-8 rounded-xl bg-white/10 border border-white/20 overflow-hidden relative shrink-0">
                          <Image src={`https://picsum.photos/seed/${item.user}/50/50`} fill alt="Avatar" className="object-cover" />

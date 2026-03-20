@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -157,11 +156,11 @@ export function LiveViewer({
     <div className="flex flex-col w-full h-full bg-[#020503] animate-in fade-in duration-500 pb-24">
       <div className="p-6 pb-4 space-y-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-black italic uppercase text-white tracking-tighter leading-none">Bio<span className="text-primary">Live</span></h2>
-            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/40 mt-2">Exploración en Tiempo Real</p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-3xl font-black italic uppercase text-white tracking-tighter leading-none truncate">Bio<span className="text-primary">Live</span></h2>
+            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-primary/40 mt-2 truncate">Exploración en Tiempo Real</p>
           </div>
-          <button className="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 border border-white/10">
+          <button className="h-10 w-10 bg-white/5 rounded-xl flex items-center justify-center text-white/40 border border-white/10 shrink-0">
             <Search size={18} />
           </button>
         </div>
@@ -215,12 +214,12 @@ export function LiveViewer({
       </div>
 
       <ProtocolWindow isOpen={!!selectedLive} onClose={() => setSelectedLive(null)} title="Acceso Encriptado">
-        <div className="space-y-6 text-center">
+        <div className="space-y-6 text-center w-full max-w-[320px] px-6">
           <div className="h-20 w-20 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center mx-auto text-primary shadow-[0_0_30px_rgba(204,255,0,0.2)]">
             <Key size={32} />
           </div>
           <div className="space-y-2">
-            <h3 className="text-lg text-white font-black italic uppercase tracking-tighter">Sala Privada</h3>
+            <h3 className="text-lg text-white font-black italic uppercase tracking-tighter truncate">Sala Privada</h3>
             <p className="text-[9px] text-white/30 font-black uppercase tracking-widest leading-relaxed truncate">Ingresa la clave de acceso neural para @{selectedLive?.user}</p>
           </div>
           <Input 
@@ -267,7 +266,6 @@ function LiveStreamRoom({
   const [isGiftPopoverOpen, setIsGiftPopoverOpen] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const giftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isYouTube = live.video.includes('youtube.com') || live.video.includes('youtu.be');
@@ -366,18 +364,6 @@ function LiveStreamRoom({
   }, []);
 
   useEffect(() => {
-    if (!isActive) {
-      if (!isYouTube && videoRef.current) {
-        videoRef.current.pause();
-      }
-    } else {
-      if (!isYouTube && videoRef.current) {
-        videoRef.current.play().catch(() => {});
-      }
-    }
-  }, [isActive, isYouTube]);
-
-  useEffect(() => {
     if (!globalMuted && isActive) {
       window.dispatchEvent(new CustomEvent('bio-video-playing'));
     }
@@ -444,14 +430,21 @@ function LiveStreamRoom({
     if (!isYouTube) return "";
     let url = live.video;
     const finalMute = !isActive || globalMuted;
-    // Asegurar que use /embed/
+    
     if (url.includes('watch?v=')) {
         const id = url.split('v=')[1].split('&')[0];
-        url = `https://www.youtube.com/embed/${id}?autoplay=0&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+        url = `https://www.youtube.com/embed/${id}`;
+    } else if (url.includes('shorts/')) {
+        const id = url.split('shorts/')[1].split('?')[0];
+        url = `https://www.youtube.com/embed/${id}`;
+    } else if (!url.includes('/embed/')) {
+        const parts = url.split('/');
+        const id = parts[parts.length - 1].split('?')[0];
+        url = `https://www.youtube.com/embed/${id}`;
     }
-    url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
-    url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
-    return url;
+
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}autoplay=${isActive ? 1 : 0}&mute=${finalMute ? 1 : 0}&loop=1&playlist=${url.split('/').pop()?.split('?')[0]}&controls=0&modestbranding=1&rel=0`;
   };
 
   return (
@@ -465,7 +458,6 @@ function LiveStreamRoom({
           />
         ) : (
           <video 
-            ref={videoRef}
             src={live.video} 
             className="h-full w-full object-cover opacity-90" 
             autoPlay 
@@ -517,7 +509,7 @@ function LiveStreamRoom({
 
         <div className="h-10 px-3 bg-transparent backdrop-blur-2xl rounded-xl flex items-center gap-2 text-white border border-white/10 shrink-0">
           <Users size={14} className="text-primary" />
-          <span className="text-[9px] font-black uppercase tracking-widest leading-none">{live.watchers}</span>
+          <span className="text-[9px] font-black uppercase tracking-widest leading-none truncate">{live.watchers}</span>
         </div>
         
         <button 
@@ -543,7 +535,7 @@ function LiveStreamRoom({
             <div key={msg.id} className="text-left animate-in fade-in slide-in-from-left-2">
               <span className={cn("text-[8px] font-black uppercase italic tracking-widest block truncate ml-2 mb-0.5", msg.isSpecial ? "text-primary" : "text-primary/70")}>{msg.user}</span>
               <p className={cn(
-                "text-[9px] backdrop-blur-md px-3 py-1.5 rounded-2xl rounded-tl-none border border-white/10 inline-block max-w-[85%] leading-relaxed transition-all",
+                "text-[9px] backdrop-blur-md px-3 py-1.5 rounded-2xl rounded-tl-none border border-white/10 inline-block max-w-[85%] leading-relaxed transition-all break-words",
                 msg.isSpecial 
                   ? "bg-primary/10 text-primary border-primary/20" 
                   : "bg-white/5 text-white/90"
@@ -566,9 +558,9 @@ function LiveStreamRoom({
                 <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-between mb-4">
                   <div className="space-y-0.5">
                     <span className="text-[8px] font-black text-primary uppercase italic tracking-widest">Bio-Wallet</span>
-                    <div className="text-lg font-black text-white italic leading-none">{espBalance.toLocaleString()} <span className="text-[9px] text-primary">ESP</span></div>
+                    <div className="text-lg font-black text-white italic leading-none truncate">{espBalance.toLocaleString()} <span className="text-[9px] text-primary">ESP</span></div>
                   </div>
-                  <Zap size={14} className="text-primary animate-pulse" />
+                  <Zap size={14} className="text-primary animate-pulse shrink-0" />
                 </div>
               </div>
 
@@ -596,7 +588,7 @@ function LiveStreamRoom({
                         >
                           <g.icon size={24} className={cn("mb-2 transition-transform group-hover:scale-125", g.color)} />
                           <span className="text-[8px] font-black text-white/80 italic uppercase truncate w-full text-center">{g.name}</span>
-                          <span className="text-[7px] text-primary font-black uppercase mt-1">{g.cost}</span>
+                          <span className="text-[7px] text-primary font-black uppercase mt-1 truncate">{g.cost}</span>
                         </button>
                       ))}
                     </TabsContent>
@@ -605,7 +597,7 @@ function LiveStreamRoom({
               </Tabs>
               
               <div className="p-4 bg-white/5 border-t border-white/5 flex justify-center">
-                 <p className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em] italic">Gaia Neural Gift Protocol</p>
+                 <p className="text-[7px] font-black text-white/20 uppercase tracking-[0.3em] italic truncate">Gaia Neural Gift Protocol</p>
               </div>
             </PopoverContent>
           </Popover>
