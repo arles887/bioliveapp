@@ -52,7 +52,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP e Inteligencia de Datos.
- * Solucionado: Error de referencia 'Users' y blindaje de desbordamiento en billetera.
+ * Solucionado: Blindaje de desbordamiento en billetera y corrección de iconos.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
@@ -257,7 +257,7 @@ export function ProfileView({
                       <div className="p-6">
                         {menuItems.map((item) => (
                           <button key={item.id} onClick={item.action} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
-                            <div className="flex items-center gap-4 min-w-0">
+                            <div className="flex items-center gap-4 min-w-0 flex-1">
                               <item.icon size={20} className={cn("shrink-0", item.color)} />
                               <span className="text-xs font-black uppercase tracking-widest text-white/80 truncate">{item.label}</span>
                             </div>
@@ -452,7 +452,7 @@ export function ProfileView({
       {/* Wallet Protocol Window */}
       <ProtocolWindow isOpen={isWalletOpen} onClose={handleWalletClose} title="Billetera ESP">
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh]">
-          <div className="p-6 space-y-6 pb-12 w-full">
+          <div className="p-6 space-y-6 pb-12 w-full max-w-full overflow-hidden">
             
             {/* Balance Card */}
             <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden group">
@@ -476,7 +476,7 @@ export function ProfileView({
             </div>
 
             {/* Wallet Quick Navigation Tabs */}
-            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 w-full">
+            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 w-full max-w-full overflow-hidden">
               {[
                 { id: "main", label: "Inicio", icon: Wallet },
                 { id: "stats", label: "Analítica", icon: BarChart3 },
@@ -493,14 +493,14 @@ export function ProfileView({
                   )}
                 >
                   <tab.icon size={14} className={cn(walletView === tab.id ? "text-primary" : "")} />
-                  <span className="text-[7px] font-black uppercase tracking-widest truncate w-full px-1">{tab.label}</span>
+                  <span className="text-[7px] font-black uppercase tracking-widest truncate block w-full px-1">{tab.label}</span>
                 </button>
               ))}
             </div>
 
             {/* View Logic: Recarga */}
             {walletView === "buy" && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full">
+              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full max-w-full">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -618,7 +618,7 @@ export function ProfileView({
 
             {/* View Logic: Retiro */}
             {walletView === "withdraw" && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full">
+              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full max-w-full overflow-hidden">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -736,7 +736,7 @@ export function ProfileView({
 
             {/* View Logic: Estadísticas (Analytics) */}
             {walletView === "stats" && (
-              <div className="space-y-8 animate-in fade-in duration-500 pb-8 w-full">
+              <div className="space-y-8 animate-in fade-in duration-500 pb-8 w-full max-w-full overflow-hidden">
                 <div className="flex items-center justify-between px-2">
                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">Bio<span className="text-primary">Analytics</span></h3>
                    <div className="flex gap-2 shrink-0">
@@ -816,15 +816,15 @@ export function ProfileView({
                           </Pie>
                         </PieChart>
                      </ChartContainer>
-                     <div className="flex-1 space-y-3 w-full min-w-0">
+                     <div className="flex-1 space-y-3 w-full min-w-0 overflow-hidden">
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-2 truncate">Origen de Señales</h4>
                         {ORIGIN_DATA.map((item) => (
                           <div key={item.name} className="flex items-center justify-between">
                              <div className="flex items-center gap-2 min-w-0 flex-1">
                                 <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                                <span className="text-[9px] font-black text-white uppercase italic truncate">{item.name}</span>
+                                <span className="text-[9px] font-black text-white uppercase italic truncate block flex-1">{item.name}</span>
                              </div>
-                             <span className="text-[9px] font-black text-white/40 ml-2">{item.value}%</span>
+                             <span className="text-[9px] font-black text-white/40 ml-2 shrink-0">{item.value}%</span>
                           </div>
                         ))}
                      </div>
@@ -833,11 +833,11 @@ export function ProfileView({
 
                 {/* Summary Widgets */}
                 <div className="grid grid-cols-2 gap-3 w-full">
-                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
+                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0 overflow-hidden">
                      <span className="text-[7px] font-black uppercase tracking-widest text-primary/60 block truncate">Saldo Recargado</span>
                      <p className="text-sm font-black text-white italic truncate">1,450,200 ESP</p>
                   </div>
-                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
+                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0 overflow-hidden">
                      <span className="text-[7px] font-black uppercase tracking-widest text-accent/60 block truncate">Retiros Totales</span>
                      <p className="text-sm font-black text-white italic truncate">240,500 ESP</p>
                   </div>
@@ -847,17 +847,17 @@ export function ProfileView({
 
             {/* View Logic: Historial (History) */}
             {(walletView === "main" || walletView === "history") && (
-              <div className="space-y-4 animate-in fade-in duration-500 pb-8 w-full">
+              <div className="space-y-4 animate-in fade-in duration-500 pb-8 w-full max-w-full overflow-hidden">
                 <div className="flex items-center justify-between px-2">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 italic truncate">Registro de Frecuencias</h3>
                   {walletView === "main" && (
                     <button onClick={() => setWalletView("history")} className="text-[8px] font-black text-primary uppercase tracking-widest hover:underline shrink-0 ml-2">Ver Todo</button>
                   )}
                 </div>
-                <div className="space-y-2 w-full">
+                <div className="space-y-2 w-full max-w-full">
                   {[1, 2, 3, 4, 5, 6].map(i => (
-                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all w-full min-w-0">
-                      <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all w-full min-w-0 max-w-full overflow-hidden">
+                      <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
                         <div className={cn(
                           "h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover:scale-110",
                           i % 3 === 0 ? "bg-primary/10 text-primary" : i % 3 === 1 ? "bg-accent/10 text-accent" : "bg-white/5 text-white/40"
@@ -865,17 +865,17 @@ export function ProfileView({
                           {i % 3 === 0 ? <ArrowDownLeft size={20} /> : i % 3 === 1 ? <ArrowUpRight size={20} /> : <Gift size={20} />}
                         </div>
                         <div className="min-w-0 flex-1 overflow-hidden">
-                          <p className="text-[10px] font-black text-white uppercase italic truncate">
+                          <p className="text-[10px] font-black text-white uppercase italic truncate block">
                             {i % 3 === 0 ? "Inyección de Nodo" : i % 3 === 1 ? "Retiro de Activos" : "Regalo de Fan"}
                           </p>
-                          <div className="flex items-center gap-2 mt-0.5 min-w-0">
-                            <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest truncate flex-1">Gaia Protocol #{2045 - i}</span>
+                          <div className="flex items-center gap-2 mt-0.5 min-w-0 overflow-hidden">
+                            <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest truncate block flex-1">Gaia Protocol #{2045 - i}</span>
                             <div className="h-1 w-1 rounded-full bg-white/10 shrink-0" />
-                            <span className="text-[8px] text-white/20 font-bold uppercase truncate shrink-0">{10 + i}m atrás</span>
+                            <span className="text-[8px] text-white/20 font-bold uppercase truncate block shrink-0">{10 + i}m atrás</span>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right shrink-0 ml-4">
+                      <div className="text-right shrink-0 ml-4 overflow-hidden">
                         <span className={cn(
                           "text-xs font-black italic block truncate",
                           i % 3 === 1 ? "text-red-400" : "text-primary"
