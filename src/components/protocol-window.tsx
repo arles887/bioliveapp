@@ -1,13 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { X } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { cn } from "@/lib/utils"
 
 /**
  * @fileOverview Ventana de protocolo estandarizada.
- * Corregido: Se añadió DialogPrimitive.Title para accesibilidad (WAI-ARIA).
+ * Corregido: Se reemplazó la 'X' por una flecha de retorno limpia para evitar superposiciones.
+ * Corregido: Se añadió padding superior para despejar el área de navegación.
  */
 
 export function ProtocolWindow({ 
@@ -32,19 +33,19 @@ export function ProtocolWindow({
             {title}
           </DialogPrimitive.Title>
 
-          {/* Único Botón de Cierre: Limpio y bien ubicado */}
-          <DialogPrimitive.Close className="absolute top-8 right-8 z-[200] h-12 w-12 rounded-2xl bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all active:scale-90 outline-none">
-            <X size={24} />
-            <span className="sr-only">Cerrar Protocolo</span>
+          {/* Botón de Retorno (Back): Limpio y ubicado a la izquierda para navegación fluida */}
+          <DialogPrimitive.Close className="absolute top-8 left-8 z-[200] h-12 w-12 rounded-2xl bg-white/5 backdrop-blur-3xl border border-white/10 flex items-center justify-center text-white/40 hover:text-primary hover:border-primary/40 transition-all active:scale-90 outline-none">
+            <ChevronLeft size={24} />
+            <span className="sr-only">Volver</span>
           </DialogPrimitive.Close>
 
-          {/* Etiqueta de Sistema: Visualmente discreta */}
-          <div className="absolute top-10 left-10 z-[150] pointer-events-none opacity-20 max-w-[200px]">
+          {/* Etiqueta de Sistema: Visualmente discreta a la derecha */}
+          <div className="absolute top-10 right-10 z-[150] pointer-events-none opacity-20 max-w-[200px] text-right">
              <span className="text-[8px] font-black uppercase tracking-[0.5em] text-white italic truncate block">{title}</span>
           </div>
 
-          {/* Contenedor de Contenido Principal */}
-          <div className="flex-1 w-full relative overflow-hidden flex flex-col items-center justify-center">
+          {/* Contenedor de Contenido Principal con padding superior para evitar colisión con el botón de retorno */}
+          <div className="flex-1 w-full relative overflow-hidden flex flex-col items-center justify-center pt-24">
             {children}
           </div>
         </DialogPrimitive.Content>
