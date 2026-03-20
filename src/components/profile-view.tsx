@@ -44,42 +44,25 @@ import {
   ChartTooltipContent,
   type ChartConfig
 } from "@/components/ui/chart";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
 
 /**
- * @fileOverview Vista de Perfil con Bio-Inteligencia Analítica Avanzada y Billetera Blindada.
- * Secciones de Billetera: Balance, Pasarela de Pago avanzada (50 paquetes + Custom).
+ * @fileOverview Vista de Perfil con Billetera ESP Blindada (390px).
+ * Incluye: Auth (2025), Analítica Financiera, Rendimiento por Contenido e Historial.
+ * Flujo de Recarga: 50 Paquetes + Pasarela Multicanal.
  */
 
 type WalletTab = "main" | "buy" | "withdraw";
 type RechargeStep = "packages" | "payment-method" | "payment-details" | "confirm";
 type PaymentMethod = "card" | "yape" | "paypal" | "cash" | "gift";
 
-const MOCK_VIEWS_DATA = [
-  { name: "Lun", views: 4000 },
-  { name: "Mar", views: 3000 },
-  { name: "Mie", views: 5000 },
-  { name: "Jue", views: 2780 },
-  { name: "Vie", views: 1890 },
-  { name: "Sab", views: 2390 },
-  { name: "Dom", views: 3490 },
-];
-
 const MOCK_FINANCE_FLOW = [
-  { time: "00:00", income: 2400, expense: 1200 },
-  { time: "04:00", income: 1398, expense: 900 },
-  { time: "08:00", income: 9800, expense: 4500 },
-  { time: "12:00", income: 3908, expense: 2800 },
-  { time: "16:00", income: 4800, expense: 1100 },
-  { time: "20:00", income: 3800, expense: 2300 },
-  { time: "23:59", income: 4300, expense: 1400 },
+  { name: "Lun", income: 4000, expense: 2400 },
+  { name: "Mar", income: 3000, expense: 1398 },
+  { name: "Mie", income: 2000, expense: 9800 },
+  { name: "Jue", income: 2780, expense: 3908 },
+  { name: "Vie", income: 1890, expense: 4800 },
+  { name: "Sab", income: 2390, expense: 3800 },
+  { name: "Dom", income: 3490, expense: 4300 },
 ];
 
 const PREDEFINED_PACKAGES = Array.from({ length: 50 }, (_, i) => {
@@ -91,8 +74,6 @@ const PREDEFINED_PACKAGES = Array.from({ length: 50 }, (_, i) => {
 });
 
 const chartConfig = {
-  views: { label: "Visualizaciones", color: "hsl(var(--primary))" },
-  value: { label: "Usuarios", color: "hsl(var(--primary))" },
   income: { label: "Ingresos", color: "hsl(var(--primary))" },
   expense: { label: "Egresos", color: "hsl(var(--destructive))" },
 } satisfies ChartConfig;
@@ -123,39 +104,7 @@ export function ProfileView({
   const [amount, setAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
   
-  // Payment Form States
-  const [cardData, setCardData] = useState({ number: "", expiry: "", cvv: "", name: "" });
-  const [yapeData, setYapeData] = useState({ phone: "", code: "" });
-  const [giftCode, setGiftCode] = useState("");
-  
-  // Profile Stats State
-  const [isProfileStatsOpen, setIsProfileStatsOpen] = useState(false);
-  
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
-
-  const statsSummary = [
-    { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K", icon: Users },
-    { label: "Siguiendo", value: isOwnProfile ? "842" : "120", icon: Check },
-    { label: "ESP Tokens", value: isOwnProfile ? espBalance.toLocaleString() : "800", icon: Zap }
-  ];
-
-  const handleUpdateProfile = async () => {
-    setIsEditing(false);
-    await UserService.syncProfile("BioEntity_01", { username: profileName });
-    toast({ title: "Protocolo Actualizado", description: "Identidad digital guardada correctamente." });
-  };
-
-  const handleFollow = () => {
-    requireAuth(async () => {
-      const newStatus = !isFollowing;
-      setIsFollowing(newStatus);
-      await UserService.toggleFollow("BioEntity_01", profileName, isFollowing);
-      toast({ 
-        title: newStatus ? "Sincronizado" : "Sincronización Terminada", 
-        description: newStatus ? `Siguiendo a @${profileName}` : `Has dejado de seguir a @${profileName}` 
-      });
-    });
-  };
 
   const handleWalletAuth = () => {
     if (walletPassword === "2025") {
@@ -170,113 +119,65 @@ export function ProfileView({
   const executeTransaction = async () => {
     setIsProcessing(true);
     setTimeout(async () => {
-      try {
-        let newBalance;
-        if (walletView === "buy") {
-          newBalance = await WalletService.injectFunds(Number(amount));
-        } else {
-          newBalance = await WalletService.withdrawFunds(Number(amount));
-        }
-        setEspBalance(newBalance);
-        setIsProcessing(false);
-        setWalletView("main");
-        setRechargeStep("packages");
-        setPaymentMethod(null);
-        setAmount("");
-        toast({ title: "Protocolo Completado", description: "Transacción inyectada con éxito." });
-      } catch (e) {
-        setIsProcessing(false);
-        toast({ variant: "destructive", title: "Fallo Neural", description: "No se pudo procesar el pago." });
+      let newBalance;
+      if (walletView === "buy") {
+        newBalance = await WalletService.injectFunds(Number(amount));
+      } else {
+        newBalance = await WalletService.withdrawFunds(Number(amount));
       }
-    }, 2500);
-  };
-
-  const handleSelectPackage = (amt: number) => {
-    setAmount(amt.toString());
-    setRechargeStep("payment-method");
+      setEspBalance(newBalance);
+      setIsProcessing(false);
+      setWalletView("main");
+      setRechargeStep("packages");
+      setPaymentMethod(null);
+      setAmount("");
+      toast({ title: "Protocolo Completado", description: "Transacción inyectada con éxito." });
+    }, 2000);
   };
 
   return (
     <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 max-w-[500px] mx-auto overflow-x-hidden">
       {/* Banner Area */}
-      <div className="relative h-32 w-full bg-gradient-to-b from-primary/10 to-transparent shrink-0">
+      <div className="relative h-32 w-full bg-gradient-to-b from-primary/10 to-transparent">
         <div className="absolute top-6 left-6 z-20">
            {!isOwnProfile && (
-             <button onClick={onBack} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
+             <button onClick={onBack} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary active:scale-90">
                 <ChevronLeft size={20} />
              </button>
            )}
         </div>
         <div className="absolute top-6 right-6 flex gap-3 z-20">
-           {isOwnProfile && (
-             <button 
-              onClick={() => setIsProfileStatsOpen(true)}
-              className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
-             >
-                <BarChart3 size={18} />
-             </button>
-           )}
-           <button onClick={() => toast({ title: "Copiado" })} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
+           <button onClick={() => toast({ title: "Copiado" })} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary active:scale-90">
               <Share2 size={18} />
            </button>
            {isOwnProfile && (
-             <Sheet>
-               <SheetTrigger asChild>
-                 <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
-                    <Menu size={18} />
-                 </button>
-               </SheetTrigger>
-               <SheetContent side="right" className="bg-[#020503] border-white/5 p-0 w-full max-w-[500px]">
-                 <div className="flex flex-col h-full">
-                    <SheetHeader className="p-8 border-b border-white/5">
-                      <SheetTitle className="text-2xl font-black italic uppercase text-white tracking-tighter">
-                        Configuración <span className="text-primary">Neural</span>
-                      </SheetTitle>
-                    </SheetHeader>
-                    <ScrollArea className="flex-1">
-                      <div className="p-6">
-                        <button onClick={() => { setIsWalletOpen(true); setIsWalletAuthenticated(false); setWalletView("main"); }} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
-                          <div className="flex items-center gap-4">
-                            <Wallet size={20} className="text-primary" />
-                            <span className="text-xs font-black uppercase tracking-widest text-white/80">Billetera ESP</span>
-                          </div>
-                          <ChevronLeft size={16} className="rotate-180 text-white/20 group-hover:text-primary" />
-                        </button>
-                      </div>
-                    </ScrollArea>
-                 </div>
-               </SheetContent>
-             </Sheet>
+             <button 
+              onClick={() => { setIsWalletOpen(true); setIsWalletAuthenticated(false); }}
+              className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-primary shadow-[0_0_15px_rgba(204,255,0,0.3)] active:scale-90"
+             >
+                <Wallet size={18} />
+             </button>
            )}
         </div>
       </div>
 
       {/* Profile Header */}
       <div className="px-8 -mt-12 space-y-6">
-        <div className="flex items-end justify-between">
-          <div className="h-24 w-24 rounded-[2rem] border-4 border-[#020503] bg-white/5 overflow-hidden shadow-2xl relative shrink-0">
-            <Image src={isOwnProfile ? (avatarUrl || "") : `https://picsum.photos/seed/${profileName}/200/200`} fill alt="Avatar" className="object-cover" />
-          </div>
-          <div className="flex gap-2 mb-2">
-            {isOwnProfile ? (
-              <button onClick={() => setIsEditing(true)} className="h-10 px-6 rounded-2xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest text-[9px] flex items-center justify-center hover:bg-white/5 transition-all">
-                <Edit size={14} className="mr-2" /> Editar Perfil
-              </button>
-            ) : (
-              <button onClick={handleFollow} className={cn("rounded-2xl text-[9px] font-black uppercase tracking-widest h-10 px-6", isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg")}>
-                {isFollowing ? "Siguiendo" : "Seguir"}
-              </button>
-            )}
-          </div>
+        <div className="h-24 w-24 rounded-[2rem] border-4 border-[#020503] bg-white/5 overflow-hidden shadow-2xl relative">
+          <Image src={isOwnProfile ? (avatarUrl || "") : `https://picsum.photos/seed/${profileName}/200/200`} fill alt="Avatar" className="object-cover" />
         </div>
         <div className="space-y-1">
           <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter truncate leading-none">{profileName}</h2>
-          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest truncate">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
+          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
         </div>
         <div className="flex gap-4 py-4 border-y border-white/5 overflow-x-auto no-scrollbar">
-          {statsSummary.map((stat) => (
-            <div key={stat.label} className="flex flex-col shrink-0 min-w-[80px]">
-              <span className="text-lg font-black text-white italic leading-none tracking-tight">{stat.value}</span>
+          {[
+            { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
+            { label: "Siguiendo", value: isOwnProfile ? "842" : "120" },
+            { label: "Tokens ESP", value: isOwnProfile ? espBalance.toLocaleString() : "800" }
+          ].map((stat) => (
+            <div key={stat.label} className="flex flex-col min-w-[80px]">
+              <span className="text-lg font-black text-white italic tracking-tight">{stat.value}</span>
               <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1">{stat.label}</span>
             </div>
           ))}
@@ -299,56 +200,22 @@ export function ProfileView({
         </TabsContent>
       </Tabs>
 
-      {/* Profile Edit Window */}
-      <ProtocolWindow isOpen={isEditing} onClose={() => setIsEditing(false)} title="Identidad Digital">
-        <div className="space-y-6 w-full max-w-[390px] px-6 mx-auto flex flex-col items-center">
-          <Input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6 w-full" />
-          <Button onClick={handleUpdateProfile} className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
-            Sincronizar Protocolo
-          </Button>
-        </div>
-      </ProtocolWindow>
-
-      {/* Bio-Analítica Perfil */}
-      <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Perfil">
-        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] px-0">
-          <div className="flex flex-col items-center w-full space-y-8 pb-24 pt-6 overflow-x-hidden">
-            <div className="w-full max-w-[390px] p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 relative overflow-hidden mx-auto">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                    <Eye size={18} />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Alcance Total</span>
-                    <p className="text-xl font-black text-white italic tracking-tighter">248,592 views</p>
-                  </div>
-                </div>
-              </div>
-              <ChartContainer config={chartConfig} className="h-[150px] w-full">
-                <AreaChart data={MOCK_VIEWS_DATA}>
-                  <XAxis dataKey="name" hide />
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                  <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={3} />
-                </AreaChart>
-              </ChartContainer>
-            </div>
-          </div>
-        </ScrollArea>
-      </ProtocolWindow>
-
-      {/* Billetera ESP */}
+      {/* Billetera ESP Blindada (390px) */}
       <ProtocolWindow 
         isOpen={isWalletOpen} 
         onClose={() => { setIsWalletOpen(false); setIsWalletAuthenticated(false); setWalletView("main"); setRechargeStep("packages"); }} 
         title="Billetera ESP"
       >
-        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh]">
-          <div className="flex flex-col items-center justify-start w-full gap-8 pb-32 pt-6">
+        <ScrollArea className="w-full h-full">
+          <div className="flex flex-col items-center w-full gap-8 pb-32 pt-6">
             {!isWalletAuthenticated ? (
               <div className="w-full max-w-[390px] px-6 py-12 flex flex-col items-center gap-8 animate-in fade-in duration-500 mx-auto">
                 <div className="h-20 w-20 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center text-primary">
                   <Key size={32} />
+                </div>
+                <div className="text-center space-y-2">
+                  <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Acceso <span className="text-primary">Blindado</span></h3>
+                  <p className="text-[9px] text-white/30 font-black uppercase tracking-widest italic">Ingresa tu Clave Neural</p>
                 </div>
                 <Input 
                   type="password" 
@@ -360,12 +227,17 @@ export function ProfileView({
                 <Button onClick={handleWalletAuth} className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
                   Validar Protocolo
                 </Button>
+                <p className="text-[8px] text-white/20 font-bold uppercase">Tip: 2025</p>
               </div>
             ) : (
-              <div className="w-full max-w-[390px] px-4 flex flex-col gap-8 animate-in fade-in duration-700 mx-auto">
+              <div className="w-full max-w-[390px] px-4 flex flex-col gap-8 animate-in fade-in duration-700 mx-auto items-center">
                 {walletView === "main" && (
-                  <div className="space-y-8 w-full">
-                    <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-2xl relative overflow-hidden w-full">
+                  <div className="w-full space-y-8 flex flex-col items-center">
+                    {/* Balance Card */}
+                    <div className="w-full p-8 rounded-[2.5rem] bg-primary text-black shadow-2xl relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Zap size={120} fill="currentColor" />
+                      </div>
                       <span className="text-[10px] font-black uppercase tracking-[0.3em]">Balance Gaia Activo</span>
                       <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">{espBalance.toLocaleString()} ESP</div>
                       <div className="mt-8 flex gap-3">
@@ -377,30 +249,90 @@ export function ProfileView({
                         </button>
                       </div>
                     </div>
+
+                    {/* Analítica de Ingresos/Egresos */}
+                    <div className="w-full p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                          <Activity size={16} />
+                        </div>
+                        <h3 className="text-xs font-black uppercase text-white tracking-widest italic">Flujo Bio-Económico</h3>
+                      </div>
+                      <ChartContainer config={chartConfig} className="h-[120px] w-full">
+                        <AreaChart data={MOCK_FINANCE_FLOW}>
+                          <XAxis dataKey="name" hide />
+                          <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                          <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={2} />
+                          <Area type="monotone" dataKey="expense" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.1} strokeWidth={2} />
+                        </AreaChart>
+                      </ChartContainer>
+                    </div>
+
+                    {/* Rendimiento por Contenido */}
+                    <div className="w-full grid grid-cols-2 gap-4">
+                      <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
+                         <div className="flex items-center justify-between">
+                           <Clapperboard size={14} className="text-primary/60" />
+                           <span className="text-[8px] font-black text-primary uppercase">+12%</span>
+                         </div>
+                         <p className="text-[18px] font-black text-white italic">45.2K</p>
+                         <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Por Bio-Reels</p>
+                      </div>
+                      <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
+                         <div className="flex items-center justify-between">
+                           <Radio size={14} className="text-accent/60" />
+                           <span className="text-[8px] font-black text-accent uppercase">+8%</span>
+                         </div>
+                         <p className="text-[18px] font-black text-white italic">120.8K</p>
+                         <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Por Lives</p>
+                      </div>
+                    </div>
+
+                    {/* Última Actividad */}
+                    <div className="w-full space-y-4">
+                      <div className="flex items-center justify-between px-4">
+                        <h3 className="text-[10px] font-black uppercase text-white/40 tracking-widest italic">Historial Multicapa</h3>
+                        <History size={12} className="text-white/20" />
+                      </div>
+                      {[
+                        { type: "Recarga", icon: ArrowDownLeft, color: "text-primary", amount: "+5,000 ESP", time: "Hace 2h" },
+                        { type: "Retiro", icon: ArrowUpRight, color: "text-white/40", amount: "-10,000 ESP", time: "Hace 1d" },
+                        { type: "Regalo Donado", icon: Gift, color: "text-accent", amount: "-50 ESP", time: "Hace 5m" }
+                      ].map((log, i) => (
+                        <div key={i} className="w-full p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/[0.05] transition-all">
+                          <div className="flex items-center gap-4">
+                            <div className={cn("h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center", log.color)}>
+                              <log.icon size={18} />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-white uppercase italic">{log.type}</span>
+                              <span className="text-[8px] font-bold text-white/20 uppercase">{log.time}</span>
+                            </div>
+                          </div>
+                          <span className={cn("text-xs font-black italic", log.color)}>{log.amount}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
                 {walletView === "buy" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
                     {rechargeStep === "packages" && (
-                      <div className="space-y-6">
+                      <div className="w-full space-y-6">
                         <div className="text-center">
                           <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Inyectar <span className="text-primary">Tokens ESP</span></h3>
                           <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Selecciona un Nodo de Energía</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-3 w-full">
                           {PREDEFINED_PACKAGES.map((pkg) => (
                             <button 
                               key={pkg.id} 
-                              onClick={() => handleSelectPackage(pkg.amount)}
+                              onClick={() => { setAmount(pkg.amount.toString()); setRechargeStep("payment-method"); }}
                               className="relative p-5 rounded-[2rem] bg-white/[0.03] border border-white/10 hover:border-primary/40 transition-all text-center group active:scale-95 overflow-hidden"
                             >
-                              {pkg.isPromo && (
-                                <div className="absolute top-0 right-0 bg-primary text-black text-[6px] font-black px-2 py-0.5 rounded-bl-lg uppercase">Promo</div>
-                              )}
-                              {pkg.hasBonus && (
-                                <div className="absolute bottom-0 left-0 bg-accent text-black text-[6px] font-black px-2 py-0.5 rounded-tr-lg uppercase">+Bonus</div>
-                              )}
+                              {pkg.isPromo && <div className="absolute top-0 right-0 bg-primary text-black text-[6px] font-black px-2 py-0.5 rounded-bl-lg uppercase">Promo</div>}
+                              {pkg.hasBonus && <div className="absolute bottom-0 left-0 bg-accent text-black text-[6px] font-black px-2 py-0.5 rounded-tr-lg uppercase">+Bonus</div>}
                               <Zap size={14} className="text-primary/40 mx-auto mb-2 group-hover:scale-125 transition-transform" />
                               <div className="text-lg font-black text-white italic leading-none">{pkg.amount.toLocaleString()}</div>
                               <div className="text-[8px] font-bold text-primary uppercase mt-1 tracking-widest">${pkg.price} USD</div>
@@ -422,12 +354,12 @@ export function ProfileView({
                     )}
 
                     {rechargeStep === "payment-method" && (
-                      <div className="space-y-6">
+                      <div className="w-full space-y-6">
                         <div className="text-center">
                           <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Pasarela <span className="text-primary">Gaia</span></h3>
-                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Total a inyectar: {Number(amount).toLocaleString()} ESP</p>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Total: {Number(amount).toLocaleString()} ESP</p>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-3 w-full">
                           {[
                             { id: "card", label: "Tarjeta de Crédito", icon: CreditCard },
                             { id: "yape", label: "Yape / Digital Wallet", icon: Smartphone },
@@ -455,52 +387,45 @@ export function ProfileView({
                     )}
 
                     {rechargeStep === "payment-details" && (
-                      <div className="space-y-6">
+                      <div className="w-full space-y-6">
                         <div className="text-center">
-                          <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Detalles de <span className="text-primary">Pago</span></h3>
+                          <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Datos de <span className="text-primary">Inyección</span></h3>
                           <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Verifica tu Señal de Pago</p>
                         </div>
 
                         {paymentMethod === "card" && (
-                          <div className="space-y-3">
-                            <Input placeholder="NOMBRE EN TARJETA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs uppercase" onChange={(e) => setCardData({...cardData, name: e.target.value})} />
-                            <Input placeholder="NÚMERO DE TARJETA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setCardData({...cardData, number: e.target.value})} />
+                          <div className="space-y-3 w-full">
+                            <Input placeholder="NOMBRE COMPLETO" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs uppercase" />
+                            <Input placeholder="NÚMERO DE TARJETA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" />
                             <div className="grid grid-cols-2 gap-3">
-                              <Input placeholder="MM/AA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setCardData({...cardData, expiry: e.target.value})} />
-                              <Input placeholder="CVV" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setCardData({...cardData, cvv: e.target.value})} />
+                              <Input placeholder="MM/AA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" />
+                              <Input placeholder="CVV" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" />
                             </div>
                           </div>
                         )}
 
                         {paymentMethod === "yape" && (
-                          <div className="space-y-3">
-                            <Input placeholder="TELÉFONO YAPE" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setYapeData({...yapeData, phone: e.target.value})} />
-                            <Input placeholder="CÓDIGO DE APROBACIÓN" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs text-center tracking-[1em]" maxLength={6} onChange={(e) => setYapeData({...yapeData, code: e.target.value})} />
-                          </div>
-                        )}
-
-                        {paymentMethod === "paypal" && (
-                          <div className="p-8 rounded-2xl bg-white/5 border border-white/10 text-center space-y-4">
-                            <Send size={40} className="text-blue-400 mx-auto" />
-                            <p className="text-[10px] text-white/60 font-black uppercase">Serás redirigido al portal de PayPal para autorizar la transacción.</p>
+                          <div className="space-y-3 w-full">
+                            <Input placeholder="NÚMERO DE CELULAR" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" />
+                            <Input placeholder="CÓDIGO DE CONFIRMACIÓN" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs text-center tracking-[0.5em]" maxLength={6} />
                           </div>
                         )}
 
                         {paymentMethod === "cash" && (
-                          <div className="space-y-6">
-                             <div className="p-8 rounded-2xl bg-white flex flex-col items-center gap-4">
+                          <div className="space-y-6 w-full flex flex-col items-center">
+                             <div className="p-8 rounded-2xl bg-white flex flex-col items-center gap-4 w-full">
                                 <QrCode size={120} className="text-black" />
                                 <div className="text-center">
                                   <p className="text-[8px] font-black uppercase text-black/40">Código de Pago</p>
                                   <p className="text-2xl font-black text-black tracking-[0.2em]">GAIA-8492</p>
                                 </div>
                              </div>
-                             <p className="text-[9px] text-white/30 text-center uppercase font-black leading-relaxed">Paga en cualquier agente autorizado con este código QR.</p>
+                             <p className="text-[9px] text-white/30 text-center uppercase font-black leading-relaxed">Paga en agentes autorizados con este código.</p>
                           </div>
                         )}
 
                         {paymentMethod === "gift" && (
-                          <Input placeholder="INGRESA TU CÓDIGO DE REGALO" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs text-center uppercase tracking-widest" onChange={(e) => setGiftCode(e.target.value)} />
+                          <Input placeholder="INGRESA CÓDIGO" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs text-center uppercase tracking-widest w-full" />
                         )}
 
                         <Button onClick={() => setRechargeStep("confirm")} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-xl">
@@ -511,18 +436,18 @@ export function ProfileView({
                     )}
 
                     {rechargeStep === "confirm" && (
-                      <div className="space-y-8 animate-in zoom-in-95 duration-500">
+                      <div className="w-full space-y-8 animate-in zoom-in-95 duration-500 flex flex-col items-center">
                         <div className="text-center space-y-2">
                            <div className="h-20 w-20 rounded-[2.5rem] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto shadow-2xl">
                              <ShieldCheck size={40} />
                            </div>
-                           <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Confirmar <span className="text-primary">Inyección</span></h3>
-                           <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Protocolo de Seguridad Activo</p>
+                           <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Confirmar <span className="text-primary">Pago</span></h3>
+                           <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Protocolo de Encriptación Activo</p>
                         </div>
 
-                        <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                        <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
                            <div className="flex justify-between items-center">
-                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Activo</span>
+                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Señal</span>
                              <span className="text-sm font-black text-white italic">{Number(amount).toLocaleString()} ESP</span>
                            </div>
                            <div className="flex justify-between items-center">
@@ -530,21 +455,17 @@ export function ProfileView({
                              <span className="text-[10px] font-black text-primary uppercase italic">{paymentMethod}</span>
                            </div>
                            <div className="pt-4 border-t border-white/10 flex justify-between items-center">
-                             <span className="text-[11px] font-black text-white uppercase tracking-widest">Total USD</span>
-                             <span className="text-xl font-black text-primary italic">${(Number(amount)/100).toFixed(2)}</span>
+                             <span className="text-[11px] font-black text-white uppercase tracking-widest">Total</span>
+                             <span className="text-xl font-black text-primary italic">${(Number(amount)/100).toFixed(2)} USD</span>
                            </div>
                         </div>
 
                         <Button 
                           onClick={executeTransaction} 
                           disabled={isProcessing}
-                          className="w-full h-20 bg-primary text-black font-black uppercase italic tracking-[0.2em] rounded-[2rem] shadow-[0_0_50px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all text-sm"
+                          className="w-full h-20 bg-primary text-black font-black uppercase italic tracking-[0.2em] rounded-[2rem] shadow-[0_0_50px_rgba(204,255,0,0.3)] active:scale-95 transition-all text-sm"
                         >
-                          {isProcessing ? (
-                            <div className="flex items-center gap-3">
-                              <Loader2 className="animate-spin" size={20} /> Sincronizando...
-                            </div>
-                          ) : "Confirmar Pago Neural"}
+                          {isProcessing ? <Loader2 className="animate-spin" size={24} /> : "Confirmar Pago Neural"}
                         </Button>
                         <Button onClick={() => setRechargeStep("payment-details")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase rounded-2xl">Corregir Datos</Button>
                       </div>
@@ -556,7 +477,79 @@ export function ProfileView({
           </div>
         </ScrollArea>
       </ProtocolWindow>
+
+      {/* Bio-Analítica de Perfil Avanzada (390px) */}
+      <ProtocolWindow isOpen={false} onClose={() => {}} title="Bio-Inteligencia Perfil">
+        <ScrollArea className="w-full h-full">
+          <div className="flex flex-col items-center w-full gap-8 pb-32 pt-6">
+            <div className="w-full max-w-[390px] px-4 space-y-8 flex flex-col items-center">
+               {/* Alcance Total */}
+               <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Visualizaciones Netas</span>
+                    <TrendingUp size={14} className="text-primary" />
+                  </div>
+                  <h3 className="text-3xl font-black text-white italic tracking-tighter">248,592</h3>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary w-[85%] shadow-[0_0_10px_rgba(204,255,0,0.5)]"></div>
+                  </div>
+               </div>
+
+               {/* Grid de Métricas Netas */}
+               <div className="w-full grid grid-cols-2 gap-4">
+                  <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-1">
+                    <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Seguidores Netos</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xl font-black text-primary italic">+1,240</p>
+                      <Users size={14} className="text-primary/40" />
+                    </div>
+                  </div>
+                  <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-1">
+                    <p className="text-[8px] font-black text-white/30 uppercase tracking-widest">Me Gusta Netos</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xl font-black text-accent italic">+8,420</p>
+                      <Heart size={14} className="text-accent/40" />
+                    </div>
+                  </div>
+               </div>
+
+               {/* Localización y Edad */}
+               <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
+                  <h4 className="text-[10px] font-black uppercase text-white tracking-[0.2em] italic">Auditoría Demográfica</h4>
+                  <div className="space-y-4">
+                    {[
+                      { label: "Latam North", val: 65, color: "bg-primary" },
+                      { label: "Euro Node", val: 20, color: "bg-accent" },
+                      { label: "Asia Signal", val: 15, color: "bg-white/20" }
+                    ].map((loc) => (
+                      <div key={loc.label} className="space-y-1.5">
+                        <div className="flex justify-between text-[8px] font-black uppercase tracking-widest">
+                          <span className="text-white/40">{loc.label}</span>
+                          <span className="text-white">{loc.val}%</span>
+                        </div>
+                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                          <div className={cn("h-full rounded-full", loc.color)} style={{ width: `${loc.val}%` }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+               </div>
+
+               {/* Nivel de Aceptación */}
+               <div className="w-full p-8 rounded-[2.5rem] bg-primary/[0.03] border border-primary/10 flex flex-col items-center text-center gap-4">
+                  <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <Sparkles size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black italic uppercase text-white tracking-tighter leading-none">Aceptación Neural</h3>
+                    <p className="text-[32px] font-black text-primary italic mt-2">98.4%</p>
+                  </div>
+                  <p className="text-[8px] font-bold text-white/30 uppercase tracking-widest leading-relaxed">Tu señal tiene una resonancia óptima con el ecosistema BioLive.</p>
+               </div>
+            </div>
+          </div>
+        </ScrollArea>
+      </ProtocolWindow>
     </div>
   );
 }
-
