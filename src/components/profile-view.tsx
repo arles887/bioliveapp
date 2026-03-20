@@ -8,7 +8,7 @@ import {
   Wallet, History, UserCircle, LifeBuoy, Settings, Lock,
   Loader2, CreditCard, Smartphone, Globe, Gift, 
   Shield, ArrowUpRight, ArrowDownLeft, Building2,
-  Edit, Coins, BadgePercent, TrendingUp
+  Edit, Coins, BadgePercent, TrendingUp, Landmark
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ import { WalletService } from "@/services/wallet-service";
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
- * Actualizado: Flujo de Recarga con Galería de 60 paquetes, Bonos y Pasos Secuenciales.
+ * Actualizado: Protocolo de Retiro Secuencial con Galería de 60 paquetes y Pasarelas de Salida.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
@@ -61,7 +61,7 @@ export function ProfileView({
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
-  // Generar 60 paquetes de tokens con bonos
+  // Generar 60 paquetes de tokens con bonos para recarga
   const tokenPackages = Array.from({ length: 60 }, (_, i) => {
     const baseAmount = (i + 1) * 100;
     const multiplier = i < 10 ? 1 : i < 20 ? 10 : i < 40 ? 100 : 1000;
@@ -73,6 +73,19 @@ export function ProfileView({
       gift: giftAmount,
       price: (finalAmount * 0.05).toFixed(2),
       label: i % 4 === 0 ? "OFERTA" : "BONO"
+    };
+  });
+
+  // Generar 60 paquetes de retiro
+  const withdrawPackages = Array.from({ length: 60 }, (_, i) => {
+    const baseAmount = (i + 1) * 200;
+    const multiplier = i < 15 ? 5 : i < 30 ? 50 : 500;
+    const finalAmount = baseAmount * multiplier;
+    return {
+      id: `wpkg-${i}`,
+      amount: finalAmount,
+      price: (finalAmount * 0.045).toFixed(2), // Valor de cambio ligeramente menor para retiro
+      label: "RETIRO"
     };
   });
 
@@ -138,11 +151,6 @@ export function ProfileView({
     { id: "settings", label: "Ajustes", icon: Settings, color: "text-white/40", action: () => toast({ title: "Ajustes", description: "Configuración neural disponible pronto." }) },
     { id: "privacy", label: "Privacidad", icon: Lock, color: "text-accent", action: () => toast({ title: "Privacidad", description: "Escudo Gaia activo." }) },
   ];
-
-  const selectPackage = (pkgAmount: number) => {
-    setAmount(pkgAmount.toString());
-    setRechargeStep("confirm");
-  };
 
   const handleWalletClose = () => {
     setIsWalletOpen(false);
@@ -287,18 +295,253 @@ export function ProfileView({
                   {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
                 </div>
                 <div className="mt-6 flex gap-3">
-                  <Button onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} className="flex-1 bg-black text-white rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/80">
+                  <Button onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); setPaymentMethod(null); }} className="flex-1 bg-black text-white rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/80">
                     <ArrowDownLeft className="mr-2" size={14} /> Recargar
                   </Button>
-                  <Button onClick={() => setWalletView("withdraw")} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/20">
+                  <Button onClick={() => { setWalletView("withdraw"); setRechargeStep("gallery"); setPaymentMethod(null); }} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/20">
                     <ArrowUpRight className="mr-2" size={14} /> Retirar
                   </Button>
                 </div>
               </div>
             </div>
 
-            {/* View Logic */}
-            {walletView === "main" ? (
+            {/* View Logic: Recarga */}
+            {walletView === "buy" && (
+              <div className="space-y-6 animate-in slide-in-from-right duration-500">
+                <div className="flex items-center gap-4">
+                   <button 
+                    onClick={() => {
+                      if (rechargeStep === "gallery") setWalletView("main");
+                      else if (rechargeStep === "confirm") setRechargeStep("gallery");
+                      else if (rechargeStep === "payment") setRechargeStep("confirm");
+                    }} 
+                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10"
+                   >
+                     <ChevronLeft size={20} />
+                   </button>
+                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">
+                     Protocolo <span className="text-primary">Recarga</span>
+                   </h3>
+                </div>
+
+                {rechargeStep === "gallery" && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {tokenPackages.map((pkg) => (
+                      <button 
+                        key={pkg.id}
+                        onClick={() => { setAmount(pkg.amount.toString()); setRechargeStep("confirm"); }}
+                        className="group relative flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center overflow-hidden"
+                      >
+                        <div className="absolute top-3 left-3 flex gap-1">
+                          <BadgePercent size={10} className="text-primary" />
+                          <span className="text-[7px] font-black text-primary uppercase">{pkg.label}</span>
+                        </div>
+                        <Zap size={24} className="text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all mb-3" />
+                        <div className="space-y-1">
+                          <p className="text-2xl font-black text-white italic leading-none truncate">{pkg.amount.toLocaleString()}</p>
+                          <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest">+ {pkg.gift.toLocaleString()} regalo</p>
+                        </div>
+                        <div className="mt-4 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-white">
+                          S/ {pkg.price}
+                        </div>
+                      </button>
+                    ))}
+                    <button 
+                      onClick={() => { setAmount(""); setRechargeStep("confirm"); }}
+                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2"
+                    >
+                      <Coins size={32} className="text-primary mx-auto group-hover:rotate-12 transition-transform" />
+                      <div>
+                        <p className="text-lg font-black text-white italic uppercase">Personalizado</p>
+                        <p className="text-[8px] text-white/40 font-black uppercase tracking-widest">Inyecta el flujo exacto</p>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
+                {rechargeStep === "confirm" && (
+                  <div className="space-y-8 animate-in zoom-in-95 duration-300">
+                    <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center space-y-6 relative overflow-hidden">
+                       <div className="absolute -top-10 -right-10 h-40 w-40 bg-primary/5 rounded-full blur-3xl" />
+                       <TrendingUp size={48} className="text-primary mx-auto" />
+                       <div className="space-y-2">
+                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic">Monto a Inyectar</span>
+                          <div className="text-5xl font-black text-white italic tracking-tighter">
+                            {amount ? Number(amount).toLocaleString() : "0"} <span className="text-sm">ESP</span>
+                          </div>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Equivalente a S/ {(Number(amount) * 0.05).toFixed(2)} PEN</p>
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                      <Button 
+                        onClick={() => setRechargeStep("payment")}
+                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
+                      >
+                        Siguiente Protocolo
+                      </Button>
+                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Volver a la Galería</button>
+                    </div>
+                  </div>
+                )}
+
+                {rechargeStep === "payment" && !paymentMethod && (
+                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500">
+                    <button onClick={() => { setPaymentMethod("card"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                      <CreditCard className="text-primary group-hover:scale-110 transition-transform shrink-0" />
+                      <div className="text-left truncate">
+                        <p className="text-sm font-black text-white italic uppercase truncate">Tarjeta Crédito/Débito</p>
+                        <p className="text-[8px] text-white/30 font-bold uppercase mt-1">Visa, Mastercard, Amex</p>
+                      </div>
+                    </button>
+                    <button onClick={() => { setPaymentMethod("yape"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                      <Smartphone className="text-accent group-hover:scale-110 transition-transform shrink-0" />
+                      <p className="text-sm font-black text-white italic uppercase truncate">Yape / Plin</p>
+                    </button>
+                    <button onClick={() => { setPaymentMethod("paypal"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                      <Globe className="text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
+                      <p className="text-sm font-black text-white italic uppercase truncate">PayPal Global</p>
+                    </button>
+                  </div>
+                )}
+
+                {paymentMethod && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                      <div className="flex items-center justify-between">
+                         <span className="text-[9px] font-black uppercase text-primary tracking-widest">{paymentMethod.toUpperCase()}</span>
+                         <Shield size={12} className="text-primary" />
+                      </div>
+                      <Input placeholder="DETALLES DE PAGO" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                    </div>
+                    <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]">
+                      {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <Zap size={16} fill="black" className="mr-2" />}
+                      {isProcessing ? "Procesando..." : `Confirmar Recarga`}
+                    </Button>
+                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Cambiar Método</button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* View Logic: Retiro (Similar al flujo de recarga) */}
+            {walletView === "withdraw" && (
+              <div className="space-y-6 animate-in slide-in-from-right duration-500">
+                <div className="flex items-center gap-4">
+                   <button 
+                    onClick={() => {
+                      if (rechargeStep === "gallery") setWalletView("main");
+                      else if (rechargeStep === "confirm") setRechargeStep("gallery");
+                      else if (rechargeStep === "payment") setRechargeStep("confirm");
+                    }} 
+                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10"
+                   >
+                     <ChevronLeft size={20} />
+                   </button>
+                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">
+                     Protocolo <span className="text-primary">Retiro</span>
+                   </h3>
+                </div>
+
+                {rechargeStep === "gallery" && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {withdrawPackages.map((pkg) => (
+                      <button 
+                        key={pkg.id}
+                        onClick={() => { setAmount(pkg.amount.toString()); setRechargeStep("confirm"); }}
+                        className="group relative flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center overflow-hidden"
+                      >
+                        <div className="absolute top-3 left-3 flex gap-1">
+                          <ArrowUpRight size={10} className="text-primary" />
+                          <span className="text-[7px] font-black text-primary uppercase">{pkg.label}</span>
+                        </div>
+                        <Coins size={24} className="text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all mb-3" />
+                        <div className="space-y-1">
+                          <p className="text-2xl font-black text-white italic leading-none truncate">{pkg.amount.toLocaleString()}</p>
+                        </div>
+                        <div className="mt-4 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-white">
+                          S/ {pkg.price}
+                        </div>
+                      </button>
+                    ))}
+                    <button 
+                      onClick={() => { setAmount(""); setRechargeStep("confirm"); }}
+                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2"
+                    >
+                      <Coins size={32} className="text-primary mx-auto group-hover:rotate-12 transition-transform" />
+                      <div>
+                        <p className="text-lg font-black text-white italic uppercase">Monto Exacto</p>
+                        <p className="text-[8px] text-white/40 font-black uppercase tracking-widest">Retiro personalizado</p>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
+                {rechargeStep === "confirm" && (
+                  <div className="space-y-8 animate-in zoom-in-95 duration-300">
+                    <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center space-y-6 relative overflow-hidden">
+                       <div className="absolute -top-10 -right-10 h-40 w-40 bg-red-500/5 rounded-full blur-3xl" />
+                       <ArrowUpRight size={48} className="text-red-500 mx-auto" />
+                       <div className="space-y-2">
+                          <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em] italic">Monto a Retirar</span>
+                          <div className="text-5xl font-black text-white italic tracking-tighter">
+                            {amount ? Number(amount).toLocaleString() : "0"} <span className="text-sm">ESP</span>
+                          </div>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Valor de Cambio: S/ {(Number(amount) * 0.045).toFixed(2)} PEN</p>
+                       </div>
+                    </div>
+                    <div className="space-y-4">
+                      <Button 
+                        onClick={() => setRechargeStep("payment")}
+                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
+                      >
+                        Siguiente Protocolo
+                      </Button>
+                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Volver a la Galería</button>
+                    </div>
+                  </div>
+                )}
+
+                {rechargeStep === "payment" && !paymentMethod && (
+                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500">
+                    <button onClick={() => { setPaymentMethod("bank"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                      <Landmark className="text-primary group-hover:scale-110 transition-transform shrink-0" />
+                      <div className="text-left truncate">
+                        <p className="text-sm font-black text-white italic uppercase truncate">Transferencia Bancaria</p>
+                        <p className="text-[8px] text-white/30 font-bold uppercase mt-1">BCP, Interbank, BBVA</p>
+                      </div>
+                    </button>
+                    <button onClick={() => { setPaymentMethod("yape"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                      <Smartphone className="text-accent group-hover:scale-110 transition-transform shrink-0" />
+                      <p className="text-sm font-black text-white italic uppercase truncate">Yape / Plin</p>
+                    </button>
+                    <button onClick={() => { setPaymentMethod("paypal"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                      <Globe className="text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
+                      <p className="text-sm font-black text-white italic uppercase truncate">PayPal Global</p>
+                    </button>
+                  </div>
+                )}
+
+                {paymentMethod && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                      <div className="flex items-center justify-between">
+                         <span className="text-[9px] font-black uppercase text-primary tracking-widest">{paymentMethod.toUpperCase()}</span>
+                         <Shield size={12} className="text-primary" />
+                      </div>
+                      <Input placeholder={paymentMethod === 'bank' ? "NÚMERO DE CUENTA / CCI" : "NÚMERO O EMAIL"} className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                    </div>
+                    <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)]">
+                      {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <ArrowUpRight size={16} className="mr-2" />}
+                      {isProcessing ? "Procesando..." : `Confirmar Retiro`}
+                    </Button>
+                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Cambiar Destino</button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* View Logic: Main (Historial) */}
+            {walletView === "main" && (
               <div className="space-y-4">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 ml-2 italic">Historial de Señales</h3>
                 <div className="space-y-2">
@@ -319,182 +562,6 @@ export function ProfileView({
                     </div>
                   ))}
                 </div>
-              </div>
-            ) : walletView === "buy" ? (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500">
-                {/* Header dinámico por paso */}
-                <div className="flex items-center gap-4">
-                   <button 
-                    onClick={() => {
-                      if (rechargeStep === "gallery") setWalletView("main");
-                      else if (rechargeStep === "confirm") setRechargeStep("gallery");
-                      else if (rechargeStep === "payment") setRechargeStep("confirm");
-                    }} 
-                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10"
-                   >
-                     <ChevronLeft size={20} />
-                   </button>
-                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">
-                     {rechargeStep === "gallery" ? "Protocolo Recarga" : rechargeStep === "confirm" ? "Confirmar Señal" : "Pasarela Neural"}
-                   </h3>
-                </div>
-
-                {/* Paso 1: Galería */}
-                {rechargeStep === "gallery" && (
-                  <div className="grid grid-cols-2 gap-3">
-                    {tokenPackages.map((pkg) => (
-                      <button 
-                        key={pkg.id}
-                        onClick={() => selectPackage(pkg.amount)}
-                        className="group relative flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center overflow-hidden"
-                      >
-                        <div className="absolute top-3 left-3 flex gap-1">
-                          <BadgePercent size={10} className="text-primary" />
-                          <span className="text-[7px] font-black text-primary uppercase">{pkg.label}</span>
-                        </div>
-                        
-                        <Zap size={24} className="text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all mb-3" />
-                        
-                        <div className="space-y-1">
-                          <p className="text-2xl font-black text-white italic leading-none truncate">{pkg.amount.toLocaleString()}</p>
-                          <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest">+ {pkg.gift.toLocaleString()} regalo</p>
-                        </div>
-                        
-                        <div className="mt-4 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-white">
-                          S/ {pkg.price}
-                        </div>
-                      </button>
-                    ))}
-                    
-                    <button 
-                      onClick={() => { setAmount(""); setRechargeStep("confirm"); }}
-                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2"
-                    >
-                      <Coins size={32} className="text-primary mx-auto group-hover:rotate-12 transition-transform" />
-                      <div>
-                        <p className="text-lg font-black text-white italic uppercase">Personalizado</p>
-                        <p className="text-[8px] text-white/40 font-black uppercase tracking-widest">Inyecta el flujo exacto</p>
-                      </div>
-                    </button>
-                  </div>
-                )}
-
-                {/* Paso 2: Confirmación */}
-                {rechargeStep === "confirm" && (
-                  <div className="space-y-8 animate-in zoom-in-95 duration-300">
-                    <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center space-y-6 relative overflow-hidden">
-                       <div className="absolute -top-10 -right-10 h-40 w-40 bg-primary/5 rounded-full blur-3xl" />
-                       <TrendingUp size={48} className="text-primary mx-auto" />
-                       <div className="space-y-2">
-                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic">Monto a Inyectar</span>
-                          <div className="text-5xl font-black text-white italic tracking-tighter">
-                            {amount ? Number(amount).toLocaleString() : "0"} <span className="text-sm">ESP</span>
-                          </div>
-                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Equivalente a S/ {(Number(amount) * 0.05).toFixed(2)} PEN</p>
-                       </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em] text-center">Verifica la señal antes de continuar</p>
-                      <Button 
-                        onClick={() => setRechargeStep("payment")}
-                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
-                      >
-                        Siguiente Protocolo
-                      </Button>
-                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Volver a la Galería</button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Paso 3: Selección de Pago */}
-                {rechargeStep === "payment" && !paymentMethod && (
-                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500">
-                    <button onClick={() => { setPaymentMethod("card"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                      <CreditCard className="text-primary group-hover:scale-110 transition-transform shrink-0" />
-                      <div className="text-left truncate">
-                        <p className="text-sm font-black text-white italic uppercase truncate">Tarjeta Crédito/Débito</p>
-                        <p className="text-[8px] text-white/30 font-bold uppercase mt-1">Visa, Mastercard, Amex</p>
-                      </div>
-                    </button>
-                    <button onClick={() => { setPaymentMethod("yape"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                      <Smartphone className="text-accent group-hover:scale-110 transition-transform shrink-0" />
-                      <p className="text-sm font-black text-white italic uppercase truncate">Yape / Plin</p>
-                    </button>
-                    <button onClick={() => { setPaymentMethod("paypal"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                      <Globe className="text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
-                      <p className="text-sm font-black text-white italic uppercase truncate">PayPal Global</p>
-                    </button>
-                    <button onClick={() => { setPaymentMethod("code"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                      <Gift className="text-yellow-400 group-hover:scale-110 transition-transform shrink-0" />
-                      <p className="text-sm font-black text-white italic uppercase truncate">Código Promocional</p>
-                    </button>
-                  </div>
-                )}
-
-                {/* Paso 4: Detalles de Pago */}
-                {paymentMethod && (
-                  <div className="space-y-6 animate-in fade-in duration-500">
-                    <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-                      <div className="flex items-center justify-between">
-                         <span className="text-[9px] font-black uppercase text-primary tracking-widest">{paymentMethod.toUpperCase()}</span>
-                         <Shield size={12} className="text-primary" />
-                      </div>
-                      <div className="space-y-4">
-                        {paymentMethod === 'card' && (
-                          <>
-                            <Input placeholder="NÚMERO DE TARJETA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
-                            <div className="grid grid-cols-2 gap-3">
-                              <Input placeholder="MM/AA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
-                              <Input placeholder="CVV" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
-                            </div>
-                          </>
-                        )}
-                        {paymentMethod === 'yape' && (
-                           <Input placeholder="NÚMERO TELEFÓNICO" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
-                        )}
-                        {paymentMethod === 'paypal' && (
-                           <Input placeholder="EMAIL PAYPAL" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
-                        )}
-                        {paymentMethod === 'code' && (
-                           <Input placeholder="CÓDIGO GAIA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white uppercase" />
-                        )}
-                      </div>
-                    </div>
-
-                    <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
-                      {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <Zap size={16} fill="black" className="mr-2" />}
-                      {isProcessing ? "Procesando..." : `Confirmar Pago`}
-                    </Button>
-                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Cambiar Método</button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Retiro (Simulación similar para mantener consistencia) */
-              <div className="space-y-8 animate-in slide-in-from-right duration-500">
-                <div className="flex items-center gap-4">
-                   <button onClick={() => setWalletView("main")} className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10">
-                     <ChevronLeft size={20} />
-                   </button>
-                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">Retirar <span className="text-primary">Tokens</span></h3>
-                </div>
-
-                {!paymentMethod ? (
-                  <div className="grid grid-cols-1 gap-3">
-                    <button onClick={() => setPaymentMethod("bank")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
-                      <Building2 className="text-primary shrink-0" />
-                      <p className="text-sm font-black text-white italic uppercase truncate">Transferencia Bancaria</p>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="MONTO ESP" className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6" />
-                    <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
-                      {isProcessing ? <Loader2 className="animate-spin" /> : "Confirmar Retiro"}
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
           </div>
