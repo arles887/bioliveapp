@@ -11,7 +11,9 @@ import {
   BarChart, Key, Clapperboard, Radio, Gift,
   CreditCard, Smartphone, QrCode, Ticket, ShieldCheck,
   Send, Building2, Landmark, HeartHandshake, Receipt, Camera,
-  CheckCircle2, Sparkles, Flag, Ban, MessageSquare, UserPlus
+  CheckCircle2, Sparkles, Flag, Ban, MessageSquare, UserPlus,
+  Settings, Shield, Clock, Info, HelpCircle, Bell, ChevronRight,
+  Globe, Lock, Mail, Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,7 @@ import { ProtocolWindow } from "@/components/protocol-window";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import { WalletService } from "@/services/wallet-service";
 import { 
   Area, 
@@ -38,8 +41,8 @@ import {
 } from "@/components/ui/chart";
 
 /**
- * @fileOverview Vista de Perfil Bio-Neural.
- * Actualizado: Soporte para perfiles externos con botones de seguir, mensaje, denuncia y bloqueo.
+ * @fileOverview Vista de Perfil Bio-Neural Avanzada.
+ * Implementa Billetera, Analítica, Edición y ahora el Centro de Control Gaia (Menú de 3 líneas).
  */
 
 type WalletTab = "main" | "buy" | "withdraw";
@@ -47,6 +50,7 @@ type RechargeStep = "packages" | "payment-method" | "payment-details" | "confirm
 type WithdrawStep = "input" | "method" | "details" | "confirm" | "success";
 type PaymentMethod = "card" | "yape" | "paypal" | "cash" | "gift";
 type WithdrawMethod = "transfer" | "yape" | "paypal" | "gift" | "donate";
+type SettingsSection = "main" | "ajustes" | "privacidad" | "actividad" | "info" | "ayuda";
 
 const MOCK_FINANCE_FLOW = [
   { name: "Lun", income: 4000, expense: 2400 },
@@ -91,6 +95,7 @@ export function ProfileView({
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isWalletAuthenticated, setIsWalletAuthenticated] = useState(false);
   const [walletPassword, setWalletPassword] = useState("");
   
@@ -105,6 +110,9 @@ export function ProfileView({
   const [customAmount, setCustomAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
   
+  // Settings State
+  const [activeSettingsSection, setActiveSettingsSection] = useState<SettingsSection>("main");
+
   const [avatarUrl, setAvatarUrl] = useState(PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || "");
 
   const handleWalletAuth = () => {
@@ -194,7 +202,10 @@ export function ProfileView({
                >
                   <Wallet size={18} />
                </button>
-               <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary active:scale-90">
+               <button 
+                onClick={() => { setIsSettingsOpen(true); setActiveSettingsSection("main"); }}
+                className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary active:scale-90"
+               >
                  <Menu size={18} />
                </button>
              </>
@@ -320,6 +331,224 @@ export function ProfileView({
             {isProcessing ? <Loader2 className="animate-spin" /> : "Sincronizar Cambios"}
           </Button>
         </div>
+      </ProtocolWindow>
+
+      {/* Centro de Control Gaia (Menú 3 líneas) */}
+      <ProtocolWindow 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        title="Centro de Control Gaia"
+      >
+        <ScrollArea className="w-full h-full">
+          <div className="flex flex-col items-center w-full gap-8 pb-32 pt-6">
+            <div className="w-full max-w-[390px] px-4 space-y-6 animate-in fade-in duration-500 mx-auto">
+              
+              {activeSettingsSection === "main" && (
+                <div className="space-y-3">
+                  <div className="text-center mb-8">
+                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Nodo de <span className="text-primary">Configuración</span></h3>
+                    <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Gestión de la Identidad Neural</p>
+                  </div>
+                  
+                  {[
+                    { id: "ajustes", label: "Ajustes", icon: Settings, desc: "Notificaciones y Preferencias" },
+                    { id: "privacidad", label: "Privacidad", icon: Shield, desc: "Seguridad y Bloqueos" },
+                    { id: "actividad", label: "Centro de Actividad", icon: Clock, desc: "Historial de Señales" },
+                    { id: "info", label: "Información", icon: Info, desc: "Protocolos y Versión" },
+                    { id: "ayuda", label: "Ayuda", icon: HelpCircle, desc: "Soporte Técnico Gaia" }
+                  ].map((item) => (
+                    <button 
+                      key={item.id}
+                      onClick={() => setActiveSettingsSection(item.id as SettingsSection)}
+                      className="w-full flex items-center justify-between p-5 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all">
+                          <item.icon size={20} />
+                        </div>
+                        <div className="text-left">
+                          <span className="text-xs font-black uppercase text-white/80 tracking-tight block">{item.label}</span>
+                          <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest">{item.desc}</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="text-white/20" size={16} />
+                    </button>
+                  ))}
+                  
+                  <div className="pt-8">
+                    <Button 
+                      onClick={() => {
+                        toast({ title: "Cerrando Sesión", description: "Protocolo de desconexión iniciado." });
+                        setIsSettingsOpen(false);
+                      }}
+                      variant="destructive"
+                      className="w-full h-14 rounded-2xl text-[10px] font-black uppercase tracking-widest italic"
+                    >
+                      Finalizar Sincronización
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {activeSettingsSection === "ajustes" && (
+                <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                  <button onClick={() => setActiveSettingsSection("main")} className="flex items-center gap-2 text-primary hover:text-white transition-colors">
+                    <ChevronLeft size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Volver</span>
+                  </button>
+                  <div className="space-y-6">
+                    <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Bell size={18} className="text-primary" />
+                          <span className="text-[11px] font-black text-white uppercase italic">Notificaciones Neurales</span>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Globe size={18} className="text-accent" />
+                          <span className="text-[11px] font-black text-white uppercase italic">Traducción Automática</span>
+                        </div>
+                        <Switch />
+                      </div>
+                    </div>
+                    <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
+                       <span className="text-[9px] font-black uppercase tracking-widest text-white/30">Idioma de la Red</span>
+                       <Button variant="outline" className="w-full h-12 rounded-xl border-white/10 text-xs font-black uppercase tracking-widest">Español (Bio-Latam)</Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeSettingsSection === "privacidad" && (
+                <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                  <button onClick={() => setActiveSettingsSection("main")} className="flex items-center gap-2 text-primary hover:text-white transition-colors">
+                    <ChevronLeft size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Volver</span>
+                  </button>
+                  <div className="space-y-4">
+                    <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Lock size={18} className="text-primary" />
+                          <span className="text-[11px] font-black text-white uppercase italic">Perfil Privado</span>
+                        </div>
+                        <Switch />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Mail size={18} className="text-accent" />
+                          <span className="text-[11px] font-black text-white uppercase italic">Mensajes Directos</span>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                    </div>
+                    <button className="w-full flex items-center justify-between p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 text-destructive">
+                      <div className="flex items-center gap-3">
+                        <Ban size={18} />
+                        <span className="text-[11px] font-black uppercase italic">Usuarios Bloqueados</span>
+                      </div>
+                      <span className="text-xs font-black italic">12</span>
+                    </button>
+                    <button className="w-full p-6 rounded-[2rem] bg-red-500/10 border border-red-500/20 text-red-500 flex items-center gap-3">
+                      <Trash2 size={18} />
+                      <span className="text-[11px] font-black uppercase italic">Eliminar Nodo de Identidad</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {activeSettingsSection === "actividad" && (
+                <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                  <button onClick={() => setActiveSettingsSection("main")} className="flex items-center gap-2 text-primary hover:text-white transition-colors">
+                    <ChevronLeft size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Volver</span>
+                  </button>
+                  <div className="space-y-3">
+                    {[
+                      { icon: Heart, label: "Interacciones de Likes", val: "1.2K", color: "text-red-500" },
+                      { icon: MessageSquare, label: "Comentarios Enviados", val: "248", color: "text-blue-500" },
+                      { icon: Radio, label: "Streams Realizados", val: "14", color: "text-primary" },
+                      { icon: Clapperboard, label: "Bio-Reels Inyectados", val: "42", color: "text-accent" }
+                    ].map((act, i) => (
+                      <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.02] border border-white/5">
+                        <div className="flex items-center gap-4">
+                           <act.icon size={16} className={act.color} />
+                           <span className="text-[11px] font-black text-white uppercase italic">{act.label}</span>
+                        </div>
+                        <span className="text-xs font-black text-white/40 italic">{act.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activeSettingsSection === "info" && (
+                <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                  <button onClick={() => setActiveSettingsSection("main")} className="flex items-center gap-2 text-primary hover:text-white transition-colors">
+                    <ChevronLeft size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Volver</span>
+                  </button>
+                  <div className="space-y-4">
+                    <div className="p-8 rounded-[2.5rem] bg-primary/5 border border-primary/20 flex flex-col items-center gap-4 text-center">
+                       <Zap size={32} className="text-primary animate-pulse" />
+                       <div>
+                         <h4 className="text-lg font-black italic text-white uppercase tracking-tighter">Gaia <span className="text-primary">OS</span></h4>
+                         <p className="text-[9px] font-black uppercase text-white/30 tracking-widest">Firmware v.2.5.9</p>
+                       </div>
+                    </div>
+                    <div className="space-y-2">
+                       {["Términos de la Red", "Política de Privacidad Neural", "Guías de Comunidad Gaia", "Copyright Bio-Cyber"].map((t) => (
+                         <button key={t} className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/[0.02] border border-white/5 text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-primary transition-all">
+                           {t}
+                           <ArrowUpRight size={14} />
+                         </button>
+                       ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeSettingsSection === "ayuda" && (
+                <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                  <button onClick={() => setActiveSettingsSection("main")} className="flex items-center gap-2 text-primary hover:text-white transition-colors">
+                    <ChevronLeft size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Volver</span>
+                  </button>
+                  <div className="space-y-6">
+                    <div className="relative">
+                       <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
+                       <Input placeholder="¿CÓMO PODEMOS AYUDARTE?" className="h-14 bg-white/5 border-white/10 rounded-2xl pl-12 text-[10px] font-black uppercase tracking-widest" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <button className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 flex flex-col items-center gap-3 text-center">
+                          <MessageSquare className="text-primary" size={24} />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Soporte Chat</span>
+                       </button>
+                       <button className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 flex flex-col items-center gap-3 text-center">
+                          <Mail className="text-accent" size={24} />
+                          <span className="text-[9px] font-black uppercase tracking-widest">Email Gaia</span>
+                       </button>
+                    </div>
+                    <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5">
+                       <h5 className="text-[10px] font-black uppercase tracking-widest text-primary mb-4 italic">FAQs Populares</h5>
+                       <div className="space-y-4">
+                          {["¿Cómo monetizar mi bioma?", "¿Qué son los tokens ESP?", "¿Cómo reportar una señal falsa?"].map((q) => (
+                            <div key={q} className="pb-3 border-b border-white/5 flex items-center justify-between">
+                               <span className="text-[10px] font-bold text-white/60">{q}</span>
+                               <ChevronRight size={14} className="text-white/20" />
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </ScrollArea>
       </ProtocolWindow>
 
       {/* Billetera ESP Blindada (390px) */}
@@ -899,3 +1128,4 @@ export function ProfileView({
     </div>
   );
 }
+
