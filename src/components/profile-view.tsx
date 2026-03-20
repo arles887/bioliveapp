@@ -9,7 +9,8 @@ import {
   Users, Loader2, Activity, PieChart as PieChartIcon,
   TrendingUp, TrendingDown, MapPin, Award, Heart, Eye,
   Target, BarChart, Key, Clapperboard, Radio, Gift,
-  Clock, CreditCard, History
+  Clock, CreditCard, History, Smartphone, QrCode, Ticket, ShieldCheck,
+  Send, DollarSign, Sparkles, Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -54,12 +55,12 @@ import { Progress } from "@/components/ui/progress";
 
 /**
  * @fileOverview Vista de Perfil con Bio-Inteligencia Analítica Avanzada y Billetera Blindada.
- * Se ha integrado bloqueo por clave (2025) para el acceso a la billetera.
- * Secciones de Billetera: Ingresos, Egresos, Rendimiento por Video/Live y Actividad Reciente.
+ * Secciones de Billetera: Balance, Pasarela de Pago avanzada (50 paquetes + Custom).
  */
 
-type RechargeStep = "gallery" | "confirm" | "payment";
 type WalletTab = "main" | "buy" | "withdraw";
+type RechargeStep = "packages" | "payment-method" | "payment-details" | "confirm";
+type PaymentMethod = "card" | "yape" | "paypal" | "cash" | "gift";
 
 const MOCK_VIEWS_DATA = [
   { name: "Lun", views: 4000 },
@@ -81,12 +82,13 @@ const MOCK_FINANCE_FLOW = [
   { time: "23:59", income: 4300, expense: 1400 },
 ];
 
-const MOCK_AGE_DATA = [
-  { age: "13-17", value: 15 },
-  { age: "18-24", value: 45 },
-  { age: "25-34", value: 25 },
-  { age: "35+", value: 15 },
-];
+const PREDEFINED_PACKAGES = Array.from({ length: 50 }, (_, i) => {
+  const amount = (i + 1) * 1000;
+  const price = (amount / 100).toFixed(2);
+  const isPromo = i % 10 === 0;
+  const hasBonus = i % 15 === 0;
+  return { id: `pkg-${i}`, amount, price, isPromo, hasBonus };
+});
 
 const chartConfig = {
   views: { label: "Visualizaciones", color: "hsl(var(--primary))" },
@@ -115,14 +117,19 @@ export function ProfileView({
   const [isWalletAuthenticated, setIsWalletAuthenticated] = useState(false);
   const [walletPassword, setWalletPassword] = useState("");
   const [walletView, setWalletView] = useState<WalletTab>("main");
-  const [rechargeStep, setRechargeStep] = useState<RechargeStep>("gallery");
+  const [rechargeStep, setRechargeStep] = useState<RechargeStep>("packages");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [amount, setAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
   
+  // Payment Form States
+  const [cardData, setCardData] = useState({ number: "", expiry: "", cvv: "", name: "" });
+  const [yapeData, setYapeData] = useState({ phone: "", code: "" });
+  const [giftCode, setGiftCode] = useState("");
+  
   // Profile Stats State
   const [isProfileStatsOpen, setIsProfileStatsOpen] = useState(false);
-  const [statsTimeframe, setStatsTimeframe] = useState("Semana");
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
@@ -161,10 +168,6 @@ export function ProfileView({
   };
 
   const executeTransaction = async () => {
-    if (!amount || Number(amount) <= 0) {
-      toast({ variant: "destructive", title: "Error", description: "Ingresa un monto válido." });
-      return;
-    }
     setIsProcessing(true);
     setTimeout(async () => {
       try {
@@ -177,13 +180,20 @@ export function ProfileView({
         setEspBalance(newBalance);
         setIsProcessing(false);
         setWalletView("main");
-        setRechargeStep("gallery");
+        setRechargeStep("packages");
+        setPaymentMethod(null);
         setAmount("");
+        toast({ title: "Protocolo Completado", description: "Transacción inyectada con éxito." });
       } catch (e) {
         setIsProcessing(false);
-        toast({ variant: "destructive", title: "Fallo Neural" });
+        toast({ variant: "destructive", title: "Fallo Neural", description: "No se pudo procesar el pago." });
       }
-    }, 2000);
+    }, 2500);
+  };
+
+  const handleSelectPackage = (amt: number) => {
+    setAmount(amt.toString());
+    setRechargeStep("payment-method");
   };
 
   return (
@@ -303,71 +313,26 @@ export function ProfileView({
       <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Perfil">
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] px-0">
           <div className="flex flex-col items-center w-full space-y-8 pb-24 pt-6 overflow-x-hidden">
-            
-            <div className="w-full max-w-[390px] flex items-center justify-between px-4">
-               <div className="space-y-1">
-                 <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Signals</span></h3>
-                 <p className="text-[8px] font-black uppercase text-white/20 tracking-widest">Alcance Neural del Perfil</p>
-               </div>
-            </div>
-            
-            <div className="w-full max-w-[390px] px-4">
-              <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full relative overflow-hidden">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                      <Eye size={18} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Alcance Total</span>
-                      <p className="text-xl font-black text-white italic tracking-tighter">248,592 views</p>
-                    </div>
+            <div className="w-full max-w-[390px] p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 relative overflow-hidden mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                    <Eye size={18} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Alcance Total</span>
+                    <p className="text-xl font-black text-white italic tracking-tighter">248,592 views</p>
                   </div>
                 </div>
-                <ChartContainer config={chartConfig} className="h-[150px] w-full">
-                  <AreaChart data={MOCK_VIEWS_DATA}>
-                    <XAxis dataKey="name" hide />
-                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                    <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={3} />
-                  </AreaChart>
-                </ChartContainer>
               </div>
+              <ChartContainer config={chartConfig} className="h-[150px] w-full">
+                <AreaChart data={MOCK_VIEWS_DATA}>
+                  <XAxis dataKey="name" hide />
+                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                  <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={3} />
+                </AreaChart>
+              </ChartContainer>
             </div>
-
-            <div className="w-full max-w-[390px] px-4 grid grid-cols-2 gap-4">
-               <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
-                  <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Seguidores Netos</span>
-                  <p className="text-lg font-black text-white italic">+1.2K</p>
-               </div>
-               <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
-                  <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Me Gusta Netos</span>
-                  <p className="text-lg font-black text-white italic">+4.8K</p>
-               </div>
-            </div>
-
-            <div className="w-full max-w-[390px] px-4">
-               <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
-                  <div className="flex items-center gap-3">
-                    <MapPin size={16} className="text-primary" />
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Localización Nodos</h4>
-                  </div>
-                  <div className="space-y-3">
-                    {[
-                      { l: "Buenos Aires", v: 42 },
-                      { l: "Madrid", v: 28 },
-                      { l: "Otros", v: 30 }
-                    ].map(x => (
-                      <div key={x.l} className="space-y-1">
-                        <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-white/60">
-                          <span>{x.l}</span><span>{x.v}%</span>
-                        </div>
-                        <Progress value={x.v} className="h-1 bg-white/5" />
-                      </div>
-                    ))}
-                  </div>
-               </div>
-            </div>
-
           </div>
         </ScrollArea>
       </ProtocolWindow>
@@ -375,222 +340,223 @@ export function ProfileView({
       {/* Billetera ESP */}
       <ProtocolWindow 
         isOpen={isWalletOpen} 
-        onClose={() => { setIsWalletOpen(false); setIsWalletAuthenticated(false); }} 
+        onClose={() => { setIsWalletOpen(false); setIsWalletAuthenticated(false); setWalletView("main"); setRechargeStep("packages"); }} 
         title="Billetera ESP"
       >
-        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] overflow-x-hidden">
-          <div className="flex flex-col items-center justify-start w-full gap-8 pb-32 pt-6 overflow-x-hidden">
-            
+        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh]">
+          <div className="flex flex-col items-center justify-start w-full gap-8 pb-32 pt-6">
             {!isWalletAuthenticated ? (
-              <div className="w-full max-w-[390px] px-6 py-12 flex flex-col items-center gap-8 animate-in fade-in duration-500">
-                <div className="h-20 w-20 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_30px_rgba(204,255,0,0.2)]">
+              <div className="w-full max-w-[390px] px-6 py-12 flex flex-col items-center gap-8 animate-in fade-in duration-500 mx-auto">
+                <div className="h-20 w-20 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center text-primary">
                   <Key size={32} />
-                </div>
-                <div className="text-center space-y-2">
-                  <h3 className="text-xl text-white font-black italic uppercase tracking-tighter">Acceso Blindado</h3>
-                  <p className="text-[10px] text-white/30 font-black uppercase tracking-widest leading-relaxed">Inyecta la clave neural para auditar tus activos.</p>
                 </div>
                 <Input 
                   type="password" 
                   placeholder="****" 
                   value={walletPassword}
                   onChange={(e) => setWalletPassword(e.target.value)}
-                  className="h-14 bg-white/5 border-white/10 rounded-2xl text-center text-2xl tracking-[1em] text-primary focus-visible:ring-primary w-full" 
+                  className="h-14 bg-white/5 border-white/10 rounded-2xl text-center text-2xl tracking-[1em] text-primary w-full" 
                 />
-                <Button 
-                  onClick={handleWalletAuth}
-                  className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_20px_rgba(204,255,0,0.3)]"
-                >
+                <Button onClick={handleWalletAuth} className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
                   Validar Protocolo
                 </Button>
-                <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest">Tip: 2025</p>
               </div>
             ) : (
-              <div className="w-full max-w-[390px] px-4 flex flex-col gap-8 animate-in fade-in duration-700">
-                
-                {/* Balance Central */}
-                <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.3)] relative overflow-hidden w-full">
-                  <div className="relative z-10">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
-                    <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
-                      {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
-                    </div>
-                    <div className="mt-8 flex gap-3">
-                      <button onClick={() => setWalletView("buy")} className="flex-1 bg-black text-white rounded-2xl h-12 text-[8px] font-black uppercase tracking-widest flex items-center justify-center transition-all active:scale-95 shadow-xl">
-                        <ArrowDownLeft className="mr-2" size={14} /> Recargar
-                      </button>
-                      <button onClick={() => setWalletView("withdraw")} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[8px] font-black uppercase tracking-widest flex items-center justify-center transition-all active:scale-95">
-                        <ArrowUpRight className="mr-2" size={14} /> Retirar
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sección de Analítica de Ingresos/Egresos */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 ml-2">
-                    <Activity size={16} className="text-primary" />
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Inteligencia de Flujo</h4>
-                  </div>
-                  <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
-                    <div className="flex justify-between items-center mb-6">
-                       <div className="flex gap-4">
-                          <div className="flex flex-col">
-                            <span className="text-[7px] font-black uppercase text-primary tracking-widest">Ingresos</span>
-                            <span className="text-sm font-black text-white italic">+42.5K</span>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[7px] font-black uppercase text-destructive tracking-widest">Egresos</span>
-                            <span className="text-sm font-black text-white italic">-12.8K</span>
-                          </div>
-                       </div>
-                    </div>
-                    <ChartContainer config={chartConfig} className="h-[120px] w-full">
-                      <AreaChart data={MOCK_FINANCE_FLOW}>
-                        <XAxis dataKey="time" hide />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={2} />
-                        <Area type="monotone" dataKey="expense" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.05} strokeWidth={2} />
-                      </AreaChart>
-                    </ChartContainer>
-                  </div>
-                </div>
-
-                {/* Generación por Contenido */}
-                <div className="grid grid-cols-2 gap-4">
-                   <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
-                      <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                        <Clapperboard size={18} />
+              <div className="w-full max-w-[390px] px-4 flex flex-col gap-8 animate-in fade-in duration-700 mx-auto">
+                {walletView === "main" && (
+                  <div className="space-y-8 w-full">
+                    <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-2xl relative overflow-hidden w-full">
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em]">Balance Gaia Activo</span>
+                      <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">{espBalance.toLocaleString()} ESP</div>
+                      <div className="mt-8 flex gap-3">
+                        <button onClick={() => setWalletView("buy")} className="flex-1 bg-black text-white rounded-2xl h-12 text-[8px] font-black uppercase tracking-widest flex items-center justify-center active:scale-95 shadow-xl">
+                          <ArrowDownLeft className="mr-2" size={14} /> Recargar
+                        </button>
+                        <button onClick={() => setWalletView("withdraw")} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[8px] font-black uppercase tracking-widest flex items-center justify-center active:scale-95">
+                          <ArrowUpRight className="mr-2" size={14} /> Retirar
+                        </button>
                       </div>
-                      <div className="space-y-1">
-                        <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Por Video</span>
-                        <p className="text-lg font-black text-white italic">12,402 ESP</p>
-                        <div className="flex items-center gap-1 text-[7px] font-black text-primary uppercase">
-                          <TrendingUp size={10} /> +12%
-                        </div>
-                      </div>
-                   </div>
-                   <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
-                      <div className="h-10 w-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
-                        <Radio size={18} />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Por Live</span>
-                        <p className="text-lg font-black text-white italic">28,910 ESP</p>
-                        <div className="flex items-center gap-1 text-[7px] font-black text-accent uppercase">
-                          <TrendingUp size={10} /> +24%
-                        </div>
-                      </div>
-                   </div>
-                </div>
-
-                {/* Actividad Reciente Detallada */}
-                <div className="space-y-6">
-                   
-                   {/* Últimas Recargas */}
-                   <div className="space-y-3">
-                     <div className="flex items-center justify-between px-2">
-                       <div className="flex items-center gap-3">
-                         <CreditCard size={14} className="text-primary" />
-                         <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Últimas Recargas</h4>
-                       </div>
-                       <History size={12} className="text-white/20" />
-                     </div>
-                     <div className="space-y-2">
-                       {[1, 2].map(i => (
-                         <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 group hover:border-primary/30 transition-all">
-                           <div className="flex items-center gap-3">
-                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                               <ArrowDownLeft size={14} />
-                             </div>
-                             <div className="flex flex-col">
-                               <span className="text-[9px] font-black text-white uppercase italic">Inyección de Nodo</span>
-                               <span className="text-[7px] text-white/20 font-bold uppercase">Hace {i*2} horas</span>
-                             </div>
-                           </div>
-                           <span className="text-[10px] font-black text-primary italic">+5,000 ESP</span>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-
-                   {/* Últimos Retiros */}
-                   <div className="space-y-3">
-                     <div className="flex items-center gap-3 px-2">
-                       <ArrowUpRight size={14} className="text-destructive" />
-                       <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Últimos Retiros</h4>
-                     </div>
-                     <div className="space-y-2">
-                       {[1].map(i => (
-                         <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                           <div className="flex items-center gap-3">
-                             <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive">
-                               <ArrowUpRight size={14} />
-                             </div>
-                             <div className="flex flex-col">
-                               <span className="text-[9px] font-black text-white uppercase italic">Retiro de Activos</span>
-                               <span className="text-[7px] text-white/20 font-bold uppercase">Ayer</span>
-                             </div>
-                           </div>
-                           <span className="text-[10px] font-black text-destructive italic">-10,000 ESP</span>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-
-                   {/* Regalos Donados */}
-                   <div className="space-y-3">
-                     <div className="flex items-center gap-3 px-2">
-                       <Gift size={14} className="text-accent" />
-                       <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Últimos Regalos</h4>
-                     </div>
-                     <div className="space-y-2">
-                       {[1, 2, 3].map(i => (
-                         <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                           <div className="flex items-center gap-3">
-                             <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
-                               <Gift size={14} />
-                             </div>
-                             <div className="flex flex-col">
-                               <span className="text-[9px] font-black text-white uppercase italic">Apoyo a Creador</span>
-                               <span className="text-[7px] text-white/20 font-bold uppercase">Nodo @Watcher_{i+20}</span>
-                             </div>
-                           </div>
-                           <span className="text-[10px] font-black text-accent italic">-250 ESP</span>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-
-                </div>
-
-                {/* Pasarelas de Pago Mock */}
-                {walletView === "buy" && (
-                  <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in zoom-in-95 duration-300">
-                    <div className="w-full max-w-[390px] space-y-6">
-                      <div className="text-center space-y-2">
-                         <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Recargar <span className="text-primary">Tokens</span></h3>
-                         <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Protocolo de Pago Seguro Gaia</p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        {[1000, 5000, 10000, 50000].map(v => (
-                          <button key={v} onClick={() => { setAmount(v.toString()); setRechargeStep("confirm"); }} className="p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-primary/40 text-center transition-all">
-                             <Zap size={20} className="text-primary/40 mx-auto mb-2" />
-                             <span className="text-xl font-black text-white italic">{v.toLocaleString()}</span>
-                          </button>
-                        ))}
-                      </div>
-                      <Button onClick={() => setWalletView("main")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl border border-white/10">Cancelar</Button>
                     </div>
                   </div>
                 )}
 
+                {walletView === "buy" && (
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
+                    {rechargeStep === "packages" && (
+                      <div className="space-y-6">
+                        <div className="text-center">
+                          <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Inyectar <span className="text-primary">Tokens ESP</span></h3>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Selecciona un Nodo de Energía</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {PREDEFINED_PACKAGES.map((pkg) => (
+                            <button 
+                              key={pkg.id} 
+                              onClick={() => handleSelectPackage(pkg.amount)}
+                              className="relative p-5 rounded-[2rem] bg-white/[0.03] border border-white/10 hover:border-primary/40 transition-all text-center group active:scale-95 overflow-hidden"
+                            >
+                              {pkg.isPromo && (
+                                <div className="absolute top-0 right-0 bg-primary text-black text-[6px] font-black px-2 py-0.5 rounded-bl-lg uppercase">Promo</div>
+                              )}
+                              {pkg.hasBonus && (
+                                <div className="absolute bottom-0 left-0 bg-accent text-black text-[6px] font-black px-2 py-0.5 rounded-tr-lg uppercase">+Bonus</div>
+                              )}
+                              <Zap size={14} className="text-primary/40 mx-auto mb-2 group-hover:scale-125 transition-transform" />
+                              <div className="text-lg font-black text-white italic leading-none">{pkg.amount.toLocaleString()}</div>
+                              <div className="text-[8px] font-bold text-primary uppercase mt-1 tracking-widest">${pkg.price} USD</div>
+                            </button>
+                          ))}
+                          <div className="p-5 rounded-[2rem] bg-primary/5 border border-primary/20 flex flex-col items-center gap-2">
+                            <Edit size={14} className="text-primary" />
+                            <Input 
+                              type="number" 
+                              placeholder="Monto" 
+                              className="h-8 bg-transparent border-b border-primary/30 rounded-none text-center text-xs text-white"
+                              onChange={(e) => setAmount(e.target.value)}
+                            />
+                            <Button onClick={() => setRechargeStep("payment-method")} className="h-7 px-4 rounded-lg bg-primary text-black text-[8px] font-black uppercase">Custom</Button>
+                          </div>
+                        </div>
+                        <Button onClick={() => setWalletView("main")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase rounded-2xl">Cancelar</Button>
+                      </div>
+                    )}
+
+                    {rechargeStep === "payment-method" && (
+                      <div className="space-y-6">
+                        <div className="text-center">
+                          <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Pasarela <span className="text-primary">Gaia</span></h3>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Total a inyectar: {Number(amount).toLocaleString()} ESP</p>
+                        </div>
+                        <div className="space-y-3">
+                          {[
+                            { id: "card", label: "Tarjeta de Crédito", icon: CreditCard },
+                            { id: "yape", label: "Yape / Digital Wallet", icon: Smartphone },
+                            { id: "paypal", label: "PayPal Express", icon: Send },
+                            { id: "cash", label: "Efectivo / Agente", icon: Building2 },
+                            { id: "gift", label: "Código de Regalo", icon: Ticket }
+                          ].map((method) => (
+                            <button 
+                              key={method.id}
+                              onClick={() => { setPaymentMethod(method.id as PaymentMethod); setRechargeStep("payment-details"); }}
+                              className="w-full flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all group"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all">
+                                  <method.icon size={20} />
+                                </div>
+                                <span className="text-xs font-black uppercase text-white/80">{method.label}</span>
+                              </div>
+                              <ChevronLeft className="rotate-180 text-white/20" size={16} />
+                            </button>
+                          ))}
+                        </div>
+                        <Button onClick={() => setRechargeStep("packages")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase rounded-2xl">Volver</Button>
+                      </div>
+                    )}
+
+                    {rechargeStep === "payment-details" && (
+                      <div className="space-y-6">
+                        <div className="text-center">
+                          <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Detalles de <span className="text-primary">Pago</span></h3>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Verifica tu Señal de Pago</p>
+                        </div>
+
+                        {paymentMethod === "card" && (
+                          <div className="space-y-3">
+                            <Input placeholder="NOMBRE EN TARJETA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs uppercase" onChange={(e) => setCardData({...cardData, name: e.target.value})} />
+                            <Input placeholder="NÚMERO DE TARJETA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setCardData({...cardData, number: e.target.value})} />
+                            <div className="grid grid-cols-2 gap-3">
+                              <Input placeholder="MM/AA" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setCardData({...cardData, expiry: e.target.value})} />
+                              <Input placeholder="CVV" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setCardData({...cardData, cvv: e.target.value})} />
+                            </div>
+                          </div>
+                        )}
+
+                        {paymentMethod === "yape" && (
+                          <div className="space-y-3">
+                            <Input placeholder="TELÉFONO YAPE" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs" onChange={(e) => setYapeData({...yapeData, phone: e.target.value})} />
+                            <Input placeholder="CÓDIGO DE APROBACIÓN" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs text-center tracking-[1em]" maxLength={6} onChange={(e) => setYapeData({...yapeData, code: e.target.value})} />
+                          </div>
+                        )}
+
+                        {paymentMethod === "paypal" && (
+                          <div className="p-8 rounded-2xl bg-white/5 border border-white/10 text-center space-y-4">
+                            <Send size={40} className="text-blue-400 mx-auto" />
+                            <p className="text-[10px] text-white/60 font-black uppercase">Serás redirigido al portal de PayPal para autorizar la transacción.</p>
+                          </div>
+                        )}
+
+                        {paymentMethod === "cash" && (
+                          <div className="space-y-6">
+                             <div className="p-8 rounded-2xl bg-white flex flex-col items-center gap-4">
+                                <QrCode size={120} className="text-black" />
+                                <div className="text-center">
+                                  <p className="text-[8px] font-black uppercase text-black/40">Código de Pago</p>
+                                  <p className="text-2xl font-black text-black tracking-[0.2em]">GAIA-8492</p>
+                                </div>
+                             </div>
+                             <p className="text-[9px] text-white/30 text-center uppercase font-black leading-relaxed">Paga en cualquier agente autorizado con este código QR.</p>
+                          </div>
+                        )}
+
+                        {paymentMethod === "gift" && (
+                          <Input placeholder="INGRESA TU CÓDIGO DE REGALO" className="h-14 bg-white/5 border-white/10 rounded-xl text-xs text-center uppercase tracking-widest" onChange={(e) => setGiftCode(e.target.value)} />
+                        )}
+
+                        <Button onClick={() => setRechargeStep("confirm")} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-xl">
+                          Siguiente Paso
+                        </Button>
+                        <Button onClick={() => setRechargeStep("payment-method")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase rounded-2xl">Volver</Button>
+                      </div>
+                    )}
+
+                    {rechargeStep === "confirm" && (
+                      <div className="space-y-8 animate-in zoom-in-95 duration-500">
+                        <div className="text-center space-y-2">
+                           <div className="h-20 w-20 rounded-[2.5rem] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mx-auto shadow-2xl">
+                             <ShieldCheck size={40} />
+                           </div>
+                           <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Confirmar <span className="text-primary">Inyección</span></h3>
+                           <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Protocolo de Seguridad Activo</p>
+                        </div>
+
+                        <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                           <div className="flex justify-between items-center">
+                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Activo</span>
+                             <span className="text-sm font-black text-white italic">{Number(amount).toLocaleString()} ESP</span>
+                           </div>
+                           <div className="flex justify-between items-center">
+                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Método</span>
+                             <span className="text-[10px] font-black text-primary uppercase italic">{paymentMethod}</span>
+                           </div>
+                           <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+                             <span className="text-[11px] font-black text-white uppercase tracking-widest">Total USD</span>
+                             <span className="text-xl font-black text-primary italic">${(Number(amount)/100).toFixed(2)}</span>
+                           </div>
+                        </div>
+
+                        <Button 
+                          onClick={executeTransaction} 
+                          disabled={isProcessing}
+                          className="w-full h-20 bg-primary text-black font-black uppercase italic tracking-[0.2em] rounded-[2rem] shadow-[0_0_50px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all text-sm"
+                        >
+                          {isProcessing ? (
+                            <div className="flex items-center gap-3">
+                              <Loader2 className="animate-spin" size={20} /> Sincronizando...
+                            </div>
+                          ) : "Confirmar Pago Neural"}
+                        </Button>
+                        <Button onClick={() => setRechargeStep("payment-details")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase rounded-2xl">Corregir Datos</Button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
         </ScrollArea>
       </ProtocolWindow>
-
     </div>
   );
 }
+
