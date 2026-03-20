@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { 
-  Menu, Camera, Play, Share2, Zap, UserPlus, Check, Send, ChevronLeft,
+  Menu, Share2, Zap, UserPlus, Check, ChevronLeft,
   Wallet, History, UserCircle, LifeBuoy, HelpCircle, Settings, Lock,
-  TrendingUp, DollarSign, PlusCircle, RefreshCw, Loader2
+  TrendingUp, DollarSign, PlusCircle, RefreshCw, Loader2, CreditCard,
+  Smartphone, Globe, Gift, Shield, ArrowUpRight, ArrowDownLeft, Building2,
+  AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,8 +28,7 @@ import { UserService } from "@/services/user-service";
 import { WalletService } from "@/services/wallet-service";
 
 /**
- * @fileOverview Vista de Perfil Estandarizada. 
- * Corregidos desbordamientos en biografía y estadísticas.
+ * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
  */
 
 export function ProfileView({ 
@@ -45,13 +46,14 @@ export function ProfileView({
   const [profileName, setProfileName] = useState(username);
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeMenuSection, setActiveMenuSection] = useState<string | null>(null);
+  
+  // Wallet State
+  const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [walletView, setWalletView] = useState<"main" | "buy" | "withdraw">("main");
-  const [selectedPackage, setSelectedPackage] = useState<number | "custom" | null>(null);
-  const [customESP, setCustomESP] = useState("");
-  const [espBalance, setEspBalance] = useState(WalletService.getBalance());
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [amount, setAmount] = useState("");
+  const [espBalance, setEspBalance] = useState(WalletService.getBalance());
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
@@ -79,23 +81,37 @@ export function ProfileView({
     });
   };
 
-  const handleProcessPayment = async () => {
-    setIsProcessing(true);
-    let addedAmount = 0;
-    if (selectedPackage === "custom") {
-      addedAmount = Number(customESP);
-    } else {
-      addedAmount = 1000; 
+  const executeTransaction = async () => {
+    if (!amount || Number(amount) <= 0) {
+      toast({ variant: "destructive", title: "Error", description: "Ingresa un monto válido." });
+      return;
     }
-    const newBalance = await WalletService.injectFunds(addedAmount);
-    setEspBalance(newBalance);
-    setIsProcessing(false);
-    setWalletView("main");
-    toast({ title: "Éxito", description: `Inyectados ${addedAmount.toLocaleString()} ESP.` });
+
+    setIsProcessing(true);
+    setTimeout(async () => {
+      try {
+        let newBalance;
+        if (walletView === "buy") {
+          newBalance = await WalletService.injectFunds(Number(amount));
+          toast({ title: "Sincronización Exitosa", description: `Inyectados ${Number(amount).toLocaleString()} ESP.` });
+        } else {
+          newBalance = await WalletService.withdrawFunds(Number(amount));
+          toast({ title: "Retiro Exitoso", description: `Transferidos ${Number(amount).toLocaleString()} ESP.` });
+        }
+        setEspBalance(newBalance);
+        setIsProcessing(false);
+        setWalletView("main");
+        setPaymentMethod(null);
+        setAmount("");
+      } catch (e: any) {
+        setIsProcessing(false);
+        toast({ variant: "destructive", title: "Fallo Neural", description: "Fondos insuficientes en el nodo." });
+      }
+    }, 2000);
   };
 
   const menuItems = [
-    { id: "wallet", label: "Billetera ESP", icon: Wallet, color: "text-primary" },
+    { id: "wallet", label: "Billetera ESP", icon: Wallet, color: "text-primary", action: () => { setIsWalletOpen(true); setWalletView("main"); } },
     { id: "activity", label: "Actividad", icon: History, color: "text-white/60" },
     { id: "account", label: "Información", icon: UserCircle, color: "text-white/60" },
     { id: "support", label: "Soporte", icon: LifeBuoy, color: "text-white/60" },
@@ -105,22 +121,17 @@ export function ProfileView({
 
   return (
     <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+      {/* Banner Area */}
       <div className="relative h-32 w-full bg-gradient-to-b from-primary/10 to-transparent">
         <div className="absolute top-6 left-6 z-20">
            {!isOwnProfile && (
-             <button 
-               onClick={onBack}
-               className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
-             >
+             <button onClick={onBack} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
                 <ChevronLeft size={20} />
              </button>
            )}
         </div>
         <div className="absolute top-6 right-6 flex gap-3 z-20">
-           <button 
-             onClick={() => toast({ title: "Copiado", description: "Enlace de perfil copiado." })}
-             className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90"
-           >
+           <button onClick={() => toast({ title: "Copiado", description: "Enlace de perfil copiado." })} className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary transition-all active:scale-90">
               <Share2 size={18} />
            </button>
            {isOwnProfile && (
@@ -140,10 +151,7 @@ export function ProfileView({
                     <ScrollArea className="flex-1">
                       <div className="p-6">
                         {menuItems.map((item) => (
-                          <button
-                            key={item.id}
-                            className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group"
-                          >
+                          <button key={item.id} onClick={item.action} className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all group">
                             <div className="flex items-center gap-4">
                               <item.icon size={20} className={item.color} />
                               <span className="text-xs font-black uppercase tracking-widest text-white/80">{item.label}</span>
@@ -160,44 +168,28 @@ export function ProfileView({
         </div>
       </div>
 
+      {/* Profile Header */}
       <div className="px-8 -mt-12 space-y-6">
         <div className="flex items-end justify-between">
-          <div className="relative group shrink-0">
-            <div className="h-24 w-24 rounded-[2rem] border-4 border-[#020503] bg-white/5 overflow-hidden shadow-2xl relative">
-              <Image 
-                src={isOwnProfile ? (avatarUrl || "") : `https://picsum.photos/seed/${profileName}/200/200`} 
-                fill 
-                alt="Avatar" 
-                className="object-cover" 
-              />
-            </div>
+          <div className="h-24 w-24 rounded-[2rem] border-4 border-[#020503] bg-white/5 overflow-hidden shadow-2xl relative shrink-0">
+            <Image src={isOwnProfile ? (avatarUrl || "") : `https://picsum.photos/seed/${profileName}/200/200`} fill alt="Avatar" className="object-cover" />
           </div>
-          
           <div className="flex gap-2 mb-2">
             {isOwnProfile ? (
-              <Button 
-                onClick={() => setIsEditing(true)}
-                className="rounded-2xl bg-primary text-black font-black uppercase tracking-widest h-10 px-6 shadow-[0_0_20px_rgba(204,255,0,0.3)] hover:scale-105 transition-all"
-              >
+              <Button onClick={() => setIsEditing(true)} className="rounded-2xl bg-primary text-black font-black uppercase tracking-widest h-10 px-6 shadow-[0_0_20px_rgba(204,255,0,0.3)]">
                 Editar Perfil
               </Button>
             ) : (
-              <Button 
-                onClick={handleFollow}
-                className={cn(
-                  "rounded-2xl text-[9px] font-black uppercase tracking-widest h-10 px-6 transition-all",
-                  isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg"
-                )}
-              >
+              <Button onClick={handleFollow} className={cn("rounded-2xl text-[9px] font-black uppercase tracking-widest h-10 px-6 transition-all", isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg")}>
                 {isFollowing ? "Siguiendo" : "Seguir"}
               </Button>
             )}
           </div>
         </div>
 
-        <div className="space-y-1 min-w-0">
-          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter leading-none truncate">{profileName}</h2>
-          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest truncate">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black italic uppercase text-white tracking-tighter truncate leading-none">{profileName}</h2>
+          <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">@{profileName.toLowerCase().replace(/\s+/g, '_')}</p>
           <p className="text-[11px] text-white/60 mt-3 leading-relaxed max-w-[90%] line-clamp-3">
             Explorador de biomas digitales y coleccionista de señales orgánicas. 🌱⚡ #BioCyber #NatureTech #Enterprise #Global
           </p>
@@ -206,23 +198,20 @@ export function ProfileView({
         <div className="flex gap-4 py-4 border-y border-white/5 overflow-x-auto no-scrollbar">
           {stats.map((stat) => (
             <div key={stat.label} className="flex flex-col shrink-0 min-w-[80px]">
-              <span className="text-lg font-black text-white italic leading-none tracking-tight truncate">{stat.value}</span>
-              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1 truncate">{stat.label}</span>
+              <span className="text-lg font-black text-white italic leading-none tracking-tight">{stat.value}</span>
+              <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest mt-1">{stat.label}</span>
             </div>
           ))}
         </div>
       </div>
 
+      {/* Content Tabs */}
       <Tabs defaultValue="videos" className="w-full mt-6">
         <TabsList className="flex w-full bg-transparent border-b border-white/5 h-14 px-4 rounded-none gap-4">
-          <TabsTrigger value="videos" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest transition-all">
-            Videos
-          </TabsTrigger>
-          <TabsTrigger value="music" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest transition-all">
-            Música
-          </TabsTrigger>
+          <TabsTrigger value="videos" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest">Videos</TabsTrigger>
+          <TabsTrigger value="music" className="data-[state=active]:text-primary text-white/20 bg-transparent rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 font-black uppercase text-[9px] tracking-widest">Música</TabsTrigger>
         </TabsList>
-        <TabsContent value="videos" className="p-4 grid grid-cols-2 gap-3 animate-in fade-in duration-500">
+        <TabsContent value="videos" className="p-4 grid grid-cols-2 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/5 group cursor-pointer active:scale-95 transition-all">
               <Image src={`https://picsum.photos/seed/pv${profileName}${i}/300/400`} fill alt="Video" className="object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" />
@@ -232,23 +221,185 @@ export function ProfileView({
         </TabsContent>
       </Tabs>
 
+      {/* Profile Edit Window */}
       <ProtocolWindow isOpen={isEditing} onClose={() => setIsEditing(false)} title="Identidad Digital">
         <div className="space-y-6 w-full max-w-[320px] px-6">
           <div className="space-y-2">
             <label className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/60 ml-2">Bio-Alias</label>
-            <Input 
-              value={profileName} 
-              onChange={(e) => setProfileName(e.target.value)}
-              className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6 focus-visible:ring-primary truncate" 
-            />
+            <Input value={profileName} onChange={(e) => setProfileName(e.target.value)} className="h-14 bg-white/5 border-white/10 rounded-2xl text-white px-6 focus-visible:ring-primary" />
           </div>
-          <Button 
-            onClick={handleUpdateProfile}
-            className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_20px_rgba(204,255,0,0.3)]"
-          >
+          <Button onClick={handleUpdateProfile} className="w-full h-14 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_20px_rgba(204,255,0,0.3)]">
             Sincronizar Protocolo
           </Button>
         </div>
+      </ProtocolWindow>
+
+      {/* Wallet Protocol Window */}
+      <ProtocolWindow isOpen={isWalletOpen} onClose={() => { setIsWalletOpen(false); setWalletView("main"); setPaymentMethod(null); }} title="Billetera ESP">
+        <ScrollArea className="w-full max-w-[400px] h-full max-h-[85vh] px-6 py-4">
+          <div className="space-y-6 pb-12">
+            
+            {/* Balance Card */}
+            <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-6 opacity-20 rotate-12 group-hover:rotate-45 transition-transform duration-700">
+                <Wallet size={80} />
+              </div>
+              <div className="relative z-10">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
+                <div className="text-4xl font-black italic mt-1 tracking-tighter">
+                  {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <Button onClick={() => setWalletView("buy")} className="flex-1 bg-black text-white rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/80">
+                    <ArrowDownLeft className="mr-2" size={14} /> Inyectar
+                  </Button>
+                  <Button onClick={() => setWalletView("withdraw")} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/20">
+                    <ArrowUpRight className="mr-2" size={14} /> Retirar
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* View Logic */}
+            {walletView === "main" ? (
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 ml-2 italic">Historial de Señales</h3>
+                <div className="space-y-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary/60">
+                          {i % 2 === 0 ? <ArrowUpRight size={18} /> : <ArrowDownLeft size={18} />}
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-black text-white uppercase italic">{i % 2 === 0 ? "Retiro Externo" : "Inyección de Nodo"}</p>
+                          <p className="text-[8px] text-white/30 font-bold uppercase mt-0.5">Gaia Protocol #{1040 + i}</p>
+                        </div>
+                      </div>
+                      <span className={cn("text-[11px] font-black italic", i % 2 === 0 ? "text-red-400" : "text-primary")}>
+                        {i % 2 === 0 ? "-" : "+"}{500 * i} ESP
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                <div className="flex items-center gap-4">
+                   <button onClick={() => { setWalletView("main"); setPaymentMethod(null); }} className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10">
+                     <ChevronLeft size={20} />
+                   </button>
+                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">
+                     {walletView === "buy" ? "Inyectar" : "Retirar"} <span className="text-primary">Tokens</span>
+                   </h3>
+                </div>
+
+                {!paymentMethod ? (
+                  <div className="grid grid-cols-1 gap-3">
+                    {walletView === "buy" ? (
+                      <>
+                        <button onClick={() => setPaymentMethod("card")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                          <CreditCard className="text-primary group-hover:scale-110 transition-transform" />
+                          <div className="text-left">
+                            <p className="text-sm font-black text-white italic uppercase">Tarjeta Crédito/Débito</p>
+                            <div className="flex gap-2 mt-1">
+                               <div className="h-3 w-5 bg-blue-600 rounded-sm opacity-50" />
+                               <div className="h-3 w-5 bg-red-600 rounded-sm opacity-50" />
+                            </div>
+                          </div>
+                        </button>
+                        <button onClick={() => setPaymentMethod("yape")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                          <Smartphone className="text-accent group-hover:scale-110 transition-transform" />
+                          <p className="text-sm font-black text-white italic uppercase">Yape / Plin</p>
+                        </button>
+                        <button onClick={() => setPaymentMethod("paypal")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                          <Globe className="text-blue-400 group-hover:scale-110 transition-transform" />
+                          <p className="text-sm font-black text-white italic uppercase">PayPal Global</p>
+                        </button>
+                        <button onClick={() => setPaymentMethod("code")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                          <Gift className="text-yellow-400 group-hover:scale-110 transition-transform" />
+                          <p className="text-sm font-black text-white italic uppercase">Código Promocional</p>
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => setPaymentMethod("yape")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                          <Smartphone className="text-accent" />
+                          <p className="text-sm font-black text-white italic uppercase">Retiro a Yape</p>
+                        </button>
+                        <button onClick={() => setPaymentMethod("bank")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                          <Building2 className="text-primary" />
+                          <p className="text-sm font-black text-white italic uppercase">Transferencia Bancaria</p>
+                        </button>
+                        <button onClick={() => setPaymentMethod("paypal")} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                          <Globe className="text-blue-400" />
+                          <p className="text-sm font-black text-white italic uppercase">PayPal (USD)</p>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="space-y-4">
+                      <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+                        <div className="flex items-center justify-between">
+                           <span className="text-[9px] font-black uppercase text-primary tracking-widest">Monto ESP</span>
+                           <Shield size={12} className="text-primary" />
+                        </div>
+                        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className="h-16 bg-transparent border-none text-3xl font-black text-white italic focus-visible:ring-0 placeholder:text-white/10" />
+                        <div className="pt-4 border-t border-white/5 flex justify-between items-center">
+                           <span className="text-[8px] text-white/30 font-bold uppercase">Conversión Estimada</span>
+                           <span className="text-[10px] text-white font-black italic">S/ {(Number(amount) * 0.05).toFixed(2)} PEN</span>
+                        </div>
+                      </div>
+
+                      {/* Payment Method Details */}
+                      <div className="grid grid-cols-1 gap-3">
+                        {paymentMethod === 'card' && (
+                          <>
+                            <Input placeholder="NÚMERO DE TARJETA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                            <div className="grid grid-cols-2 gap-3">
+                              <Input placeholder="MM/AA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                              <Input placeholder="CVV" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                            </div>
+                          </>
+                        )}
+                        {paymentMethod === 'yape' && (
+                           <Input placeholder="NÚMERO TELEFÓNICO" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                        )}
+                        {paymentMethod === 'paypal' && (
+                           <Input placeholder="EMAIL PAYPAL" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                        )}
+                        {paymentMethod === 'bank' && (
+                           <>
+                             <Input placeholder="CÓDIGO INTERBANCARIO (CCI)" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                             <Input placeholder="NOMBRE DEL TITULAR" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
+                           </>
+                        )}
+                        {paymentMethod === 'code' && (
+                           <Input placeholder="INGRESAR CÓDIGO GAIA" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white uppercase" />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 flex gap-3">
+                      <AlertCircle size={14} className="text-primary shrink-0 mt-0.5" />
+                      <p className="text-[8px] text-primary font-bold uppercase tracking-widest leading-relaxed">
+                        Protocolo de seguridad activo. Los {walletView === 'buy' ? 'fondos' : 'retiros'} se procesan a través del nodo central Gaia.
+                      </p>
+                    </div>
+
+                    <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-[0_0_30px_rgba(204,255,0,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
+                      {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <Zap size={16} fill="black" className="mr-2" />}
+                      {isProcessing ? "Sincronizando..." : `Confirmar ${walletView === 'buy' ? 'Inyección' : 'Retiro'}`}
+                    </Button>
+                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Cancelar Operación</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
       </ProtocolWindow>
     </div>
   );
