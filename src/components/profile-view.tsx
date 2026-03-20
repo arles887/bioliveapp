@@ -47,7 +47,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil con Billetera ESP Blindada (390px) y Analítica Global.
- * Flujo de Retiro Estandarizado: Conversión a Soles, Multicanal y Voucher.
+ * Implementación de Auditoría Financiera Total: Secciones separadas y centradas para estadísticas e historial.
  */
 
 type WalletTab = "main" | "buy" | "withdraw";
@@ -256,6 +256,7 @@ export function ProfileView({
               <div className="w-full max-w-[390px] px-4 flex flex-col gap-8 animate-in fade-in duration-700 mx-auto items-center">
                 {walletView === "main" && (
                   <div className="w-full space-y-8 flex flex-col items-center">
+                    {/* Balance Card Principal */}
                     <div className="w-full p-8 rounded-[2.5rem] bg-primary text-black shadow-2xl relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-4 opacity-10">
                         <Zap size={120} fill="currentColor" />
@@ -271,6 +272,108 @@ export function ProfileView({
                         </button>
                       </div>
                     </div>
+
+                    {/* Estadísticas de Flujo (Ingresos / Egresos) */}
+                    <section className="w-full space-y-4">
+                      <div className="flex items-center gap-2 px-2">
+                        <BarChart className="text-primary" size={16} />
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Estadísticas de Flujo</h4>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
+                          <span className="text-[8px] font-black uppercase text-primary/40 tracking-widest">Total Ingresos</span>
+                          <p className="text-xl font-black text-white italic tracking-tighter">+450K ESP</p>
+                        </div>
+                        <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
+                          <span className="text-[8px] font-black uppercase text-destructive/40 tracking-widest">Total Egresos</span>
+                          <p className="text-xl font-black text-white italic tracking-tighter">-120K ESP</p>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Rendimiento de Contenido (Video / Live) */}
+                    <section className="w-full space-y-4">
+                      <div className="flex items-center gap-2 px-2">
+                        <TrendingUp className="text-primary" size={16} />
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 italic">Monetización de Contenido</h4>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4 flex flex-col items-center text-center">
+                          <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                            <Clapperboard size={20} />
+                          </div>
+                          <div>
+                            <span className="text-[8px] font-black uppercase text-white/20 tracking-widest block mb-1">Por Bio-Reels</span>
+                            <p className="text-lg font-black text-white italic">280K <span className="text-[8px] text-primary">ESP</span></p>
+                          </div>
+                        </div>
+                        <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4 flex flex-col items-center text-center">
+                          <div className="h-10 w-10 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent">
+                            <Radio size={20} />
+                          </div>
+                          <div>
+                            <span className="text-[8px] font-black uppercase text-white/20 tracking-widest block mb-1">Por Live Stream</span>
+                            <p className="text-lg font-black text-white italic">170K <span className="text-[8px] text-accent">ESP</span></p>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Historial Multicapa (Recargas / Retiros / Regalos) */}
+                    <section className="w-full space-y-6 pb-12">
+                      <Tabs defaultValue="recargas" className="w-full">
+                        <TabsList className="flex w-full bg-white/5 p-1 rounded-2xl h-12 gap-1 mb-4">
+                          <TabsTrigger value="recargas" className="flex-1 rounded-xl font-black uppercase text-[8px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-black">Recargas</TabsTrigger>
+                          <TabsTrigger value="retiros" className="flex-1 rounded-xl font-black uppercase text-[8px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-black">Retiros</TabsTrigger>
+                          <TabsTrigger value="regalos" className="flex-1 rounded-xl font-black uppercase text-[8px] tracking-widest data-[state=active]:bg-primary data-[state=active]:text-black">Regalos</TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="recargas" className="space-y-3 m-0">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                              <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><ArrowDownLeft size={16} /></div>
+                                <div>
+                                  <p className="text-[10px] font-black text-white uppercase italic">Inyección Neural</p>
+                                  <span className="text-[8px] text-white/20 font-bold uppercase">Hace {i} día(s)</span>
+                                </div>
+                              </div>
+                              <span className="text-xs font-black text-primary italic">+5,000 ESP</span>
+                            </div>
+                          ))}
+                        </TabsContent>
+
+                        <TabsContent value="retiros" className="space-y-3 m-0">
+                          {[1, 2].map((i) => (
+                            <div key={i} className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                              <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center text-destructive"><ArrowUpRight size={16} /></div>
+                                <div>
+                                  <p className="text-[10px] font-black text-white uppercase italic">Liquidación a Banco</p>
+                                  <span className="text-[8px] text-white/20 font-bold uppercase">Hace {i + 2} día(s)</span>
+                                </div>
+                              </div>
+                              <span className="text-xs font-black text-destructive italic">-10,000 ESP</span>
+                            </div>
+                          ))}
+                        </TabsContent>
+
+                        <TabsContent value="regalos" className="space-y-3 m-0">
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="w-full flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                              <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-xl bg-accent/10 flex items-center justify-center text-accent"><Gift size={16} /></div>
+                                <div>
+                                  <p className="text-[10px] font-black text-white uppercase italic">Donación a Bio_{i+5}</p>
+                                  <span className="text-[8px] text-white/20 font-bold uppercase">Hace {i * 5} min</span>
+                                </div>
+                              </div>
+                              <span className="text-xs font-black text-white/40 italic">-500 ESP</span>
+                            </div>
+                          ))}
+                        </TabsContent>
+                      </Tabs>
+                    </section>
                   </div>
                 )}
 
@@ -323,7 +426,120 @@ export function ProfileView({
                         <Button onClick={() => { setWalletView("main"); setAmount(""); }} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Volver</Button>
                       </div>
                     )}
-                    {/* Flujos de pago siguen estandarizados... */}
+
+                    {rechargeStep === "payment-method" && (
+                      <div className="w-full space-y-6">
+                         <div className="text-center">
+                            <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Nodo de <span className="text-primary">Pago</span></h3>
+                            <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Selecciona tu protocolo de inyección</p>
+                         </div>
+                         <div className="space-y-3">
+                            {[
+                              { id: "card", label: "Tarjeta Bancaria", icon: CreditCard },
+                              { id: "yape", label: "Yape / Plin", icon: Smartphone },
+                              { id: "paypal", label: "PayPal Express", icon: Send },
+                              { id: "cash", label: "Efectivo / Agentes", icon: Building2 },
+                              { id: "gift", label: "Código de Regalo", icon: Ticket }
+                            ].map((method) => (
+                              <button 
+                                key={method.id}
+                                onClick={() => { setPaymentMethod(method.id as PaymentMethod); setRechargeStep("payment-details"); }}
+                                className="w-full flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all group"
+                              >
+                                <div className="flex items-center gap-4">
+                                  <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-black transition-all">
+                                    <method.icon size={20} />
+                                  </div>
+                                  <span className="text-xs font-black uppercase text-white/80 tracking-tight">{method.label}</span>
+                                </div>
+                                <ArrowUpRight className="text-white/20" size={16} />
+                              </button>
+                            ))}
+                         </div>
+                         <Button onClick={() => setRechargeStep("packages")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Volver a Paquetes</Button>
+                      </div>
+                    )}
+
+                    {rechargeStep === "payment-details" && (
+                      <div className="w-full space-y-6">
+                        <div className="text-center">
+                            <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Detalles de <span className="text-primary">Sincronización</span></h3>
+                            <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Ingresa los datos del protocolo {paymentMethod?.toUpperCase()}</p>
+                        </div>
+
+                        <div className="space-y-4">
+                           {paymentMethod === 'card' && (
+                             <>
+                               <Input placeholder="NÚMERO DE TARJETA" className="h-14 bg-white/5 border-white/10 rounded-xl px-6 text-xs tracking-widest" />
+                               <div className="grid grid-cols-2 gap-4">
+                                  <Input placeholder="MM/AA" className="h-14 bg-white/5 border-white/10 rounded-xl px-6 text-xs" />
+                                  <Input placeholder="CVV" className="h-14 bg-white/5 border-white/10 rounded-xl px-6 text-xs" />
+                               </div>
+                               <Input placeholder="NOMBRE EN LA TARJETA" className="h-14 bg-white/5 border-white/10 rounded-xl px-6 text-xs uppercase" />
+                             </>
+                           )}
+                           {paymentMethod === 'yape' && (
+                             <>
+                               <Input placeholder="NÚMERO DE CELULAR" className="h-14 bg-white/5 border-white/10 rounded-xl px-6 text-xs" />
+                               <Input placeholder="CÓDIGO DE APROBACIÓN (6 DÍGITOS)" className="h-14 bg-white/5 border-white/10 rounded-xl px-6 text-xs tracking-[0.5em]" />
+                             </>
+                           )}
+                           {paymentMethod === 'cash' && (
+                             <div className="p-8 text-center bg-white/[0.02] border border-dashed border-white/10 rounded-[2rem] space-y-6">
+                               <QrCode className="mx-auto text-primary" size={64} strokeWidth={1} />
+                               <div className="space-y-1">
+                                 <p className="text-[10px] font-black uppercase text-white/40">Código de Pago (CIP)</p>
+                                 <p className="text-2xl font-black text-white tracking-widest">749-284-015</p>
+                               </div>
+                               <p className="text-[8px] font-bold text-primary uppercase italic">Paga en cualquier agente o banca móvil</p>
+                             </div>
+                           )}
+                           {paymentMethod === 'gift' && (
+                             <Input placeholder="INGRESA TU CÓDIGO DE REGALO" className="h-14 bg-white/5 border-white/10 rounded-xl px-6 text-center text-xs tracking-[0.2em] text-primary" />
+                           )}
+                           {paymentMethod === 'paypal' && (
+                             <div className="p-12 text-center bg-primary/5 rounded-[2rem] border border-primary/20">
+                               <Send className="mx-auto text-primary animate-pulse" size={32} />
+                               <p className="text-[10px] font-black uppercase text-white mt-4 tracking-widest">Serás redirigido a la pasarela externa de PayPal.</p>
+                             </div>
+                           )}
+                        </div>
+
+                        <Button onClick={() => setRechargeStep("confirm")} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-xl">Continuar</Button>
+                        <Button onClick={() => setRechargeStep("payment-method")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Volver</Button>
+                      </div>
+                    )}
+
+                    {rechargeStep === "confirm" && (
+                      <div className="w-full space-y-8 flex flex-col items-center">
+                        <div className="text-center">
+                           <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Confirmar <span className="text-primary">Inyección</span></h3>
+                           <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Verificación Final de Señal</p>
+                        </div>
+                        <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
+                           <div className="flex justify-between items-center">
+                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Monto ESP</span>
+                             <span className="text-sm font-black text-white italic">{amount}</span>
+                           </div>
+                           <div className="flex justify-between items-center">
+                             <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Protocolo</span>
+                             <span className="text-[10px] font-black text-primary uppercase italic">{paymentMethod?.toUpperCase()}</span>
+                           </div>
+                           <div className="pt-4 border-t border-white/10 flex justify-between items-center">
+                             <span className="text-[11px] font-black text-white uppercase tracking-widest">Total S/.</span>
+                             <span className="text-xl font-black text-primary italic">S/. {(Number(amount) * 0.01).toFixed(2)}</span>
+                           </div>
+                        </div>
+                        <Button 
+                          onClick={executeTransaction}
+                          disabled={isProcessing}
+                          className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-xl"
+                        >
+                          {isProcessing ? <Loader2 className="animate-spin" /> : "Ejecutar Protocolo"}
+                        </Button>
+                        <Button onClick={() => setRechargeStep("payment-details")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Corregir Datos</Button>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -599,4 +815,3 @@ export function ProfileView({
     </div>
   );
 }
-
