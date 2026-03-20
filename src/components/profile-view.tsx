@@ -5,9 +5,9 @@ import Image from "next/image";
 import { 
   Menu, Share2, Zap, UserPlus, Check, ChevronLeft,
   Wallet, History, UserCircle, LifeBuoy, Settings, Lock,
-  RefreshCw, Loader2, CreditCard, Smartphone, Globe, Gift, 
-  Shield, ArrowUpRight, ArrowDownLeft, Building2, AlertCircle,
-  Edit
+  Loader2, CreditCard, Smartphone, Globe, Gift, 
+  Shield, ArrowUpRight, ArrowDownLeft, Building2,
+  Edit, Coins
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,7 +29,7 @@ import { WalletService } from "@/services/wallet-service";
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Integrada.
- * Botón de edición actualizado a transparente con icono.
+ * Actualizado: Botón Recargar con galería de 60 paquetes y opción personalizada.
  */
 
 export function ProfileView({ 
@@ -54,8 +54,22 @@ export function ProfileView({
   const [isProcessing, setIsProcessing] = useState(false);
   const [amount, setAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
+  const [showPackages, setShowPackages] = useState(true);
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
+
+  // Generar 60 paquetes de tokens
+  const tokenPackages = Array.from({ length: 60 }, (_, i) => {
+    const baseAmount = (i + 1) * 100;
+    const multiplier = i < 10 ? 1 : i < 20 ? 10 : i < 40 ? 100 : 1000;
+    const finalAmount = baseAmount * multiplier;
+    return {
+      id: `pkg-${i}`,
+      amount: finalAmount,
+      price: (finalAmount * 0.05).toFixed(2),
+      label: `Pack Bio-${i + 1}`
+    };
+  });
 
   const stats = [
     { label: "Seguidores", value: isOwnProfile ? "12.4K" : "4.2K" },
@@ -93,7 +107,7 @@ export function ProfileView({
         let newBalance;
         if (walletView === "buy") {
           newBalance = await WalletService.injectFunds(Number(amount));
-          toast({ title: "Sincronización Exitosa", description: `Inyectados ${Number(amount).toLocaleString()} ESP.` });
+          toast({ title: "Sincronización Exitosa", description: `Recargados ${Number(amount).toLocaleString()} ESP.` });
         } else {
           newBalance = await WalletService.withdrawFunds(Number(amount));
           toast({ title: "Retiro Exitoso", description: `Transferidos ${Number(amount).toLocaleString()} ESP.` });
@@ -103,6 +117,7 @@ export function ProfileView({
         setWalletView("main");
         setPaymentMethod(null);
         setAmount("");
+        setShowPackages(true);
       } catch (e: any) {
         setIsProcessing(false);
         toast({ variant: "destructive", title: "Fallo Neural", description: "Fondos insuficientes en el nodo." });
@@ -118,6 +133,11 @@ export function ProfileView({
     { id: "settings", label: "Ajustes", icon: Settings, color: "text-white/40", action: () => toast({ title: "Ajustes", description: "Configuración neural disponible pronto." }) },
     { id: "privacy", label: "Privacidad", icon: Lock, color: "text-accent", action: () => toast({ title: "Privacidad", description: "Escudo Gaia activo." }) },
   ];
+
+  const selectPackage = (pkgAmount: number) => {
+    setAmount(pkgAmount.toString());
+    setShowPackages(false);
+  };
 
   return (
     <div className="flex flex-col w-full animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 max-w-[500px] mx-auto overflow-x-hidden">
@@ -239,7 +259,7 @@ export function ProfileView({
       </ProtocolWindow>
 
       {/* Wallet Protocol Window */}
-      <ProtocolWindow isOpen={isWalletOpen} onClose={() => { setIsWalletOpen(false); setWalletView("main"); setPaymentMethod(null); }} title="Billetera ESP">
+      <ProtocolWindow isOpen={isWalletOpen} onClose={() => { setIsWalletOpen(false); setWalletView("main"); setPaymentMethod(null); setShowPackages(true); }} title="Billetera ESP">
         <ScrollArea className="w-full max-w-[400px] h-full max-h-[85vh] px-6 py-4">
           <div className="space-y-6 pb-12">
             
@@ -254,8 +274,8 @@ export function ProfileView({
                   {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
                 </div>
                 <div className="mt-6 flex gap-3">
-                  <Button onClick={() => setWalletView("buy")} className="flex-1 bg-black text-white rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/80">
-                    <ArrowDownLeft className="mr-2" size={14} /> Inyectar
+                  <Button onClick={() => { setWalletView("buy"); setShowPackages(true); }} className="flex-1 bg-black text-white rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/80">
+                    <ArrowDownLeft className="mr-2" size={14} /> Recargar
                   </Button>
                   <Button onClick={() => setWalletView("withdraw")} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest hover:bg-black/20">
                     <ArrowUpRight className="mr-2" size={14} /> Retirar
@@ -287,14 +307,67 @@ export function ProfileView({
                   ))}
                 </div>
               </div>
-            ) : (
-              <div className="space-y-8 animate-in slide-in-from-right duration-500">
+            ) : walletView === "buy" && showPackages ? (
+              <div className="space-y-6 animate-in slide-in-from-right duration-500">
                 <div className="flex items-center gap-4">
-                   <button onClick={() => { setWalletView("main"); setPaymentMethod(null); }} className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10">
+                   <button onClick={() => setWalletView("main")} className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10">
                      <ChevronLeft size={20} />
                    </button>
                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">
-                     {walletView === "buy" ? "Inyectar" : "Retirar"} <span className="text-primary">Tokens</span>
+                     Paquetes <span className="text-primary">Bio-ESP</span>
+                   </h3>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  {tokenPackages.map((pkg) => (
+                    <button 
+                      key={pkg.id}
+                      onClick={() => selectPackage(pkg.amount)}
+                      className="p-5 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all text-left space-y-2"
+                    >
+                      <Zap size={20} className="text-primary group-hover:scale-110 transition-transform" />
+                      <div>
+                        <p className="text-xs font-black text-white italic uppercase truncate">{pkg.amount.toLocaleString()}</p>
+                        <p className="text-[10px] text-primary font-black">S/ {pkg.price}</p>
+                      </div>
+                    </button>
+                  ))}
+                  
+                  {/* Opción Personalizable */}
+                  <button 
+                    onClick={() => { setShowPackages(false); setAmount(""); }}
+                    className="p-5 rounded-[2rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-left space-y-2 col-span-2"
+                  >
+                    <Coins size={24} className="text-primary group-hover:rotate-12 transition-transform" />
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <p className="text-sm font-black text-white italic uppercase">Monto Personalizado</p>
+                        <p className="text-[9px] text-white/40 font-black uppercase tracking-widest">Inyecta el flujo que necesites</p>
+                      </div>
+                      <ArrowUpRight size={18} className="text-primary" />
+                    </div>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-8 animate-in slide-in-from-right duration-500">
+                <div className="flex items-center gap-4">
+                   <button 
+                    onClick={() => { 
+                      if (walletView === "buy") {
+                        setShowPackages(true);
+                        setPaymentMethod(null);
+                      } else {
+                        setWalletView("main");
+                        setPaymentMethod(null);
+                      }
+                    }} 
+                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10"
+                   >
+                     <ChevronLeft size={20} />
+                   </button>
+                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">
+                     {walletView === "buy" ? "Recargar" : "Retirar"} <span className="text-primary">Tokens</span>
                    </h3>
                 </div>
 
