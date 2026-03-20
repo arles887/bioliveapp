@@ -11,7 +11,7 @@ import {
   BarChart, Key, Clapperboard, Radio, Gift,
   CreditCard, Smartphone, QrCode, Ticket, ShieldCheck,
   Send, Building2, Landmark, HeartHandshake, Receipt, Camera,
-  CheckCircle2, Sparkles
+  CheckCircle2, Sparkles, Flag, Ban, MessageSquare, UserPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Bio-Neural.
- * Actualizado: Animaciones de vales de depósito y retiro implementadas.
+ * Actualizado: Soporte para perfiles externos con botones de seguir, mensaje, denuncia y bloqueo.
  */
 
 type WalletTab = "main" | "buy" | "withdraw";
@@ -85,6 +85,7 @@ export function ProfileView({
 }) {
   const [profileName, setProfileName] = useState(username);
   const [bio, setBio] = useState("Sincronizado con la red Gaia. Explorador de biomas digitales.");
+  const [isFollowing, setIsFollowing] = useState(false);
   
   // Ventanas
   const [isWalletOpen, setIsWalletOpen] = useState(false);
@@ -164,7 +165,22 @@ export function ProfileView({
            >
               <Share2 size={18} />
            </button>
-           {isOwnProfile && (
+           {!isOwnProfile ? (
+             <>
+               <button 
+                onClick={() => toast({ title: "Reporte Enviado", description: "El equipo de Gaia revisará esta señal." })}
+                className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-red-500 active:scale-90"
+               >
+                  <Flag size={18} />
+               </button>
+               <button 
+                onClick={() => toast({ title: "Bloqueo Activo", description: "Señal de este nodo neutralizada." })}
+                className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-red-500 active:scale-90"
+               >
+                  <Ban size={18} />
+               </button>
+             </>
+           ) : (
              <>
                <button 
                 onClick={() => setIsAnalyticsOpen(true)}
@@ -178,11 +194,11 @@ export function ProfileView({
                >
                   <Wallet size={18} />
                </button>
+               <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary active:scale-90">
+                 <Menu size={18} />
+               </button>
              </>
            )}
-           <button className="h-10 w-10 rounded-xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/60 hover:text-primary active:scale-90">
-             <Menu size={18} />
-           </button>
         </div>
       </div>
 
@@ -197,7 +213,7 @@ export function ProfileView({
           <p className="text-[10px] text-white/60 font-medium leading-relaxed mt-2 line-clamp-2 max-w-[300px]">{bio}</p>
         </div>
 
-        {isOwnProfile && (
+        {isOwnProfile ? (
           <Button 
             onClick={() => setIsEditProfileOpen(true)}
             variant="outline"
@@ -205,6 +221,25 @@ export function ProfileView({
           >
             Editar Perfil
           </Button>
+        ) : (
+          <div className="flex gap-3 w-full max-w-[390px] mx-auto">
+            <Button 
+              onClick={() => setIsFollowing(!isFollowing)}
+              className={cn(
+                "flex-1 h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all",
+                isFollowing ? "bg-white/10 text-white/40 border border-white/10" : "bg-primary text-black shadow-lg shadow-primary/20"
+              )}
+            >
+              {isFollowing ? <><Check size={14} className="mr-2" /> Siguiendo</> : <><UserPlus size={14} className="mr-2" /> Seguir</>}
+            </Button>
+            <Button 
+              onClick={() => toast({ title: "Bio-Chat", description: "Iniciando canal neural seguro..." })}
+              variant="outline"
+              className="flex-1 h-12 rounded-2xl border-white/10 bg-white/5 text-[10px] font-black uppercase tracking-widest text-white hover:bg-white/10 hover:text-primary transition-all"
+            >
+              <MessageSquare size={14} className="mr-2" /> Mensaje
+            </Button>
+          </div>
         )}
 
         <div className="flex gap-4 py-4 border-y border-white/5 overflow-x-auto no-scrollbar">
