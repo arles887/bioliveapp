@@ -10,7 +10,8 @@ import {
   TrendingUp, MapPin, Award, Heart, Eye,
   BarChart, Key, Clapperboard, Radio, Gift,
   CreditCard, Smartphone, QrCode, Ticket, ShieldCheck,
-  Send, Building2, Landmark, HeartHandshake, Receipt, Camera
+  Send, Building2, Landmark, HeartHandshake, Receipt, Camera,
+  CheckCircle2, Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -38,11 +39,11 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Bio-Neural.
- * Actualizado: Botón de edición, menú de 3 líneas y estadísticas ajustadas a "Me Gusta".
+ * Actualizado: Animaciones de vales de depósito y retiro implementadas.
  */
 
 type WalletTab = "main" | "buy" | "withdraw";
-type RechargeStep = "packages" | "payment-method" | "payment-details" | "confirm";
+type RechargeStep = "packages" | "payment-method" | "payment-details" | "confirm" | "success";
 type WithdrawStep = "input" | "method" | "details" | "confirm" | "success";
 type PaymentMethod = "card" | "yape" | "paypal" | "cash" | "gift";
 type WithdrawMethod = "transfer" | "yape" | "paypal" | "gift" | "donate";
@@ -123,10 +124,7 @@ export function ProfileView({
         newBalance = await WalletService.injectFunds(Number(amount));
         setEspBalance(newBalance);
         setIsProcessing(false);
-        setWalletView("main");
-        setRechargeStep("packages");
-        setPaymentMethod(null);
-        setAmount("");
+        setRechargeStep("success");
         toast({ title: "Protocolo Completado", description: "Inyección de tokens exitosa." });
       } else {
         newBalance = await WalletService.withdrawFunds(Number(amount));
@@ -600,6 +598,44 @@ export function ProfileView({
                         <Button onClick={() => setRechargeStep("payment-details")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Corregir</Button>
                       </div>
                     )}
+
+                    {rechargeStep === "success" && (
+                      <div className="w-full flex flex-col items-center animate-in zoom-in-95 duration-700">
+                        <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-black mb-6 shadow-[0_0_40px_rgba(204,255,0,0.5)]">
+                          <CheckCircle2 size={48} strokeWidth={2.5} />
+                        </div>
+                        <div className="w-full max-w-[340px] bg-white rounded-[2rem] p-8 text-black shadow-2xl relative overflow-hidden flex flex-col gap-6">
+                           <div className="absolute -top-10 -right-10 opacity-10 rotate-12"><Sparkles size={120} /></div>
+                           <div className="flex justify-between items-center border-b border-black/5 pb-4">
+                             <span className="text-[8px] font-black uppercase text-black/40">Protocolo Inyectado</span>
+                             <span className="text-[8px] font-black uppercase text-black/40">ID: TXN-{(Math.random()*1000).toFixed(0)}</span>
+                           </div>
+                           <div className="text-center py-4">
+                             <p className="text-[10px] font-black uppercase text-black/40 mb-1">Inyección de Activos</p>
+                             <h4 className="text-4xl font-black italic tracking-tighter">+{amount} ESP</h4>
+                           </div>
+                           <div className="space-y-3">
+                             <div className="flex justify-between">
+                               <span className="text-[9px] font-bold text-black/40 uppercase">Método</span>
+                               <span className="text-[9px] font-black uppercase">{paymentMethod}</span>
+                             </div>
+                             <div className="flex justify-between">
+                               <span className="text-[9px] font-bold text-black/40 uppercase">Total PEN</span>
+                               <span className="text-[9px] font-black uppercase">S/. {solAmount.toFixed(2)}</span>
+                             </div>
+                           </div>
+                           <div className="bg-black/5 p-4 rounded-xl text-center">
+                              <p className="text-[7px] font-black uppercase tracking-widest">Sincronización Gaia Exitosa</p>
+                           </div>
+                        </div>
+                        <Button 
+                          onClick={() => { setWalletView("main"); setRechargeStep("packages"); setAmount(""); }} 
+                          className="w-full h-14 bg-primary text-black font-black uppercase tracking-widest rounded-2xl mt-8 shadow-xl"
+                        >
+                          Entendido
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -690,17 +726,54 @@ export function ProfileView({
 
                     {withdrawStep === "confirm" && (
                       <div className="w-full space-y-8 flex flex-col items-center">
-                        <div className="w-full p-8 rounded-[2.5rem] bg-white text-black space-y-6 relative overflow-hidden">
-                           <div className="absolute top-0 right-0 p-4 opacity-10"><Receipt size={100} /></div>
+                        <div className="text-center">
+                           <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Confirmar Retiro</h3>
+                        </div>
+                        <div className="w-full p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4 text-center">
+                           <p className="text-[10px] font-black uppercase text-white/30">Total a Liquidar</p>
+                           <h4 className="text-4xl font-black text-primary italic">S/. {solAmount.toFixed(2)}</h4>
+                        </div>
+                        <Button 
+                          onClick={executeTransaction}
+                          disabled={isProcessing}
+                          className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-xl"
+                        >
+                          {isProcessing ? <Loader2 className="animate-spin" /> : "Confirmar Liquidación"}
+                        </Button>
+                        <Button onClick={() => setWithdrawStep("details")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Volver</Button>
+                      </div>
+                    )}
+
+                    {withdrawStep === "success" && (
+                      <div className="w-full flex flex-col items-center animate-in slide-in-from-bottom-8 duration-700">
+                        <div className="h-20 w-20 rounded-full bg-primary flex items-center justify-center text-black mb-6 shadow-[0_0_40px_rgba(204,255,0,0.5)]">
+                          <CheckCircle2 size={48} strokeWidth={2.5} />
+                        </div>
+                        <div className="w-full max-w-[340px] bg-white rounded-[2rem] p-8 text-black shadow-2xl relative overflow-hidden flex flex-col gap-6">
+                           <div className="absolute top-0 right-0 p-6 opacity-10"><Receipt size={100} /></div>
                            <p className="text-[10px] font-black uppercase tracking-widest text-black/40">Voucher de Retiro</p>
                            <div className="space-y-4 pt-4 border-t border-black/5">
-                             <div className="flex justify-between">
-                               <span className="text-[9px] font-black uppercase text-black/40">Monto Liquidado</span>
+                             <div className="flex justify-between items-center">
+                               <span className="text-[9px] font-bold uppercase text-black/40">Monto Liquidado</span>
                                <span className="text-lg font-black italic">S/. {solAmount.toFixed(2)}</span>
                              </div>
+                             <div className="flex justify-between items-center">
+                               <span className="text-[9px] font-bold uppercase text-black/40">Tokens Debatidos</span>
+                               <span className="text-sm font-black italic">{amount} ESP</span>
+                             </div>
+                             <div className="flex justify-between items-center">
+                               <span className="text-[9px] font-bold uppercase text-black/40">Método</span>
+                               <span className="text-[9px] font-black uppercase">{withdrawMethod}</span>
+                             </div>
+                           </div>
+                           <div className="pt-4 border-t border-black/5 space-y-1">
+                             <p className="text-[8px] font-black uppercase text-black/20 text-center italic">Sincronización Gaia v.2.5 Protocol</p>
                            </div>
                         </div>
-                        <Button onClick={() => { setWalletView("main"); setWithdrawStep("input"); setAmount(""); }} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-xl">
+                        <Button 
+                          onClick={() => { setWalletView("main"); setWithdrawStep("input"); setAmount(""); }} 
+                          className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl mt-8 shadow-xl"
+                        >
                           Finalizar
                         </Button>
                       </div>
