@@ -49,6 +49,7 @@ import {
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Blindada.
  * Versión Avanzada: Analítica Profunda e Historial Segmentado.
+ * Blindaje: Ancho estricto de 390px para centrado absoluto.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
@@ -226,13 +227,13 @@ export function ProfileView({
           </div>
           <div className="flex gap-2 mb-2">
             {isOwnProfile ? (
-              <Button onClick={() => setIsEditing(true)} variant="outline" className="rounded-2xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest h-10 px-6">
+              <button onClick={() => setIsEditing(true)} className="h-10 px-6 rounded-2xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest text-[9px] flex items-center justify-center hover:bg-white/5 transition-all">
                 <Edit size={14} className="mr-2" /> Editar Perfil
-              </Button>
+              </button>
             ) : (
-              <Button onClick={handleFollow} className={cn("rounded-2xl text-[9px] font-black uppercase tracking-widest h-10 px-6", isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg")}>
+              <button onClick={handleFollow} className={cn("rounded-2xl text-[9px] font-black uppercase tracking-widest h-10 px-6", isFollowing ? "bg-white/10 text-white/40" : "bg-primary text-black shadow-lg")}>
                 {isFollowing ? "Siguiendo" : "Seguir"}
-              </Button>
+              </button>
             )}
           </div>
         </div>
@@ -314,36 +315,6 @@ export function ProfileView({
                  <p className="text-sm font-black text-white italic">12.8%</p>
               </div>
             </div>
-
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-2">Demografía Neural</h4>
-              <div className="grid grid-cols-1 gap-4">
-                 <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                    <span className="text-[10px] font-black text-white/60 uppercase italic">Rango Edad Principal</span>
-                    <span className="text-xs font-black text-primary uppercase italic">18-24 Años</span>
-                 </div>
-                 <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between">
-                    <span className="text-[10px] font-black text-white/60 uppercase italic">Distribución Sexo</span>
-                    <span className="text-xs font-black text-accent uppercase italic">62% Masc / 38% Fem</span>
-                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-2">Ubicación de Señal</h4>
-              <div className="space-y-2">
-                {[
-                  { loc: "Lima, PE", val: 45 },
-                  { loc: "CDMX, MX", val: 30 },
-                  { loc: "Bogotá, CO", val: 25 },
-                ].map(l => (
-                  <div key={l.loc} className="p-4 rounded-2xl bg-white/[0.01] border border-white/5 flex items-center justify-between">
-                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{l.loc}</span>
-                    <span className="text-[9px] font-black text-primary uppercase italic">{l.val}%</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </ScrollArea>
       </ProtocolWindow>
@@ -351,31 +322,37 @@ export function ProfileView({
       {/* Wallet Protocol Window */}
       <ProtocolWindow isOpen={isWalletOpen} onClose={() => setIsWalletOpen(false)} title="Billetera ESP">
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] overflow-x-hidden">
-          <div className="flex flex-col items-center justify-start w-full gap-6 pb-20 pt-4 overflow-x-hidden">
+          <div className="flex flex-col items-center justify-start w-full gap-8 pb-24 pt-6 overflow-x-hidden">
             
-            {/* Balance Card: Blindado y Centrado */}
-            <div className="w-full px-6">
-              <div className="mx-auto w-full max-w-[400px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
+            {/* Balance Card: Blindado a 390px */}
+            <div className="w-full flex justify-center px-4">
+              <div className="w-full max-w-[390px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
                 <div className="relative z-10">
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
                   <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
                     {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
                   </div>
-                  <div className="mt-6 flex gap-3">
-                    <Button onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} className="flex-1 bg-black text-white rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest">
+                  <div className="mt-8 flex gap-3">
+                    <button 
+                      onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} 
+                      className="flex-1 bg-black text-white rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl"
+                    >
                       <ArrowDownLeft className="mr-2" size={14} /> Recargar
-                    </Button>
-                    <Button onClick={() => { setWalletView("withdraw"); setAmount(""); }} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[9px] font-black uppercase tracking-widest">
+                    </button>
+                    <button 
+                      onClick={() => { setWalletView("withdraw"); setAmount(""); }} 
+                      className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+                    >
                       <ArrowUpRight className="mr-2" size={14} /> Retirar
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Wallet Selector Tabs: Blindado y Centrado */}
-            <div className="w-full px-6">
-              <div className="mx-auto w-full max-w-[400px] flex bg-white/5 p-1 rounded-2xl border border-white/5">
+            {/* Wallet Selector Tabs: Blindado a 390px */}
+            <div className="w-full flex justify-center px-4">
+              <div className="w-full max-w-[390px] flex bg-white/5 p-1 rounded-2xl border border-white/5">
                 {[
                   { id: "stats", label: "Analítica", icon: BarChart3 },
                   { id: "history", label: "Historial", icon: History },
@@ -384,8 +361,10 @@ export function ProfileView({
                     key={tab.id}
                     onClick={() => setWalletView(tab.id as WalletTab)}
                     className={cn(
-                      "flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl transition-all",
-                      walletView === tab.id ? "bg-white/10 text-primary" : "text-white/30"
+                      "flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all",
+                      walletView === tab.id 
+                        ? "bg-white/10 text-primary shadow-inner" 
+                        : "text-white/30 hover:text-white/60"
                     )}
                   >
                     <tab.icon size={14} />
@@ -395,13 +374,13 @@ export function ProfileView({
               </div>
             </div>
 
-            {/* Content Views: Estandarizados a un contenedor único max-w-[400px] */}
-            <div className="w-full px-6 overflow-x-hidden">
-              <div className="mx-auto w-full max-w-[400px] flex flex-col items-center">
+            {/* Content Views: Todas blindadas a 390px */}
+            <div className="w-full px-4 overflow-x-hidden flex justify-center">
+              <div className="w-full max-w-[390px]">
                 
-                {/* Stats View (Analítica Avanzada) */}
+                {/* Stats View */}
                 {walletView === "stats" && (
-                  <div className="w-full space-y-8 animate-in fade-in duration-500 flex flex-col items-center">
+                  <div className="w-full space-y-8 animate-in fade-in duration-500">
                     <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
                       <div className="flex justify-between items-center mb-6 px-2">
                         <div className="flex items-center gap-2">
@@ -431,11 +410,11 @@ export function ProfileView({
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 w-full">
-                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
+                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
                          <span className="text-[7px] font-black uppercase text-primary/60 block truncate">Rendimiento</span>
                          <p className="text-sm font-black text-white italic truncate">+24% Gaia</p>
                       </div>
-                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
+                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
                          <span className="text-[7px] font-black uppercase text-accent/60 block truncate">Retiros Pendientes</span>
                          <p className="text-sm font-black text-white italic truncate">12.5K ESP</p>
                       </div>
@@ -462,10 +441,10 @@ export function ProfileView({
                   </div>
                 )}
 
-                {/* History View (Historial Avanzado) */}
+                {/* History View */}
                 {walletView === "history" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full justify-start sm:justify-center">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full justify-start">
                       {[
                         { id: "all", label: "Todo" },
                         { id: "egress", label: "Egresos" },
@@ -477,8 +456,10 @@ export function ProfileView({
                           key={filter.id}
                           onClick={() => setHistoryFilter(filter.id as HistoryFilter)}
                           className={cn(
-                            "whitespace-nowrap px-4 py-2 rounded-xl text-[7px] font-black uppercase tracking-widest border transition-all shrink-0",
-                            historyFilter === filter.id ? "bg-primary text-black border-primary" : "bg-white/5 text-white/40 border-white/10"
+                            "whitespace-nowrap px-4 py-2.5 rounded-xl text-[7px] font-black uppercase tracking-widest border transition-all shrink-0",
+                            historyFilter === filter.id 
+                              ? "bg-primary text-black border-primary shadow-lg" 
+                              : "bg-white/5 text-white/40 border-white/10"
                           )}
                         >
                           {filter.label}
@@ -516,18 +497,18 @@ export function ProfileView({
 
                 {/* Buy View */}
                 {walletView === "buy" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
                     {rechargeStep === "gallery" && (
-                      <div className="grid grid-cols-2 gap-3 w-full">
+                      <div className="grid grid-cols-2 gap-4 w-full">
                         {Array.from({ length: 4 }).map((_, i) => (
                           <button 
                             key={i}
                             onClick={() => { setAmount(((i + 1) * 1000).toString()); setRechargeStep("confirm"); }}
-                            className="p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center min-w-0"
+                            className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center group active:scale-95 shadow-xl"
                           >
-                            <Zap size={24} className="text-primary/40 mx-auto mb-3" />
+                            <Zap size={24} className="text-primary/40 group-hover:text-primary mx-auto mb-4 transition-colors" />
                             <p className="text-2xl font-black text-white italic truncate leading-none">{((i + 1) * 1000).toLocaleString()}</p>
-                            <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mt-2">+15% regalo</p>
+                            <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mt-3">+15% regalo</p>
                           </button>
                         ))}
                       </div>
@@ -535,19 +516,26 @@ export function ProfileView({
                     {rechargeStep === "confirm" && (
                       <div className="w-full space-y-8 animate-in zoom-in-95 duration-300">
                         <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-2">Monto Seleccionado</span>
+                           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-3">Monto Seleccionado</span>
                            <div className="text-5xl font-black text-white italic tracking-tighter truncate">{Number(amount).toLocaleString()} ESP</div>
                         </div>
-                        <Button onClick={() => setPaymentMethod("card")} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
+                        <button 
+                          onClick={() => setPaymentMethod("card")} 
+                          className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
+                        >
                           Siguiente Protocolo
-                        </Button>
+                        </button>
                       </div>
                     )}
                     {paymentMethod && (
-                      <div className="w-full">
-                        <Button onClick={executeTransaction} disabled={isProcessing} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
-                          {isProcessing ? <Loader2 className="animate-spin mr-2" /> : "Confirmar Recarga"}
-                        </Button>
+                      <div className="w-full animate-in fade-in slide-in-from-bottom-4">
+                        <button 
+                          onClick={executeTransaction} 
+                          disabled={isProcessing} 
+                          className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl flex items-center justify-center gap-3 disabled:opacity-50"
+                        >
+                          {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Recarga"}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -555,20 +543,29 @@ export function ProfileView({
 
                 {/* Withdraw View */}
                 {walletView === "withdraw" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
+                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500">
                     <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                       <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-2">Cantidad a Retirar</label>
-                       <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="h-20 bg-transparent border-none text-center text-4xl font-black text-white focus-visible:ring-0" />
+                       <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-4">Cantidad a Retirar</label>
+                       <Input 
+                        type="number" 
+                        value={amount} 
+                        onChange={(e) => setAmount(e.target.value)} 
+                        className="h-20 bg-transparent border-none text-center text-5xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
+                        placeholder="0"
+                       />
                     </div>
-                    <div className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20 w-full">
+                    <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/20 w-full">
                        <p className="text-[9px] font-bold text-red-500/80 uppercase leading-relaxed text-center italic">
-                         AVISO: Solo se procesarán retiros al titular de la cuenta.
+                         AVISO: Solo se procesarán retiros al titular de la cuenta sincronizada con el Nodo Central.
                        </p>
                     </div>
-                    <div className="w-full">
-                      <Button onClick={executeTransaction} className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl">
+                    <div className="w-full pt-4">
+                      <button 
+                        onClick={executeTransaction} 
+                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
+                      >
                         Confirmar Retiro
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 )}
