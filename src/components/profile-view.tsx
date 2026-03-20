@@ -48,8 +48,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Blindada.
- * Versión Avanzada: Analítica Profunda e Historial Segmentado.
- * Blindaje: Ancho estricto de 390px para centrado absoluto.
+ * Blindaje: Ancho estricto de 390px para centrado absoluto en todos los nodos de datos.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
@@ -277,11 +276,11 @@ export function ProfileView({
         </div>
       </ProtocolWindow>
 
-      {/* Profile Analytics Window */}
+      {/* Profile Analytics Window - Blindado a 390px */}
       <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Perfil">
-        <ScrollArea className="w-full max-w-[400px] h-full max-h-[85vh] px-6 py-4">
-          <div className="space-y-8 pb-12">
-            <div className="flex items-center justify-between px-2">
+        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] px-0 py-4">
+          <div className="flex flex-col items-center w-full space-y-8 pb-12 overflow-x-hidden">
+            <div className="w-full max-w-[390px] flex items-center justify-between px-4">
                <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Performance</span></h3>
                <Select value={statsTimeframe} onValueChange={setStatsTimeframe}>
                  <SelectTrigger className="h-9 w-24 bg-white/5 border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest">
@@ -295,17 +294,19 @@ export function ProfileView({
                </Select>
             </div>
             
-            <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5">
-              <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                <AreaChart data={MOCK_CHART_DATA}>
-                  <XAxis dataKey="name" hide />
-                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                  <Area type="monotone" dataKey="income" name="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} />
-                </AreaChart>
-              </ChartContainer>
+            <div className="w-full max-w-[390px] px-4">
+              <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
+                <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                  <AreaChart data={MOCK_CHART_DATA}>
+                    <XAxis dataKey="name" hide />
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    <Area type="monotone" dataKey="income" name="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} />
+                  </AreaChart>
+                </ChartContainer>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="w-full max-w-[390px] px-4 grid grid-cols-2 gap-4">
               <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
                  <span className="text-[7px] font-black uppercase text-primary/60 block">Visualizaciones</span>
                  <p className="text-sm font-black text-white italic">24.5K</p>
@@ -319,7 +320,7 @@ export function ProfileView({
         </ScrollArea>
       </ProtocolWindow>
 
-      {/* Wallet Protocol Window */}
+      {/* Wallet Protocol Window - Blindado a 390px */}
       <ProtocolWindow isOpen={isWalletOpen} onClose={() => setIsWalletOpen(false)} title="Billetera ESP">
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] overflow-x-hidden">
           <div className="flex flex-col items-center justify-start w-full gap-8 pb-24 pt-6 overflow-x-hidden">
