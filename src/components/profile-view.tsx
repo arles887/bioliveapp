@@ -8,7 +8,8 @@ import {
   Loader2, CreditCard, Smartphone, Globe, Gift, 
   Shield, ArrowUpRight, ArrowDownLeft, Landmark, 
   Edit, Coins, BadgePercent, TrendingUp, AlertCircle,
-  BarChart3, MapPin, Calendar, MessageCircle, Heart
+  BarChart3, MapPin, Calendar, MessageCircle, Heart,
+  Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP e Inteligencia de Datos.
- * Corregido: Deformación de layout en billetera mediante min-w-0 y truncado estricto.
+ * Solucionado: Error de referencia 'Users' y blindaje de desbordamiento en billetera.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
