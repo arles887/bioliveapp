@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
@@ -9,8 +8,7 @@ import {
   Loader2, CreditCard, Smartphone, Globe, Gift, 
   Shield, ArrowUpRight, ArrowDownLeft, Landmark, 
   Edit, Coins, BadgePercent, TrendingUp, AlertCircle,
-  BarChart3, PieChart as PieChartIcon, Calendar, Filter,
-  Users, Heart, MessageCircle, BarChart, Bar, MapPin
+  BarChart3, MapPin, Calendar, MessageCircle, Heart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,13 +30,10 @@ import { WalletService } from "@/services/wallet-service";
 import { 
   Area, 
   AreaChart, 
-  ResponsiveContainer, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
   PieChart, 
   Pie, 
-  Cell 
+  Cell,
+  XAxis
 } from "recharts";
 import { 
   ChartContainer, 
@@ -56,7 +51,7 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP e Inteligencia de Datos.
- * Corregido: Error de contexto de gráficos solucionado envolviendo con ChartContainer.
+ * Corregido: Deformación de layout en billetera mediante min-w-0 y truncado estricto.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
@@ -366,7 +361,6 @@ export function ProfileView({
                </Select>
             </div>
 
-            {/* Main Views Chart */}
             <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
               <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Visualizaciones de Perfil</span>
               <ChartContainer config={chartConfig} className="h-[200px] w-full aspect-auto">
@@ -384,7 +378,6 @@ export function ProfileView({
               </ChartContainer>
             </div>
 
-            {/* Metrics Cards */}
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "Vistas Perfil", value: "84.2K", icon: BarChart3, color: "text-primary" },
@@ -403,7 +396,6 @@ export function ProfileView({
               ))}
             </div>
 
-            {/* Demographics */}
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 px-2">Audiencia Neural</h4>
               <div className="grid grid-cols-2 gap-3">
@@ -430,7 +422,6 @@ export function ProfileView({
               </div>
             </div>
 
-            {/* Location Bar Chart */}
             <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
               <div className="flex items-center gap-3">
                 <MapPin size={14} className="text-primary" />
@@ -459,8 +450,8 @@ export function ProfileView({
 
       {/* Wallet Protocol Window */}
       <ProtocolWindow isOpen={isWalletOpen} onClose={handleWalletClose} title="Billetera ESP">
-        <ScrollArea className="w-full max-w-[400px] h-full max-h-[85vh] px-6 py-4">
-          <div className="space-y-6 pb-12">
+        <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh]">
+          <div className="p-6 space-y-6 pb-12 w-full">
             
             {/* Balance Card */}
             <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden group">
@@ -484,7 +475,7 @@ export function ProfileView({
             </div>
 
             {/* Wallet Quick Navigation Tabs */}
-            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 w-full">
               {[
                 { id: "main", label: "Inicio", icon: Wallet },
                 { id: "stats", label: "Analítica", icon: BarChart3 },
@@ -494,21 +485,21 @@ export function ProfileView({
                   key={tab.id}
                   onClick={() => setWalletView(tab.id as WalletTab)}
                   className={cn(
-                    "flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl transition-all duration-300",
+                    "flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl transition-all duration-300 min-w-0",
                     walletView === tab.id 
                       ? "bg-white/10 text-primary shadow-lg" 
                       : "text-white/30 hover:text-white/60"
                   )}
                 >
                   <tab.icon size={14} className={cn(walletView === tab.id ? "text-primary" : "")} />
-                  <span className="text-[7px] font-black uppercase tracking-widest">{tab.label}</span>
+                  <span className="text-[7px] font-black uppercase tracking-widest truncate w-full px-1">{tab.label}</span>
                 </button>
               ))}
             </div>
 
             {/* View Logic: Recarga */}
             {walletView === "buy" && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500">
+              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -516,7 +507,7 @@ export function ProfileView({
                       else if (rechargeStep === "confirm") setRechargeStep("gallery");
                       else if (rechargeStep === "payment") setRechargeStep("confirm");
                     }} 
-                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10"
+                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10 shrink-0"
                    >
                      <ChevronLeft size={20} />
                    </button>
@@ -526,51 +517,51 @@ export function ProfileView({
                 </div>
 
                 {rechargeStep === "gallery" && (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-3 w-full">
                     {tokenPackages.map((pkg) => (
                       <button 
                         key={pkg.id}
                         onClick={() => { setAmount(pkg.amount.toString()); setRechargeStep("confirm"); }}
-                        className="group relative flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center overflow-hidden"
+                        className="group relative flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center overflow-hidden min-w-0"
                       >
                         <div className="absolute top-3 left-3 flex gap-1">
                           <BadgePercent size={10} className="text-primary" />
-                          <span className="text-[7px] font-black text-primary uppercase">{pkg.label}</span>
+                          <span className="text-[7px] font-black text-primary uppercase truncate">{pkg.label}</span>
                         </div>
                         <Zap size={24} className="text-primary/40 group-hover:text-primary group-hover:scale-110 transition-all mb-3" />
-                        <div className="space-y-1">
+                        <div className="space-y-1 w-full">
                           <p className="text-2xl font-black text-white italic leading-none truncate">{pkg.amount.toLocaleString()}</p>
-                          <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest">+ {pkg.gift.toLocaleString()} regalo</p>
+                          <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest truncate">+ {pkg.gift.toLocaleString()} regalo</p>
                         </div>
-                        <div className="mt-4 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-white">
+                        <div className="mt-4 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[9px] font-black text-white truncate">
                           S/ {pkg.price}
                         </div>
                       </button>
                     ))}
                     <button 
                       onClick={() => { setAmount(""); setRechargeStep("confirm"); }}
-                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2"
+                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2 w-full"
                     >
                       <Coins size={32} className="text-primary mx-auto group-hover:rotate-12 transition-transform" />
-                      <div>
-                        <p className="text-lg font-black text-white italic uppercase">Personalizado</p>
-                        <p className="text-[8px] text-white/40 font-black uppercase tracking-widest">Inyecta el flujo exacto</p>
+                      <div className="min-w-0">
+                        <p className="text-lg font-black text-white italic uppercase truncate">Personalizado</p>
+                        <p className="text-[8px] text-white/40 font-black uppercase tracking-widest truncate">Inyecta el flujo exacto</p>
                       </div>
                     </button>
                   </div>
                 )}
 
                 {rechargeStep === "confirm" && (
-                  <div className="space-y-8 animate-in zoom-in-95 duration-300">
+                  <div className="space-y-8 animate-in zoom-in-95 duration-300 w-full">
                     <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center space-y-6 relative overflow-hidden">
                        <div className="absolute -top-10 -right-10 h-40 w-40 bg-primary/5 rounded-full blur-3xl" />
                        <TrendingUp size={48} className="text-primary mx-auto" />
-                       <div className="space-y-2">
-                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic">Monto a Inyectar</span>
-                          <div className="text-5xl font-black text-white italic tracking-tighter">
+                       <div className="space-y-2 min-w-0">
+                          <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block truncate">Monto a Inyectar</span>
+                          <div className="text-5xl font-black text-white italic tracking-tighter truncate">
                             {amount ? Number(amount).toLocaleString() : "0"} <span className="text-sm">ESP</span>
                           </div>
-                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Equivalente a S/ {(Number(amount) * 0.05).toFixed(2)} PEN</p>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest truncate">Equivalente a S/ {(Number(amount) * 0.05).toFixed(2)} PEN</p>
                        </div>
                     </div>
                     <div className="space-y-4">
@@ -580,25 +571,25 @@ export function ProfileView({
                       >
                         Siguiente Protocolo
                       </Button>
-                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Volver a la Galería</button>
+                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors truncate">Volver a la Galería</button>
                     </div>
                   </div>
                 )}
 
                 {rechargeStep === "payment" && !paymentMethod && (
-                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500">
-                    <button onClick={() => { setPaymentMethod("card"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500 w-full">
+                    <button onClick={() => { setPaymentMethod("card"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <CreditCard className="text-primary group-hover:scale-110 transition-transform shrink-0" />
-                      <div className="text-left truncate">
+                      <div className="text-left min-w-0 flex-1">
                         <p className="text-sm font-black text-white italic uppercase truncate">Tarjeta Crédito/Débito</p>
-                        <p className="text-[8px] text-white/30 font-bold uppercase mt-1">Visa, Mastercard, Amex</p>
+                        <p className="text-[8px] text-white/30 font-bold uppercase mt-1 truncate">Visa, Mastercard, Amex</p>
                       </div>
                     </button>
-                    <button onClick={() => { setPaymentMethod("yape"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                    <button onClick={() => { setPaymentMethod("yape"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <Smartphone className="text-accent group-hover:scale-110 transition-transform shrink-0" />
                       <p className="text-sm font-black text-white italic uppercase truncate">Yape / Plin</p>
                     </button>
-                    <button onClick={() => { setPaymentMethod("paypal"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                    <button onClick={() => { setPaymentMethod("paypal"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <Globe className="text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
                       <p className="text-sm font-black text-white italic uppercase truncate">PayPal Global</p>
                     </button>
@@ -606,11 +597,11 @@ export function ProfileView({
                 )}
 
                 {paymentMethod && (
-                  <div className="space-y-6 animate-in fade-in duration-500">
+                  <div className="space-y-6 animate-in fade-in duration-500 w-full">
                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex items-center justify-between">
-                         <span className="text-[9px] font-black uppercase text-primary tracking-widest">{paymentMethod.toUpperCase()}</span>
-                         <Shield size={12} className="text-primary" />
+                         <span className="text-[9px] font-black uppercase text-primary tracking-widest truncate">{paymentMethod.toUpperCase()}</span>
+                         <Shield size={12} className="text-primary shrink-0" />
                       </div>
                       <Input placeholder="DETALLES DE PAGO" className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
                     </div>
@@ -618,7 +609,7 @@ export function ProfileView({
                       {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <Zap size={16} fill="black" className="mr-2" />}
                       {isProcessing ? "Procesando..." : `Confirmar Recarga`}
                     </Button>
-                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Cambiar Método</button>
+                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors truncate">Cambiar Método</button>
                   </div>
                 )}
               </div>
@@ -626,7 +617,7 @@ export function ProfileView({
 
             {/* View Logic: Retiro */}
             {walletView === "withdraw" && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500">
+              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -634,7 +625,7 @@ export function ProfileView({
                       else if (rechargeStep === "confirm") setRechargeStep("gallery");
                       else if (rechargeStep === "payment") setRechargeStep("confirm");
                     }} 
-                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10"
+                    className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 border border-white/10 shrink-0"
                    >
                      <ChevronLeft size={20} />
                    </button>
@@ -644,10 +635,10 @@ export function ProfileView({
                 </div>
 
                 {rechargeStep === "gallery" && (
-                  <div className="space-y-8 animate-in fade-in duration-500">
+                  <div className="space-y-8 animate-in fade-in duration-500 w-full">
                     <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 space-y-6">
-                      <div className="space-y-2 text-center">
-                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic">Cantidad a Retirar</label>
+                      <div className="space-y-2 text-center min-w-0">
+                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block truncate">Cantidad a Retirar</label>
                          <Input 
                           type="number"
                           placeholder="0.00" 
@@ -655,13 +646,13 @@ export function ProfileView({
                           onChange={(e) => setAmount(e.target.value)}
                           className="h-20 bg-transparent border-none text-center text-4xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
                          />
-                         <p className="text-[9px] text-white/20 font-black uppercase tracking-widest">Saldo Disponible: {espBalance.toLocaleString()} ESP</p>
+                         <p className="text-[9px] text-white/20 font-black uppercase tracking-widest truncate">Saldo Disponible: {espBalance.toLocaleString()} ESP</p>
                       </div>
                     </div>
 
                     <div className="p-6 rounded-2xl bg-red-500/5 border border-red-500/20 flex gap-4 items-start">
                       <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={16} />
-                      <p className="text-[10px] font-bold text-red-500/80 uppercase leading-relaxed italic">
+                      <p className="text-[10px] font-bold text-red-500/80 uppercase leading-relaxed italic line-clamp-4">
                         AVISO: Solo se procesarán retiros a cuentas que pertenezcan al titular registrado. Las transferencias a terceros serán rechazadas por el protocolo Gaia.
                       </p>
                     </div>
@@ -679,16 +670,16 @@ export function ProfileView({
                 )}
 
                 {rechargeStep === "confirm" && (
-                  <div className="space-y-8 animate-in zoom-in-95 duration-300">
+                  <div className="space-y-8 animate-in zoom-in-95 duration-300 w-full">
                     <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center space-y-6 relative overflow-hidden">
                        <div className="absolute -top-10 -right-10 h-40 w-40 bg-red-500/5 rounded-full blur-3xl" />
                        <ArrowUpRight size={48} className="text-red-500 mx-auto" />
-                       <div className="space-y-2">
-                          <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em] italic">Monto a Retirar</span>
-                          <div className="text-5xl font-black text-white italic tracking-tighter">
+                       <div className="space-y-2 min-w-0">
+                          <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em] italic block truncate">Monto a Retirar</span>
+                          <div className="text-5xl font-black text-white italic tracking-tighter truncate">
                             {amount ? Number(amount).toLocaleString() : "0"} <span className="text-sm">ESP</span>
                           </div>
-                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Valor de Cambio: S/ {(Number(amount) * 0.045).toFixed(2)} PEN</p>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest truncate">Valor de Cambio: S/ {(Number(amount) * 0.045).toFixed(2)} PEN</p>
                        </div>
                     </div>
                     <div className="space-y-4">
@@ -698,25 +689,25 @@ export function ProfileView({
                       >
                         Siguiente Protocolo
                       </Button>
-                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Volver al Monto</button>
+                      <button onClick={() => setRechargeStep("gallery")} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors truncate">Volver al Monto</button>
                     </div>
                   </div>
                 )}
 
                 {rechargeStep === "payment" && !paymentMethod && (
-                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500">
-                    <button onClick={() => { setPaymentMethod("bank"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500 w-full">
+                    <button onClick={() => { setPaymentMethod("bank"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <Landmark className="text-primary group-hover:scale-110 transition-transform shrink-0" />
-                      <div className="text-left truncate">
+                      <div className="text-left flex-1 min-w-0">
                         <p className="text-sm font-black text-white italic uppercase truncate">Transferencia Bancaria</p>
-                        <p className="text-[8px] text-white/30 font-bold uppercase mt-1">BCP, Interbank, BBVA</p>
+                        <p className="text-[8px] text-white/30 font-bold uppercase mt-1 truncate">BCP, Interbank, BBVA</p>
                       </div>
                     </button>
-                    <button onClick={() => { setPaymentMethod("yape"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                    <button onClick={() => { setPaymentMethod("yape"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <Smartphone className="text-accent group-hover:scale-110 transition-transform shrink-0" />
                       <p className="text-sm font-black text-white italic uppercase truncate">Yape / Plin</p>
                     </button>
-                    <button onClick={() => { setPaymentMethod("paypal"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all">
+                    <button onClick={() => { setPaymentMethod("paypal"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <Globe className="text-blue-400 group-hover:scale-110 transition-transform shrink-0" />
                       <p className="text-sm font-black text-white italic uppercase truncate">PayPal Global</p>
                     </button>
@@ -724,11 +715,11 @@ export function ProfileView({
                 )}
 
                 {paymentMethod && (
-                  <div className="space-y-6 animate-in fade-in duration-500">
+                  <div className="space-y-6 animate-in fade-in duration-500 w-full">
                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex items-center justify-between">
-                         <span className="text-[9px] font-black uppercase text-primary tracking-widest">{paymentMethod.toUpperCase()}</span>
-                         <Shield size={12} className="text-primary" />
+                         <span className="text-[9px] font-black uppercase text-primary tracking-widest truncate">{paymentMethod.toUpperCase()}</span>
+                         <Shield size={12} className="text-primary shrink-0" />
                       </div>
                       <Input placeholder={paymentMethod === 'bank' ? "NÚMERO DE CUENTA / CCI" : "NÚMERO O EMAIL"} className="h-14 bg-white/5 border-white/10 rounded-2xl text-[10px] font-black tracking-widest text-white" />
                     </div>
@@ -736,7 +727,7 @@ export function ProfileView({
                       {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <ArrowUpRight size={16} className="mr-2" />}
                       {isProcessing ? "Procesando..." : `Confirmar Retiro`}
                     </Button>
-                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors">Cambiar Destino</button>
+                    <button onClick={() => setPaymentMethod(null)} className="w-full text-[9px] font-black text-white/30 uppercase tracking-[0.3em] hover:text-white transition-colors truncate">Cambiar Destino</button>
                   </div>
                 )}
               </div>
@@ -744,10 +735,10 @@ export function ProfileView({
 
             {/* View Logic: Estadísticas (Analytics) */}
             {walletView === "stats" && (
-              <div className="space-y-8 animate-in fade-in duration-500 pb-8">
+              <div className="space-y-8 animate-in fade-in duration-500 pb-8 w-full">
                 <div className="flex items-center justify-between px-2">
-                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Analytics</span></h3>
-                   <div className="flex gap-2">
+                   <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">Bio<span className="text-primary">Analytics</span></h3>
+                   <div className="flex gap-2 shrink-0">
                      <Select value={statsTimeframe} onValueChange={setStatsTimeframe}>
                        <SelectTrigger className="h-9 w-24 bg-white/5 border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest">
                          <Calendar className="mr-2 h-3 w-3" /> {statsTimeframe}
@@ -762,17 +753,17 @@ export function ProfileView({
                 </div>
 
                 {/* Main Area Chart */}
-                <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Flujo de Activos</span>
+                <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4 w-full overflow-hidden">
+                  <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2 mb-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/40 truncate">Flujo de Activos</span>
                     <div className="flex gap-4">
                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-primary" />
-                          <span className="text-[8px] font-black text-white/60 uppercase">Ingresos</span>
+                          <div className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                          <span className="text-[8px] font-black text-white/60 uppercase truncate">Ingresos</span>
                        </div>
                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-accent" />
-                          <span className="text-[8px] font-black text-white/60 uppercase">Egresos</span>
+                          <div className="h-2 w-2 rounded-full bg-accent shrink-0" />
+                          <span className="text-[8px] font-black text-white/60 uppercase truncate">Egresos</span>
                        </div>
                     </div>
                   </div>
@@ -805,8 +796,8 @@ export function ProfileView({
                 </div>
 
                 {/* Origin Pie Chart */}
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex items-center gap-6">
+                <div className="w-full">
+                  <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex flex-col xs:flex-row items-center gap-6">
                      <ChartContainer config={{}} className="h-[120px] w-[120px] shrink-0 aspect-auto">
                         <PieChart>
                           <Pie
@@ -824,15 +815,15 @@ export function ProfileView({
                           </Pie>
                         </PieChart>
                      </ChartContainer>
-                     <div className="flex-1 space-y-3">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-2">Origen de Señales</h4>
+                     <div className="flex-1 space-y-3 w-full min-w-0">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/60 mb-2 truncate">Origen de Señales</h4>
                         {ORIGIN_DATA.map((item) => (
                           <div key={item.name} className="flex items-center justify-between">
-                             <div className="flex items-center gap-2">
-                                <div className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }} />
-                                <span className="text-[9px] font-black text-white uppercase italic">{item.name}</span>
+                             <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <div className="h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                                <span className="text-[9px] font-black text-white uppercase italic truncate">{item.name}</span>
                              </div>
-                             <span className="text-[9px] font-black text-white/40">{item.value}%</span>
+                             <span className="text-[9px] font-black text-white/40 ml-2">{item.value}%</span>
                           </div>
                         ))}
                      </div>
@@ -840,13 +831,13 @@ export function ProfileView({
                 </div>
 
                 {/* Summary Widgets */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
-                     <span className="text-[7px] font-black uppercase tracking-widest text-primary/60">Saldo Recargado</span>
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
+                     <span className="text-[7px] font-black uppercase tracking-widest text-primary/60 block truncate">Saldo Recargado</span>
                      <p className="text-sm font-black text-white italic truncate">1,450,200 ESP</p>
                   </div>
-                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1">
-                     <span className="text-[7px] font-black uppercase tracking-widest text-accent/60">Retiros Totales</span>
+                  <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
+                     <span className="text-[7px] font-black uppercase tracking-widest text-accent/60 block truncate">Retiros Totales</span>
                      <p className="text-sm font-black text-white italic truncate">240,500 ESP</p>
                   </div>
                 </div>
@@ -855,42 +846,42 @@ export function ProfileView({
 
             {/* View Logic: Historial (History) */}
             {(walletView === "main" || walletView === "history") && (
-              <div className="space-y-4 animate-in fade-in duration-500 pb-8">
+              <div className="space-y-4 animate-in fade-in duration-500 pb-8 w-full">
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 italic">Registro de Frecuencias</h3>
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 italic truncate">Registro de Frecuencias</h3>
                   {walletView === "main" && (
-                    <button onClick={() => setWalletView("history")} className="text-[8px] font-black text-primary uppercase tracking-widest hover:underline">Ver Todo</button>
+                    <button onClick={() => setWalletView("history")} className="text-[8px] font-black text-primary uppercase tracking-widest hover:underline shrink-0 ml-2">Ver Todo</button>
                   )}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 w-full">
                   {[1, 2, 3, 4, 5, 6].map(i => (
-                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all">
-                      <div className="flex items-center gap-4 min-w-0">
+                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all w-full min-w-0">
+                      <div className="flex items-center gap-4 min-w-0 flex-1">
                         <div className={cn(
                           "h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover:scale-110",
                           i % 3 === 0 ? "bg-primary/10 text-primary" : i % 3 === 1 ? "bg-accent/10 text-accent" : "bg-white/5 text-white/40"
                         )}>
                           {i % 3 === 0 ? <ArrowDownLeft size={20} /> : i % 3 === 1 ? <ArrowUpRight size={20} /> : <Gift size={20} />}
                         </div>
-                        <div className="min-w-0 flex-1">
+                        <div className="min-w-0 flex-1 overflow-hidden">
                           <p className="text-[10px] font-black text-white uppercase italic truncate">
                             {i % 3 === 0 ? "Inyección de Nodo" : i % 3 === 1 ? "Retiro de Activos" : "Regalo de Fan"}
                           </p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest truncate">Gaia Protocol #{2045 - i}</span>
-                            <div className="h-1 w-1 rounded-full bg-white/10" />
-                            <span className="text-[8px] text-white/20 font-bold uppercase truncate">{10 + i}m atrás</span>
+                          <div className="flex items-center gap-2 mt-0.5 min-w-0">
+                            <span className="text-[8px] text-white/20 font-bold uppercase tracking-widest truncate flex-1">Gaia Protocol #{2045 - i}</span>
+                            <div className="h-1 w-1 rounded-full bg-white/10 shrink-0" />
+                            <span className="text-[8px] text-white/20 font-bold uppercase truncate shrink-0">{10 + i}m atrás</span>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right shrink-0">
+                      <div className="text-right shrink-0 ml-4">
                         <span className={cn(
-                          "text-xs font-black italic block",
+                          "text-xs font-black italic block truncate",
                           i % 3 === 1 ? "text-red-400" : "text-primary"
                         )}>
                           {i % 3 === 1 ? "-" : "+"}{(500 * i).toLocaleString()} ESP
                         </span>
-                        <span className="text-[7px] font-black uppercase text-white/10 tracking-widest">Sincronizado</span>
+                        <span className="text-[7px] font-black uppercase text-white/10 tracking-widest truncate block">Sincronizado</span>
                       </div>
                     </div>
                   ))}
