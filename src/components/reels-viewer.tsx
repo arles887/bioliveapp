@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { 
   Heart, MessageCircle, Share2, Music, Play, Pause, Volume2, VolumeX, Zap,
-  Link, Mail, Facebook, Send, Camera, X, MessageSquare
+  Link, Mail, Facebook, Send, Camera, X, MessageSquare, Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -11,10 +11,12 @@ import { ProtocolWindow } from "@/components/protocol-window";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 /**
  * @fileOverview Visualizador de Reels optimizado con protocolos de Interacción Extendida.
  * Estandarizado a 500px con control estricto de desbordamiento de texto.
+ * Comentarios ahora en formato Bottom Sheet de media pantalla.
  */
 
 const VIDEO_SOURCES = [
@@ -22,7 +24,6 @@ const VIDEO_SOURCES = [
   "https://www.youtube.com/embed/-rDD5v-oTjM?autoplay=0&mute=1&loop=1&playlist=-rDD5v-oTjM&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/dn3mKOYeR20?autoplay=0&mute=1&loop=1&playlist=dn3mKOYeR20&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/A0I0CnYoFO8?autoplay=0&mute=1&loop=1&playlist=A0I0CnYoFO8&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/OKkle0WgDQQ?autoplay=0&mute=1&loop=1&playlist=OKkle0WgDQQ&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/OKkle0WgDQQ?autoplay=0&mute=1&loop=1&playlist=OKkle0WgDQQ&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/80aU_aT1VPA?autoplay=0&mute=1&loop=1&playlist=80aU_aT1VPA&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/sJTcMA3e7LI?autoplay=0&mute=1&loop=1&playlist=sJTcMA3e7LI&controls=0&modestbranding=1&rel=0",
@@ -50,6 +51,8 @@ const MOCK_COMMENTS = [
   { id: "c2", user: "GaiaWatcher", text: "Me encanta la síntesis de esporas de este sector." },
   { id: "c3", user: "CyberNature", text: "BioLive está evolucionando rápido 🌿⚡" },
   { id: "c4", user: "Watcher_99", text: "Excelente resolución." },
+  { id: "c5", user: "NeonExplorer", text: "Protocolo de luz activo en ese cuadrante." },
+  { id: "c6", user: "Gaia_OS", text: "Señal optimizada por el nodo central." },
 ];
 
 export function ReelsViewer({ 
@@ -213,7 +216,7 @@ function ReelItem({
           </div>
         </div>
 
-        {/* Panel Lateral de Interacción - Calibración 390px */}
+        {/* Panel Lateral de Interacción */}
         <div className="absolute bottom-52 right-3 flex flex-col items-center gap-6 z-50">
           <div onClick={() => toggleLike(reel.id)} className="flex flex-col items-center gap-1 cursor-pointer">
             <div className={cn(
@@ -285,47 +288,63 @@ function ReelItem({
         </div>
       </ProtocolWindow>
 
-      {/* Protocolo de Comentarios (Hilos Neurales) */}
-      <ProtocolWindow isOpen={isCommentsOpen} onClose={() => setIsCommentsOpen(false)} title="Hilos Neurales">
-        <div className="w-full max-w-[390px] h-full flex flex-col pb-20 mx-auto">
-          <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3">
-             <MessageSquare size={16} className="text-primary" />
-             <h3 className="text-xs font-black uppercase italic tracking-widest text-white">Señales de Respuesta</h3>
-          </div>
-
-          <ScrollArea className="flex-1 px-6">
-            <div className="py-8 space-y-8">
-              {MOCK_COMMENTS.map((comment) => (
-                <div key={comment.id} className="flex flex-col gap-2 group">
-                   <div className="flex items-center gap-2">
-                     <div className="h-6 w-6 rounded-lg bg-white/10 border border-white/10 overflow-hidden relative">
-                       <img src={`https://picsum.photos/seed/${comment.user}/50/50`} alt="Avatar" className="object-cover" />
-                     </div>
-                     <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest italic">@{comment.user}</span>
-                   </div>
-                   <div className="bg-white/[0.03] border border-white/5 rounded-2xl rounded-tl-none px-4 py-3 text-[11px] text-white/80 leading-relaxed max-w-[90%] transition-all group-hover:bg-white/5">
-                     {comment.text}
-                   </div>
-                </div>
-              ))}
+      {/* Protocolo de Comentarios (Hilos Neurales) - Bottom Half Sheet */}
+      <DialogPrimitive.Root open={isCommentsOpen} onOpenChange={setIsCommentsOpen}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px]" />
+          <DialogPrimitive.Content 
+            className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[500px] h-[60vh] bg-[#020503] rounded-t-[3rem] border-t border-white/10 z-[70] shadow-[0_-20px_50px_rgba(0,0,0,0.5)] focus:outline-none flex flex-col overflow-hidden"
+          >
+            {/* Header del Bottom Sheet */}
+            <div className="px-8 pt-6 pb-4 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
+              <div className="flex items-center gap-3">
+                <MessageSquare size={16} className="text-primary" />
+                <DialogPrimitive.Title className="text-xs font-black uppercase italic tracking-widest text-white">
+                  Hilos Neurales
+                </DialogPrimitive.Title>
+              </div>
+              
+              {/* Botón de Cierre Minimalista */}
+              <DialogPrimitive.Close className="h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-all">
+                <X size={16} />
+              </DialogPrimitive.Close>
             </div>
-          </ScrollArea>
 
-          <div className="p-6 bg-[#020503] border-t border-white/5">
-            <form onSubmit={handleSendComment} className="flex gap-2">
-               <Input 
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Inyectar respuesta..." 
-                className="h-12 bg-white/5 border-white/10 rounded-xl px-4 text-[10px] text-white focus-visible:ring-primary"
-               />
-               <Button type="submit" className="h-12 w-12 rounded-xl bg-primary text-black shrink-0">
-                  <Send size={18} fill="currentColor" />
-               </Button>
-            </form>
-          </div>
-        </div>
-      </ProtocolWindow>
+            <ScrollArea className="flex-1 px-8">
+              <div className="py-6 space-y-6">
+                {MOCK_COMMENTS.map((comment) => (
+                  <div key={comment.id} className="flex flex-col gap-2 group">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-lg bg-white/10 border border-white/10 overflow-hidden relative">
+                        <img src={`https://picsum.photos/seed/${comment.user}/50/50`} alt="Avatar" className="object-cover h-full w-full" />
+                      </div>
+                      <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest italic">@{comment.user}</span>
+                    </div>
+                    <div className="bg-white/[0.03] border border-white/5 rounded-2xl rounded-tl-none px-4 py-3 text-[11px] text-white/80 leading-relaxed max-w-[90%] transition-all group-hover:bg-white/5">
+                      {comment.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+
+            {/* Input de Comentarios Fijo */}
+            <div className="p-6 bg-[#020503] border-t border-white/5">
+              <form onSubmit={handleSendComment} className="flex gap-3">
+                 <Input 
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Inyectar respuesta..." 
+                  className="h-12 bg-white/5 border-white/10 rounded-2xl px-5 text-[10px] text-white focus-visible:ring-primary placeholder:text-white/20"
+                 />
+                 <Button type="submit" className="h-12 w-12 rounded-2xl bg-primary text-black shrink-0 shadow-lg shadow-primary/20 active:scale-90 transition-all">
+                    <Send size={18} fill="currentColor" />
+                 </Button>
+              </form>
+            </div>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </div>
   );
 }
