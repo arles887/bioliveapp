@@ -49,6 +49,7 @@ import {
  * @fileOverview Vista de Perfil con Billetera ESP Blindada (390px) y Analítica Global.
  * Incluye: Auth (2025), Analítica Financiera, Rendimiento por Contenido e Historial.
  * Analítica Global: Visualizaciones, Localización, Edad, Seguidores/Likes Netos y Aceptación.
+ * Actualizado: Precios en Soles (S/.) y personalización de montos con cálculo dinámico.
  */
 
 type WalletTab = "main" | "buy" | "withdraw";
@@ -105,6 +106,7 @@ export function ProfileView({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [amount, setAmount] = useState("");
+  const [customAmount, setCustomAmount] = useState("");
   const [espBalance, setEspBalance] = useState(WalletService.getBalance());
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
@@ -134,6 +136,7 @@ export function ProfileView({
       setRechargeStep("packages");
       setPaymentMethod(null);
       setAmount("");
+      setCustomAmount("");
       toast({ title: "Protocolo Completado", description: "Transacción inyectada con éxito." });
     }, 2000);
   };
@@ -339,31 +342,52 @@ export function ProfileView({
                           <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Selecciona un Nodo de Energía</p>
                         </div>
                         <div className="grid grid-cols-2 gap-3 w-full">
-                          {PREDEFINED_PACKAGES.slice(0, 50).map((pkg) => (
+                          {PREDEFINED_PACKAGES.map((pkg) => (
                             <button 
                               key={pkg.id} 
                               onClick={() => { setAmount(pkg.amount.toString()); setRechargeStep("payment-method"); }}
-                              className="relative p-5 rounded-[2rem] bg-white/[0.03] border border-white/10 hover:border-primary/40 transition-all text-center group active:scale-95 overflow-hidden"
+                              className="relative p-5 pt-7 rounded-[2rem] bg-white/[0.03] border border-white/10 hover:border-primary/40 transition-all text-center group active:scale-95 overflow-hidden flex flex-col items-center"
                             >
                               {pkg.isPromo && <div className="absolute top-0 right-0 bg-primary text-black text-[6px] font-black px-2 py-0.5 rounded-bl-lg uppercase">Promo</div>}
-                              {pkg.hasBonus && <div className="absolute bottom-0 left-0 bg-accent text-black text-[6px] font-black px-2 py-0.5 rounded-tr-lg uppercase">+Bonus</div>}
-                              <Zap size={14} className="text-primary/40 mx-auto mb-2 group-hover:scale-125 transition-transform" />
+                              {pkg.hasBonus && <div className="absolute top-0 left-0 bg-accent text-black text-[6px] font-black px-2 py-0.5 rounded-br-lg uppercase">+Bonus</div>}
+                              <Zap size={14} className="text-primary/40 mb-2 group-hover:scale-125 transition-transform" />
                               <div className="text-lg font-black text-white italic leading-none">{pkg.amount.toLocaleString()}</div>
-                              <div className="text-[8px] font-bold text-primary uppercase mt-1 tracking-widest">${pkg.price} USD</div>
+                              <div className="mt-2 px-3 py-1 rounded-lg bg-white/5 border border-white/10 shadow-inner">
+                                <span className="text-[9px] font-black text-primary uppercase tracking-widest">S/. {pkg.price}</span>
+                              </div>
                             </button>
                           ))}
-                          <div className="p-5 rounded-[2rem] bg-primary/5 border border-primary/20 flex flex-col items-center gap-2">
-                            <Edit size={14} className="text-primary" />
-                            <Input 
-                              type="number" 
-                              placeholder="Monto" 
-                              className="h-8 bg-transparent border-b border-primary/30 rounded-none text-center text-xs text-white placeholder:text-white/20"
-                              onChange={(e) => setAmount(e.target.value)}
-                            />
-                            <Button onClick={() => setRechargeStep("payment-method")} className="h-7 px-4 rounded-lg bg-primary text-black text-[8px] font-black uppercase tracking-widest">Custom</Button>
+                          
+                          {/* Nodo Personalizable */}
+                          <div className="p-5 rounded-[2rem] bg-primary/5 border border-primary/20 flex flex-col items-center gap-4 group transition-all">
+                            <div className="flex items-center gap-2">
+                               <Edit size={12} className="text-primary" />
+                               <span className="text-[8px] font-black uppercase text-primary/60 tracking-widest">Manual</span>
+                            </div>
+                            <div className="relative w-full">
+                              <Input 
+                                type="number" 
+                                placeholder="CANTIDAD" 
+                                value={customAmount}
+                                onChange={(e) => setCustomAmount(e.target.value)}
+                                className="h-10 bg-transparent border-b border-primary/30 rounded-none text-center text-sm text-white placeholder:text-white/10 focus-visible:ring-0 focus-visible:border-primary"
+                              />
+                            </div>
+                            {customAmount && Number(customAmount) > 0 && (
+                              <div className="px-3 py-1.5 rounded-xl bg-primary/20 border border-primary/30 animate-in zoom-in-95 duration-300">
+                                <p className="text-[9px] font-black text-white italic">Costo: <span className="text-primary">S/. {(Number(customAmount) / 100).toFixed(2)}</span></p>
+                              </div>
+                            )}
+                            <Button 
+                              disabled={!customAmount || Number(customAmount) <= 0}
+                              onClick={() => { setAmount(customAmount); setRechargeStep("payment-method"); }} 
+                              className="w-full h-10 rounded-xl bg-primary text-black text-[9px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 disabled:opacity-30"
+                            >
+                              Continuar
+                            </Button>
                           </div>
                         </div>
-                        <Button onClick={() => setWalletView("main")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Cancelar</Button>
+                        <Button onClick={() => { setWalletView("main"); setCustomAmount(""); }} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl">Cancelar Protocolo</Button>
                       </div>
                     )}
 
@@ -371,7 +395,7 @@ export function ProfileView({
                       <div className="w-full space-y-6">
                         <div className="text-center">
                           <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Pasarela <span className="text-primary">Gaia</span></h3>
-                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Total: {Number(amount).toLocaleString()} ESP</p>
+                          <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mt-1">Total: {Number(amount).toLocaleString()} ESP (S/. {(Number(amount)/100).toFixed(2)})</p>
                         </div>
                         <div className="space-y-3 w-full">
                           {[
@@ -470,7 +494,7 @@ export function ProfileView({
                            </div>
                            <div className="pt-4 border-t border-white/10 flex justify-between items-center">
                              <span className="text-[11px] font-black text-white uppercase tracking-widest">Total</span>
-                             <span className="text-xl font-black text-primary italic tracking-tighter">${(Number(amount)/100).toFixed(2)} USD</span>
+                             <span className="text-xl font-black text-primary italic tracking-tighter">S/. {(Number(amount)/100).toFixed(2)}</span>
                            </div>
                         </div>
 
