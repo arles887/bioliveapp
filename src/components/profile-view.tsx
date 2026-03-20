@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -284,7 +285,7 @@ export function ProfileView({
               <Button 
                 onClick={() => setIsEditing(true)} 
                 variant="outline"
-                className="rounded-2xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest h-10 px-6 hover:bg-white/5 transition-all flex items-center gap-2 active:scale-95"
+                className="rounded-2xl bg-transparent border border-white/20 text-white font-black uppercase tracking-widest h-10 px-6 hover:bg-white/5 transition-all flex items-center gap-2 active:scale-95 shadow-none"
               >
                 <Edit size={14} />
                 Editar Perfil
@@ -476,7 +477,7 @@ export function ProfileView({
             </div>
 
             {/* Wallet Quick Navigation Tabs - Reducido ancho y centrado */}
-            <div className="mx-auto max-w-[94%] flex bg-white/5 p-1 rounded-2xl border border-white/5 overflow-hidden">
+            <div className="mx-auto max-w-[92%] flex bg-white/5 p-1 rounded-2xl border border-white/5 overflow-hidden">
               {[
                 { id: "main", label: "Inicio", icon: Wallet },
                 { id: "stats", label: "Analítica", icon: BarChart3 },
@@ -500,7 +501,7 @@ export function ProfileView({
 
             {/* View Logic: Recarga */}
             {walletView === "buy" && (
-              <div className="mx-auto max-w-[94%] space-y-6 animate-in slide-in-from-right duration-500 w-full overflow-hidden">
+              <div className="mx-auto max-w-[92%] space-y-6 animate-in slide-in-from-right duration-500 w-full overflow-hidden">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -618,7 +619,7 @@ export function ProfileView({
 
             {/* View Logic: Retiro */}
             {walletView === "withdraw" && (
-              <div className="mx-auto max-w-[94%] space-y-6 animate-in slide-in-from-right duration-500 w-full overflow-hidden">
+              <div className="mx-auto max-w-[92%] space-y-6 animate-in slide-in-from-right duration-500 w-full overflow-hidden">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -736,7 +737,7 @@ export function ProfileView({
 
             {/* View Logic: Estadísticas (Analytics) */}
             {walletView === "stats" && (
-              <div className="mx-auto max-w-[94%] space-y-8 animate-in fade-in duration-500 pb-8 w-full overflow-hidden">
+              <div className="mx-auto max-w-[92%] space-y-8 animate-in fade-in duration-500 pb-8 w-full overflow-hidden">
                 <div className="flex items-center justify-between px-2">
                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">Bio<span className="text-primary">Analytics</span></h3>
                    <div className="flex gap-2 shrink-0">
@@ -847,7 +848,7 @@ export function ProfileView({
 
             {/* View Logic: Historial (History) - Reducido ancho y centrado */}
             {(walletView === "main" || walletView === "history") && (
-              <div className="mx-auto max-w-[94%] space-y-4 animate-in fade-in duration-500 pb-8 w-full overflow-hidden">
+              <div className="mx-auto max-w-[90%] space-y-4 animate-in fade-in duration-500 pb-8 w-full overflow-hidden">
                 <div className="flex items-center justify-between px-2">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 italic truncate">Registro de Frecuencias</h3>
                   {walletView === "main" && (
@@ -856,7 +857,7 @@ export function ProfileView({
                 </div>
                 <div className="space-y-2 w-full overflow-hidden">
                   {[1, 2, 3, 4, 5, 6].map(i => (
-                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all w-full min-w-0 overflow-hidden">
+                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all w-full min-w-0 overflow-hidden box-border">
                       <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
                         <div className={cn(
                           "h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover:scale-110",
@@ -875,7 +876,7 @@ export function ProfileView({
                           </div>
                         </div>
                       </div>
-                      <div className="text-right shrink-0 ml-4 overflow-hidden">
+                      <div className="text-right shrink-0 ml-4 overflow-hidden max-w-[80px]">
                         <span className={cn(
                           "text-xs font-black italic block truncate",
                           i % 3 === 1 ? "text-red-400" : "text-primary"
