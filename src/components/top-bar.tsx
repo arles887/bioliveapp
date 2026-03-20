@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * @fileOverview Barra superior con soporte para Safe-Area (Status Bar).
+ * Estandarizada a max-w-[500px] para consistencia global.
  */
 
 export function TopBar({ 
@@ -22,29 +23,29 @@ export function TopBar({
 
   return (
     <header className={cn(
-      "absolute top-0 left-0 right-0 z-50 flex flex-col w-full bg-[#020503]/40 backdrop-blur-xl border-b border-white/5 transition-all duration-700 ease-in-out",
+      "fixed top-0 left-1/2 -translate-x-1/2 z-50 flex flex-col w-full max-w-[500px] bg-[#020503]/40 backdrop-blur-xl border-b border-white/5 transition-all duration-700 ease-in-out",
       isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
     )}>
       {/* Simulación de Status Bar / Safe Area Top */}
       <div className="h-10 w-full" />
       
       <div className="flex h-16 w-full items-center justify-between px-6 pb-2">
-        <div className="flex items-center gap-3 shrink-0 min-w-[100px]">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-black shadow-[0_0_15px_rgba(204,255,0,0.4)]">
              <Zap size={18} strokeWidth={3} />
           </div>
-          <div className="flex flex-col">
+          <div className="hidden xs:flex flex-col">
               <h1 className="text-base font-black tracking-tighter text-white uppercase italic leading-none">Bio<span className="text-primary">Live</span></h1>
               <span className="text-[5px] font-black uppercase tracking-[0.3em] text-primary/60">Neural OS</span>
           </div>
         </div>
         
-        <div className="flex-1 mx-4 relative group max-w-[240px]">
+        <div className="flex-1 mx-4 relative group min-w-0">
           <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" />
           <input 
             type="text"
-            placeholder="SEARCH SIGNALS..."
-            className="w-full h-9 bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 text-[8px] text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.08] transition-all placeholder:text-white/10 font-black uppercase tracking-[0.2em] italic"
+            placeholder="BUSCAR..."
+            className="w-full h-9 bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 text-[8px] text-white focus:outline-none focus:border-primary/40 focus:bg-white/[0.08] transition-all placeholder:text-white/10 font-black uppercase tracking-[0.2em] italic truncate"
           />
         </div>
         

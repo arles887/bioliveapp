@@ -3,6 +3,11 @@
 import { Home, Radio, Plus, Heart, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * @fileOverview Navegación inferior estandarizada.
+ * Ajustada para encajar perfectamente en el contenedor de 500px.
+ */
+
 export type NavItem = "inicio" | "live" | "upload" | "notifications" | "profile";
 
 export function BottomNav({ 
@@ -24,10 +29,10 @@ export function BottomNav({
 
   return (
     <div className={cn(
-      "fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[460px] px-6 z-[60] transition-all duration-700 ease-in-out pointer-events-none",
+      "fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[500px] px-6 z-[60] transition-all duration-700 ease-in-out pointer-events-none",
       isVisible ? "translate-y-0 opacity-100" : "translate-y-32 opacity-0"
     )}>
-      <nav className="h-16 bg-white/[0.04] backdrop-blur-3xl rounded-[2rem] flex items-center justify-between px-6 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] pointer-events-auto">
+      <nav className="h-16 bg-white/[0.04] backdrop-blur-3xl rounded-[2.5rem] flex items-center justify-between px-6 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.4)] pointer-events-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
