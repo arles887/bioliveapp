@@ -454,8 +454,8 @@ export function ProfileView({
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh]">
           <div className="p-6 space-y-6 pb-12 w-full max-w-full overflow-hidden">
             
-            {/* Balance Card */}
-            <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden group">
+            {/* Balance Card - Blindada para el shell de 500px */}
+            <div className="mx-auto max-w-[94%] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-6 opacity-20 rotate-12 group-hover:rotate-45 transition-transform duration-700">
                 <Wallet size={80} />
               </div>
@@ -475,8 +475,8 @@ export function ProfileView({
               </div>
             </div>
 
-            {/* Wallet Quick Navigation Tabs */}
-            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 w-full max-w-full overflow-hidden">
+            {/* Wallet Quick Navigation Tabs - Reducido ancho y centrado */}
+            <div className="mx-auto max-w-[94%] flex bg-white/5 p-1 rounded-2xl border border-white/5 overflow-hidden">
               {[
                 { id: "main", label: "Inicio", icon: Wallet },
                 { id: "stats", label: "Analítica", icon: BarChart3 },
@@ -500,7 +500,7 @@ export function ProfileView({
 
             {/* View Logic: Recarga */}
             {walletView === "buy" && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full max-w-full">
+              <div className="mx-auto max-w-[94%] space-y-6 animate-in slide-in-from-right duration-500 w-full overflow-hidden">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -541,7 +541,7 @@ export function ProfileView({
                     ))}
                     <button 
                       onClick={() => { setAmount(""); setRechargeStep("confirm"); }}
-                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2 w-full"
+                      className="p-8 rounded-[2.5rem] bg-primary/10 border border-primary/20 hover:border-primary/60 group transition-all text-center space-y-3 col-span-2 w-full overflow-hidden"
                     >
                       <Coins size={32} className="text-primary mx-auto group-hover:rotate-12 transition-transform" />
                       <div className="min-w-0">
@@ -553,7 +553,7 @@ export function ProfileView({
                 )}
 
                 {rechargeStep === "confirm" && (
-                  <div className="space-y-8 animate-in zoom-in-95 duration-300 w-full">
+                  <div className="space-y-8 animate-in zoom-in-95 duration-300 w-full overflow-hidden">
                     <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center space-y-6 relative overflow-hidden">
                        <div className="absolute -top-10 -right-10 h-40 w-40 bg-primary/5 rounded-full blur-3xl" />
                        <TrendingUp size={48} className="text-primary mx-auto" />
@@ -578,7 +578,7 @@ export function ProfileView({
                 )}
 
                 {rechargeStep === "payment" && !paymentMethod && (
-                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500 w-full">
+                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500 w-full overflow-hidden">
                     <button onClick={() => { setPaymentMethod("card"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <CreditCard className="text-primary group-hover:scale-110 transition-transform shrink-0" />
                       <div className="text-left min-w-0 flex-1">
@@ -598,7 +598,7 @@ export function ProfileView({
                 )}
 
                 {paymentMethod && (
-                  <div className="space-y-6 animate-in fade-in duration-500 w-full">
+                  <div className="space-y-6 animate-in fade-in duration-500 w-full overflow-hidden">
                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex items-center justify-between">
                          <span className="text-[9px] font-black uppercase text-primary tracking-widest truncate">{paymentMethod.toUpperCase()}</span>
@@ -618,7 +618,7 @@ export function ProfileView({
 
             {/* View Logic: Retiro */}
             {walletView === "withdraw" && (
-              <div className="space-y-6 animate-in slide-in-from-right duration-500 w-full max-w-full overflow-hidden">
+              <div className="mx-auto max-w-[94%] space-y-6 animate-in slide-in-from-right duration-500 w-full overflow-hidden">
                 <div className="flex items-center gap-4">
                    <button 
                     onClick={() => {
@@ -636,7 +636,7 @@ export function ProfileView({
                 </div>
 
                 {rechargeStep === "gallery" && (
-                  <div className="space-y-8 animate-in fade-in duration-500 w-full">
+                  <div className="space-y-8 animate-in fade-in duration-500 w-full overflow-hidden">
                     <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 space-y-6">
                       <div className="space-y-2 text-center min-w-0">
                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block truncate">Cantidad a Retirar</label>
@@ -671,7 +671,7 @@ export function ProfileView({
                 )}
 
                 {rechargeStep === "confirm" && (
-                  <div className="space-y-8 animate-in zoom-in-95 duration-300 w-full">
+                  <div className="space-y-8 animate-in zoom-in-95 duration-300 w-full overflow-hidden">
                     <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center space-y-6 relative overflow-hidden">
                        <div className="absolute -top-10 -right-10 h-40 w-40 bg-red-500/5 rounded-full blur-3xl" />
                        <ArrowUpRight size={48} className="text-red-500 mx-auto" />
@@ -696,7 +696,7 @@ export function ProfileView({
                 )}
 
                 {rechargeStep === "payment" && !paymentMethod && (
-                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500 w-full">
+                  <div className="grid grid-cols-1 gap-3 animate-in slide-in-from-bottom-4 duration-500 w-full overflow-hidden">
                     <button onClick={() => { setPaymentMethod("bank"); }} className="flex items-center gap-5 p-6 rounded-[2rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 group transition-all w-full min-w-0">
                       <Landmark className="text-primary group-hover:scale-110 transition-transform shrink-0" />
                       <div className="text-left flex-1 min-w-0">
@@ -716,7 +716,7 @@ export function ProfileView({
                 )}
 
                 {paymentMethod && (
-                  <div className="space-y-6 animate-in fade-in duration-500 w-full">
+                  <div className="space-y-6 animate-in fade-in duration-500 w-full overflow-hidden">
                     <div className="p-6 rounded-2xl bg-white/5 border border-white/10 space-y-4">
                       <div className="flex items-center justify-between">
                          <span className="text-[9px] font-black uppercase text-primary tracking-widest truncate">{paymentMethod.toUpperCase()}</span>
@@ -736,7 +736,7 @@ export function ProfileView({
 
             {/* View Logic: Estadísticas (Analytics) */}
             {walletView === "stats" && (
-              <div className="space-y-8 animate-in fade-in duration-500 pb-8 w-full max-w-full overflow-hidden">
+              <div className="mx-auto max-w-[94%] space-y-8 animate-in fade-in duration-500 pb-8 w-full overflow-hidden">
                 <div className="flex items-center justify-between px-2">
                    <h3 className="text-xl font-black italic uppercase text-white tracking-tighter truncate">Bio<span className="text-primary">Analytics</span></h3>
                    <div className="flex gap-2 shrink-0">
@@ -845,18 +845,18 @@ export function ProfileView({
               </div>
             )}
 
-            {/* View Logic: Historial (History) */}
+            {/* View Logic: Historial (History) - Reducido ancho y centrado */}
             {(walletView === "main" || walletView === "history") && (
-              <div className="space-y-4 animate-in fade-in duration-500 pb-8 w-full max-w-full overflow-hidden">
+              <div className="mx-auto max-w-[94%] space-y-4 animate-in fade-in duration-500 pb-8 w-full overflow-hidden">
                 <div className="flex items-center justify-between px-2">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30 italic truncate">Registro de Frecuencias</h3>
                   {walletView === "main" && (
                     <button onClick={() => setWalletView("history")} className="text-[8px] font-black text-primary uppercase tracking-widest hover:underline shrink-0 ml-2">Ver Todo</button>
                   )}
                 </div>
-                <div className="space-y-2 w-full max-w-full">
+                <div className="space-y-2 w-full overflow-hidden">
                   {[1, 2, 3, 4, 5, 6].map(i => (
-                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all w-full min-w-0 max-w-full overflow-hidden">
+                    <div key={i} className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.03] border border-white/5 group hover:border-primary/20 transition-all w-full min-w-0 overflow-hidden">
                       <div className="flex items-center gap-4 min-w-0 flex-1 overflow-hidden">
                         <div className={cn(
                           "h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 transition-all group-hover:scale-110",
