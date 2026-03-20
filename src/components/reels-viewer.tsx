@@ -2,13 +2,18 @@
 
 import { useState, useRef, useEffect } from "react";
 import { 
-  Heart, MessageCircle, Share2, Music, Play, Pause, Volume2, VolumeX, Zap
+  Heart, MessageCircle, Share2, Music, Play, Pause, Volume2, VolumeX, Zap,
+  Link, Mail, Facebook, Send, Camera, X, MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { ProtocolWindow } from "@/components/protocol-window";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 /**
- * @fileOverview Visualizador de Reels optimizado.
+ * @fileOverview Visualizador de Reels optimizado con protocolos de Interacción Extendida.
  * Estandarizado a 500px con control estricto de desbordamiento de texto.
  */
 
@@ -34,11 +39,18 @@ const INITIAL_REELS = Array.from({ length: 50 }, (_, i) => ({
   user: `BioEntity_${i + 100}`,
   description: `Inyectando señal neural #${i + 1}. Exploración del bioma Gaia Sector ${Math.floor(Math.random() * 10)}. #bio #cyber #life #nature #enterprise`,
   likes: Math.floor(Math.random() * 500),
-  comments: Math.floor(Math.random() * 100),
+  commentsCount: Math.floor(Math.random() * 100),
   video: VIDEO_SOURCES[i % VIDEO_SOURCES.length],
   liked: false,
   following: false
 }));
+
+const MOCK_COMMENTS = [
+  { id: "c1", user: "BioGuard_01", text: "Increíble flujo de señal. El bioma se ve muy estable." },
+  { id: "c2", user: "GaiaWatcher", text: "Me encanta la síntesis de esporas de este sector." },
+  { id: "c3", user: "CyberNature", text: "BioLive está evolucionando rápido 🌿⚡" },
+  { id: "c4", user: "Watcher_99", text: "Excelente resolución." },
+];
 
 export function ReelsViewer({ 
   onProfileClick,
@@ -106,6 +118,9 @@ function ReelItem({
 }: any) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isActive, setIsActive] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setIsActive(entry.isIntersecting), { threshold: 0.8 });
@@ -117,7 +132,6 @@ function ReelItem({
     let url = reel.video;
     const finalMute = !isActive || globalMuted;
     
-    // Extraer ID de cualquier formato de YouTube
     let id = "";
     if (url.includes('shorts/')) {
         id = url.split('shorts/')[1].split('?')[0];
@@ -131,6 +145,27 @@ function ReelItem({
     }
 
     return `https://www.youtube.com/embed/${id}?autoplay=${isActive ? 1 : 0}&mute=${finalMute ? 1 : 0}&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+  };
+
+  const handleCopyLink = () => {
+    toast({ title: "Enlace Copiado", description: "Nodo de distribución listo." });
+    setIsShareOpen(false);
+  };
+
+  const handleShareToStory = () => {
+    requireAuth(() => {
+      toast({ title: "Compartido", description: "Señal inyectada en tu historia." });
+      setIsShareOpen(false);
+    });
+  };
+
+  const handleSendComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+    requireAuth(() => {
+      toast({ title: "Comentario Enviado", description: "Tu frecuencia ha sido registrada." });
+      setCommentText("");
+    });
   };
 
   return (
@@ -178,6 +213,7 @@ function ReelItem({
           </div>
         </div>
 
+        {/* Panel Lateral de Interacción - Calibración 390px */}
         <div className="absolute bottom-52 right-3 flex flex-col items-center gap-6 z-50">
           <div onClick={() => toggleLike(reel.id)} className="flex flex-col items-center gap-1 cursor-pointer">
             <div className={cn(
@@ -188,17 +224,108 @@ function ReelItem({
             </div>
             <span className="text-[9px] font-black text-white/60 tracking-widest truncate">{reel.likes}K</span>
           </div>
-          <div onClick={() => requireAuth(() => {})} className="flex flex-col items-center gap-1 cursor-pointer">
+          
+          <div onClick={() => setIsCommentsOpen(true)} className="flex flex-col items-center gap-1 cursor-pointer">
             <div className="h-12 w-12 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center text-white shadow-2xl">
               <MessageCircle size={24} />
             </div>
-            <span className="text-[9px] font-black text-white/60 tracking-widest truncate">{reel.comments}</span>
+            <span className="text-[9px] font-black text-white/60 tracking-widest truncate">{reel.commentsCount}</span>
           </div>
-          <div onClick={() => toast({ title: "Enlace Copiado" })} className="h-12 w-12 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center text-white shadow-2xl cursor-pointer">
+          
+          <div onClick={() => setIsShareOpen(true)} className="h-12 w-12 bg-white/5 backdrop-blur-xl border rounded-full flex items-center justify-center text-white shadow-2xl cursor-pointer">
             <Share2 size={24} />
           </div>
         </div>
       </div>
+
+      {/* Protocolo de Distribución (Compartir) */}
+      <ProtocolWindow isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} title="Nodo de Distribución">
+        <div className="w-full max-w-[390px] px-6 space-y-8 flex flex-col items-center pb-20 mx-auto">
+          <div className="text-center space-y-2">
+            <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Share</span></h3>
+            <p className="text-[9px] text-white/30 font-black uppercase tracking-widest italic">Difundir Frecuencia en la Red</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <button 
+              onClick={handleCopyLink}
+              className="flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/10 hover:border-primary/40 transition-all group"
+            >
+              <Link size={24} className="text-primary mb-3 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Copiar Enlace</span>
+            </button>
+            <button 
+              onClick={handleShareToStory}
+              className="flex flex-col items-center justify-center p-6 rounded-[2.5rem] bg-white/[0.03] border border-white/10 hover:border-accent/40 transition-all group"
+            >
+              <Camera size={24} className="text-accent mb-3 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/60">En Historia</span>
+            </button>
+          </div>
+
+          <div className="w-full space-y-3">
+            {[
+              { id: 'whatsapp', label: 'WhatsApp', icon: Send, color: 'text-green-500' },
+              { id: 'gmail', label: 'Gmail', icon: Mail, color: 'text-red-500' },
+              { id: 'facebook', label: 'Facebook', icon: Facebook, color: 'text-blue-500' }
+            ].map((network) => (
+              <button 
+                key={network.id}
+                onClick={() => { toast({ title: network.label, description: "Conectando con el nodo externo..." }); setIsShareOpen(false); }}
+                className="w-full flex items-center justify-between p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/5 transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <network.icon size={20} className={network.color} />
+                  <span className="text-[11px] font-black uppercase tracking-widest text-white/80">{network.label}</span>
+                </div>
+                <Zap size={12} className="text-white/20" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </ProtocolWindow>
+
+      {/* Protocolo de Comentarios (Hilos Neurales) */}
+      <ProtocolWindow isOpen={isCommentsOpen} onClose={() => setIsCommentsOpen(false)} title="Hilos Neurales">
+        <div className="w-full max-w-[390px] h-full flex flex-col pb-20 mx-auto">
+          <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3">
+             <MessageSquare size={16} className="text-primary" />
+             <h3 className="text-xs font-black uppercase italic tracking-widest text-white">Señales de Respuesta</h3>
+          </div>
+
+          <ScrollArea className="flex-1 px-6">
+            <div className="py-8 space-y-8">
+              {MOCK_COMMENTS.map((comment) => (
+                <div key={comment.id} className="flex flex-col gap-2 group">
+                   <div className="flex items-center gap-2">
+                     <div className="h-6 w-6 rounded-lg bg-white/10 border border-white/10 overflow-hidden relative">
+                       <img src={`https://picsum.photos/seed/${comment.user}/50/50`} alt="Avatar" className="object-cover" />
+                     </div>
+                     <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest italic">@{comment.user}</span>
+                   </div>
+                   <div className="bg-white/[0.03] border border-white/5 rounded-2xl rounded-tl-none px-4 py-3 text-[11px] text-white/80 leading-relaxed max-w-[90%] transition-all group-hover:bg-white/5">
+                     {comment.text}
+                   </div>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+
+          <div className="p-6 bg-[#020503] border-t border-white/5">
+            <form onSubmit={handleSendComment} className="flex gap-2">
+               <Input 
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Inyectar respuesta..." 
+                className="h-12 bg-white/5 border-white/10 rounded-xl px-4 text-[10px] text-white focus-visible:ring-primary"
+               />
+               <Button type="submit" className="h-12 w-12 rounded-xl bg-primary text-black shrink-0">
+                  <Send size={18} fill="currentColor" />
+               </Button>
+            </form>
+          </div>
+        </div>
+      </ProtocolWindow>
     </div>
   );
 }
