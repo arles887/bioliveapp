@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -38,8 +39,6 @@ const VIDEO_SOURCES = [
   "https://www.youtube.com/embed/wc-yyfCCuIA?autoplay=0&mute=1&loop=1&playlist=wc-yyfCCuIA&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/5GGyhbKOWtY?autoplay=0&mute=1&loop=1&playlist=5GGyhbKOWtY&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/lrQRSltwU8E?autoplay=0&mute=1&loop=1&playlist=lrQRSltwU8E&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/gCsemG6ip54?autoplay=0&mute=1&loop=1&playlist=gCsemG6ip54&controls=0&modestbranding=1&rel=0",
-  "https://www.youtube.com/embed/VAuMrxuGlQw?autoplay=0&mute=1&loop=1&playlist=VAuMrxuGlQw&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/PAxTNbCZkFQ?autoplay=0&mute=1&loop=1&playlist=PAxTNbCZkFQ&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/lH7l2IsK3RM?autoplay=0&mute=1&loop=1&playlist=lH7l2IsK3RM&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/Ui__qfTW9tM?autoplay=0&mute=1&loop=1&playlist=Ui__qfTW9tM&controls=0&modestbranding=1&rel=0",
