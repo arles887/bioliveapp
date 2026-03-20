@@ -3,17 +3,18 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { 
-  Users, Heart, X, UserPlus, Check, Play, MessageCircle, Share2
+  Users, Heart, X, UserPlus, Check, Play, MessageCircle, Share2, Send, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ProtocolWindow } from "@/components/protocol-window";
 import { ReelsViewer } from "@/components/reels-viewer";
 import { toast } from "@/hooks/use-toast";
+import useEmblaCarousel from "embla-carousel-react";
 
 /**
  * @fileOverview Feed principal estandarizado.
- * Corregidos anchos de historias, truncado de textos largos y scroll.
+ * Historias mejoradas: Deslizables con interacciones sociales.
  */
 
 const INITIAL_CONTENT = Array.from({ length: 25 }, (_, i) => ({
@@ -166,15 +167,120 @@ export function MainFeed({
       </div>
 
       <ProtocolWindow isOpen={selectedStoryIndex !== null} onClose={() => setSelectedStoryIndex(null)} title="Bio-Stories">
-        <div className="w-full h-full flex items-center justify-center bg-transparent">
-          <div className="relative aspect-[9/16] h-[80vh] w-full max-w-[320px] bg-black rounded-[3rem] overflow-hidden border border-white/10">
-            <Image src={`https://picsum.photos/seed/story${selectedStoryIndex}/1080/1920`} fill alt="Story" className="object-cover" />
-            <div className="absolute bottom-10 left-8 right-8 flex items-center gap-3 z-20">
-               <button onClick={() => setSelectedStoryIndex(null)} className="h-12 w-full bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 text-[9px] font-black text-white/40 uppercase tracking-widest">Cerrar Nodo</button>
-            </div>
-          </div>
-        </div>
+        <StoryCarousel 
+          stories={storyIds} 
+          initialIndex={selectedStoryIndex ?? 0} 
+          onClose={() => setSelectedStoryIndex(null)} 
+          requireAuth={requireAuth}
+        />
       </ProtocolWindow>
+    </div>
+  );
+}
+
+function StoryCarousel({ stories, initialIndex, onClose, requireAuth }: { stories: number[], initialIndex: number, onClose: () => void, requireAuth: any }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    startIndex: initialIndex,
+    loop: false,
+    align: 'center',
+    skipSnaps: false
+  });
+  
+  const [liked, setLiked] = useState<Record<number, boolean>>({});
+
+  const toggleLike = (id: number) => {
+    requireAuth(() => {
+      setLiked(prev => ({ ...prev, [id]: !prev[id] }));
+      if (!liked[id]) {
+        toast({ title: "Resonancia Activa", description: "Inyectaste un pulso de energía." });
+      }
+    });
+  };
+
+  return (
+    <div className="w-full h-full flex flex-col items-center justify-center bg-transparent pb-10">
+      <div className="relative w-full max-w-[390px] aspect-[9/16] overflow-hidden" ref={emblaRef}>
+        <div className="flex h-full">
+          {stories.map((id) => (
+            <div key={id} className="relative flex-[0_0_100%] min-w-0 h-full px-2">
+              <div className="relative w-full h-full bg-black rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+                <Image 
+                  src={`https://picsum.photos/seed/story${id}/1080/1920`} 
+                  fill 
+                  alt={`Story ${id}`} 
+                  className="object-cover"
+                  priority={id === stories[initialIndex]}
+                />
+                
+                {/* Overlay Interactivo */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none" />
+                
+                {/* Header Historia */}
+                <div className="absolute top-8 left-8 right-8 flex items-center gap-3 z-20">
+                  <div className="h-10 w-10 rounded-xl border border-primary/40 overflow-hidden relative">
+                    <Image src={`https://picsum.photos/seed/u${id}/100/100`} fill alt="User" />
+                  </div>
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest italic">Bio_{id}</span>
+                </div>
+
+                {/* Controles de Interacción */}
+                <div className="absolute bottom-10 left-8 right-8 flex items-center gap-4 z-20 pointer-events-auto">
+                  <div className="flex-1 relative">
+                    <input 
+                      type="text" 
+                      placeholder="Comentar..." 
+                      className="w-full h-12 bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl px-6 text-[10px] text-white focus:outline-none focus:border-primary/40"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-primary">
+                      <Send size={16} />
+                    </button>
+                  </div>
+                  
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); toggleLike(id); }}
+                    className={cn(
+                      "h-12 w-12 rounded-2xl flex items-center justify-center transition-all border",
+                      liked[id] ? "bg-primary text-black border-primary shadow-[0_0_15px_rgba(204,255,0,0.5)]" : "bg-white/10 text-white border-white/10"
+                    )}
+                  >
+                    <Heart size={20} fill={liked[id] ? "currentColor" : "none"} />
+                  </button>
+
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); toast({ title: "Nodo de Comentarios", description: "Cargando hilos neurales..." }); }}
+                    className="h-12 w-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+                  >
+                    <MessageCircle size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Botones de Navegación Visuales */}
+      <div className="flex gap-4 mt-8">
+        <button 
+          onClick={() => emblaApi?.scrollPrev()} 
+          className="h-12 w-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary transition-all"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <button 
+          onClick={onClose} 
+          className="h-12 px-8 bg-white/5 backdrop-blur-2xl rounded-2xl border border-white/10 text-[9px] font-black text-white/60 uppercase tracking-widest hover:text-red-500 hover:border-red-500/40 transition-all"
+        >
+          Cerrar Nodo
+        </button>
+        <button 
+          onClick={() => emblaApi?.scrollNext()} 
+          className="h-12 w-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-primary transition-all"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
     </div>
   );
 }
