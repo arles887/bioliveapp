@@ -23,8 +23,10 @@ const VIDEO_SOURCES = [
   "https://www.youtube.com/embed/twG-EwxFb-A?autoplay=0&mute=1&loop=1&playlist=twG-EwxFb-A&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/zc4hD4ytN0A?autoplay=0&mute=1&loop=1&playlist=zc4hD4ytN0A&controls=0&modestbranding=1&rel=0",
   "https://www.youtube.com/embed/dORlRI79D3w?autoplay=0&mute=1&loop=1&playlist=dORlRI79D3w&controls=0&modestbranding=1&rel=0",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+  "https://www.youtube.com/embed/xpcLA9WQjB0?autoplay=0&mute=1&loop=1&playlist=xpcLA9WQjB0&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/VLwd4WiNFMM?autoplay=0&mute=1&loop=1&playlist=VLwd4WiNFMM&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/WD5W5zjcbAk?autoplay=0&mute=1&loop=1&playlist=WD5W5zjcbAk&controls=0&modestbranding=1&rel=0",
+  "https://www.youtube.com/embed/lqew-iI6tmI?autoplay=0&mute=1&loop=1&playlist=lqew-iI6tmI&controls=0&modestbranding=1&rel=0"
 ];
 
 const INITIAL_REELS = Array.from({ length: 50 }, (_, i) => ({
@@ -214,6 +216,16 @@ function ReelItem({
     if (!isYouTube) return "";
     let url = reel.video;
     const finalMute = !isActive || globalMuted;
+    
+    // Convertir shorts o watch a embed
+    if (url.includes('shorts/')) {
+        const id = url.split('shorts/')[1].split('?')[0];
+        url = `https://www.youtube.com/embed/${id}?autoplay=0&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+    } else if (url.includes('watch?v=')) {
+        const id = url.split('v=')[1].split('&')[0];
+        url = `https://www.youtube.com/embed/${id}?autoplay=0&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+    }
+
     url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
     url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
     if (!url.includes('mute=')) url += `&mute=${finalMute ? 1 : 0}`;

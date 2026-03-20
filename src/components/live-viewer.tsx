@@ -444,6 +444,11 @@ function LiveStreamRoom({
     if (!isYouTube) return "";
     let url = live.video;
     const finalMute = !isActive || globalMuted;
+    // Asegurar que use /embed/
+    if (url.includes('watch?v=')) {
+        const id = url.split('v=')[1].split('&')[0];
+        url = `https://www.youtube.com/embed/${id}?autoplay=0&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+    }
     url = url.replace(/autoplay=[01]/, `autoplay=${isActive ? 1 : 0}`);
     url = url.replace(/mute=[01]/, `mute=${finalMute ? 1 : 0}`);
     return url;
