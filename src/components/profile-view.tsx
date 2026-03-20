@@ -3,13 +3,11 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { 
-  Menu, Share2, Zap, UserPlus, Check, ChevronLeft,
-  Wallet, History, UserCircle, LifeBuoy, Settings, Lock,
-  Loader2, CreditCard, Smartphone, Globe, Gift, 
-  Shield, ArrowUpRight, ArrowDownLeft, Landmark, 
-  Edit, Coins, BadgePercent, TrendingUp, AlertCircle,
-  BarChart3, MapPin, Calendar, MessageCircle, Heart,
-  Users, PlayCircle, Radio, Tag, RotateCcw, TrendingDown
+  Menu, Share2, Zap, Check, ChevronLeft,
+  Wallet, History, BarChart3, TrendingUp,
+  Edit, ArrowUpRight, ArrowDownLeft, 
+  Users, PlayCircle, Radio, Tag, RotateCcw, TrendingDown,
+  Loader2, Activity, PieChart as PieChartIcon, MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,10 +29,8 @@ import { WalletService } from "@/services/wallet-service";
 import { 
   Area, 
   AreaChart, 
-  PieChart, 
-  Pie, 
-  Cell,
-  XAxis
+  XAxis,
+  ResponsiveContainer
 } from "recharts";
 import { 
   ChartContainer, 
@@ -52,11 +48,11 @@ import {
 
 /**
  * @fileOverview Vista de Perfil Enterprise con Billetera ESP Blindada.
- * Implementa centrado absoluto y contención de datos dentro del shell de 500px.
+ * Versión Avanzada: Analítica Profunda e Historial Segmentado.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment" | "details";
-type WalletTab = "stats" | "buy" | "withdraw" | "income" | "history";
+type WalletTab = "stats" | "history" | "buy" | "withdraw";
 type HistoryFilter = "all" | "egress" | "recharge" | "promo" | "refund";
 
 const MOCK_CHART_DATA = [
@@ -71,8 +67,7 @@ const MOCK_CHART_DATA = [
 
 const chartConfig = {
   income: { label: "Ingresos", color: "hsl(var(--primary))" },
-  outcome: { label: "Egresos", color: "hsl(var(--accent))" },
-  views: { label: "Vistas", color: "hsl(var(--primary))" }
+  outcome: { label: "Egresos", color: "hsl(var(--accent))" }
 } satisfies ChartConfig;
 
 export function ProfileView({ 
@@ -102,7 +97,7 @@ export function ProfileView({
   
   // Profile Stats State
   const [isProfileStatsOpen, setIsProfileStatsOpen] = useState(false);
-  const [statsTimeframe, setStatsTimeframe] = useState("Día");
+  const [statsTimeframe, setStatsTimeframe] = useState("Semana");
   
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'user-1')?.imageUrl || null;
 
@@ -112,19 +107,12 @@ export function ProfileView({
     { label: "ESP Tokens", value: isOwnProfile ? espBalance.toLocaleString() : "800", icon: Zap }
   ];
 
-  const incomeDetails = [
-    { id: "v1", type: "video", title: "Amazon Canopy 4K", amount: 12500, date: "Hoy" },
-    { id: "v2", type: "video", title: "Neon Algae Sync", amount: 8400, date: "Ayer" },
-    { id: "l1", type: "live", title: "Night Bio-Exploration", amount: 45000, date: "Hace 2d" },
-    { id: "p1", type: "promo", title: "Eco-Tech Brand Collab", amount: 120000, date: "Hace 1sem" },
-  ];
-
   const fullHistory = [
-    { id: "h1", type: "recharge", label: "Recarga Nodo", amount: 50000, date: "Hoy", icon: ArrowDownLeft, color: "text-primary" },
-    { id: "h2", type: "egress", label: "Regalo a @Watcher_42", amount: -2500, date: "Hoy", icon: TrendingDown, color: "text-red-500" },
-    { id: "h3", type: "promo", label: "Ingreso Publicidad", amount: 15000, date: "Ayer", icon: Tag, color: "text-accent" },
-    { id: "h4", type: "refund", label: "Reembolso Protocolo", amount: 1200, date: "Hace 3d", icon: RotateCcw, color: "text-blue-400" },
-    { id: "h5", type: "egress", label: "Retiro Activos", amount: -100000, date: "Hace 1sem", icon: ArrowUpRight, color: "text-white/40" },
+    { id: "h1", type: "recharge", label: "Recarga Nodo Central", amount: 50000, date: "Hoy, 14:20", icon: ArrowDownLeft, color: "text-primary" },
+    { id: "h2", type: "egress", label: "Regalo Bio-Seed @Watcher_42", amount: -2500, date: "Hoy, 10:15", icon: TrendingDown, color: "text-red-500" },
+    { id: "h3", type: "promo", label: "Ingreso Publicidad Gaia", amount: 15000, date: "Ayer, 22:30", icon: Tag, color: "text-accent" },
+    { id: "h4", type: "refund", label: "Reembolso Error Protocolo", amount: 1200, date: "Hace 3d", icon: RotateCcw, color: "text-blue-400" },
+    { id: "h5", type: "egress", label: "Retiro Activos Nodo Local", amount: -100000, date: "Hace 1sem", icon: ArrowUpRight, color: "text-white/40" },
   ];
 
   const filteredHistory = historyFilter === "all" 
@@ -390,7 +378,6 @@ export function ProfileView({
               <div className="mx-auto w-full max-w-[400px] flex bg-white/5 p-1 rounded-2xl border border-white/5">
                 {[
                   { id: "stats", label: "Analítica", icon: BarChart3 },
-                  { id: "income", label: "Ingresos", icon: TrendingUp },
                   { id: "history", label: "Historial", icon: History },
                 ].map((tab) => (
                   <button
@@ -412,71 +399,70 @@ export function ProfileView({
             <div className="w-full px-6 overflow-x-hidden">
               <div className="mx-auto w-full max-w-[400px] flex flex-col items-center">
                 
-                {/* Stats View */}
+                {/* Stats View (Analítica Avanzada) */}
                 {walletView === "stats" && (
                   <div className="w-full space-y-8 animate-in fade-in duration-500 flex flex-col items-center">
                     <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
-                      <ChartContainer config={chartConfig} className="h-[180px] w-full">
+                      <div className="flex justify-between items-center mb-6 px-2">
+                        <div className="flex items-center gap-2">
+                          <Activity size={14} className="text-primary" />
+                          <span className="text-[9px] font-black text-white uppercase tracking-widest">Flujo de Activos</span>
+                        </div>
+                        <span className="text-[8px] font-black text-primary/60 uppercase italic">Bio-Live Sync</span>
+                      </div>
+                      <ChartContainer config={chartConfig} className="h-[220px] w-full">
                         <AreaChart data={MOCK_CHART_DATA}>
                           <defs>
                             <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
                               <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                             </linearGradient>
+                            <linearGradient id="colorOutcome" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                            </linearGradient>
                           </defs>
                           <XAxis dataKey="name" hide />
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorIncome)" />
+                          <Area type="monotone" dataKey="outcome" stroke="hsl(var(--accent))" strokeWidth={3} fillOpacity={1} fill="url(#colorOutcome)" />
                         </AreaChart>
                       </ChartContainer>
                     </div>
+
                     <div className="grid grid-cols-2 gap-3 w-full">
                       <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
-                         <span className="text-[7px] font-black uppercase text-primary/60 block truncate">Saldo Recargado</span>
-                         <p className="text-sm font-black text-white italic truncate">1.4M ESP</p>
+                         <span className="text-[7px] font-black uppercase text-primary/60 block truncate">Rendimiento</span>
+                         <p className="text-sm font-black text-white italic truncate">+24% Gaia</p>
                       </div>
                       <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
-                         <span className="text-[7px] font-black uppercase text-accent/60 block truncate">Retiros Totales</span>
-                         <p className="text-sm font-black text-white italic truncate">240K ESP</p>
+                         <span className="text-[7px] font-black uppercase text-accent/60 block truncate">Retiros Pendientes</span>
+                         <p className="text-sm font-black text-white italic truncate">12.5K ESP</p>
+                      </div>
+                    </div>
+
+                    <div className="w-full space-y-4">
+                      <div className="flex items-center gap-2 ml-2">
+                        <PieChartIcon size={12} className="text-primary/60" />
+                        <h4 className="text-[9px] font-black uppercase tracking-widest text-white/40">Origen de Tokens</h4>
+                      </div>
+                      <div className="space-y-2">
+                         {[
+                           { name: "Live Stream Tips", val: "45%", color: "text-primary" },
+                           { name: "Bio-Reels Ads", val: "30%", color: "text-accent" },
+                           { name: "Node Referrals", val: "25%", color: "text-white" }
+                         ].map(item => (
+                           <div key={item.name} className="p-5 rounded-3xl bg-white/[0.01] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all">
+                             <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{item.name}</span>
+                             <span className={cn("text-xs font-black italic", item.color)}>{item.val}</span>
+                           </div>
+                         ))}
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Income View */}
-                {walletView === "income" && (
-                  <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
-                    <div className="grid grid-cols-2 gap-3 w-full">
-                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
-                         <span className="text-[7px] font-black uppercase text-primary/60 block truncate">Total Videos</span>
-                         <p className="text-sm font-black text-white italic truncate">20.9K ESP</p>
-                      </div>
-                      <div className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 space-y-1 min-w-0">
-                         <span className="text-[7px] font-black uppercase text-accent/60 block truncate">Total Lives</span>
-                         <p className="text-sm font-black text-white italic truncate">45.0K ESP</p>
-                      </div>
-                    </div>
-                    <div className="w-full space-y-3">
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-2">Ingresos por Señal</h4>
-                      {incomeDetails.map((item) => (
-                        <div key={item.id} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all w-full">
-                          <div className="flex items-center gap-4 min-w-0 flex-1">
-                            <div className="h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center text-primary shrink-0">
-                              {item.type === 'video' ? <PlayCircle size={18} /> : item.type === 'live' ? <Radio size={18} /> : <Tag size={18} />}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-[11px] font-black text-white uppercase italic truncate">{item.title}</p>
-                              <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest">{item.date}</p>
-                            </div>
-                          </div>
-                          <span className="text-xs font-black text-primary italic shrink-0">+{item.amount.toLocaleString()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* History View */}
+                {/* History View (Historial Avanzado) */}
                 {walletView === "history" && (
                   <div className="w-full space-y-6 animate-in slide-in-from-right duration-500 flex flex-col items-center">
                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 w-full justify-start sm:justify-center">
@@ -485,6 +471,7 @@ export function ProfileView({
                         { id: "egress", label: "Egresos" },
                         { id: "recharge", label: "Recargas" },
                         { id: "promo", label: "Promos" },
+                        { id: "refund", label: "Refunds" }
                       ].map((filter) => (
                         <button
                           key={filter.id}
@@ -499,7 +486,7 @@ export function ProfileView({
                       ))}
                     </div>
                     <div className="w-full space-y-3">
-                      {filteredHistory.map((item) => (
+                      {filteredHistory.length > 0 ? filteredHistory.map((item) => (
                         <div key={item.id} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-all w-full">
                           <div className="flex items-center gap-4 min-w-0 flex-1">
                             <div className={cn("h-10 w-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0", item.color)}>
@@ -510,11 +497,19 @@ export function ProfileView({
                               <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest">{item.date}</p>
                             </div>
                           </div>
-                          <span className={cn("text-xs font-black italic shrink-0", item.amount > 0 ? "text-primary" : "text-white/40")}>
-                            {item.amount > 0 ? `+${item.amount.toLocaleString()}` : item.amount.toLocaleString()}
-                          </span>
+                          <div className="text-right shrink-0">
+                            <span className={cn("text-xs font-black italic block", item.amount > 0 ? "text-primary" : "text-white/40")}>
+                              {item.amount > 0 ? `+${item.amount.toLocaleString()}` : item.amount.toLocaleString()}
+                            </span>
+                            <span className="text-[6px] font-black uppercase tracking-widest text-white/10 italic">Secure Protocol</span>
+                          </div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="py-20 flex flex-col items-center justify-center opacity-20">
+                          <History size={40} className="mb-4" />
+                          <p className="text-[8px] font-black uppercase tracking-widest">Sin Protocolos Registrados</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
