@@ -166,7 +166,7 @@ export default function Home() {
         <BottomNav 
           activeTab={activeTab} 
           setActiveTab={(tab) => {
-            if (tab === "upload" || tab === "notifications") {
+            if (tab === "upload" || tab === "notifications" || tab === "profile") {
               requireAuth(() => {
                 setSelectedUser(null);
                 setActiveTab(tab);
