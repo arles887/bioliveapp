@@ -8,7 +8,8 @@ import {
   Wallet, BarChart3, Edit, ArrowUpRight, ArrowDownLeft, 
   Users, Loader2, Activity, PieChart as PieChartIcon,
   TrendingUp, TrendingDown, MapPin, Award, Heart, Eye,
-  Target, BarChart, Key
+  Target, BarChart, Key, Clapperboard, Radio, Gift,
+  Clock, CreditCard, History
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -53,8 +54,8 @@ import { Progress } from "@/components/ui/progress";
 
 /**
  * @fileOverview Vista de Perfil con Bio-Inteligencia Analítica Avanzada y Billetera Blindada.
- * Blindaje: Ancho estricto de 390px para centrado absoluto.
  * Se ha integrado bloqueo por clave (2025) para el acceso a la billetera.
+ * Secciones de Billetera: Ingresos, Egresos, Rendimiento por Video/Live y Actividad Reciente.
  */
 
 type RechargeStep = "gallery" | "confirm" | "payment";
@@ -70,6 +71,16 @@ const MOCK_VIEWS_DATA = [
   { name: "Dom", views: 3490 },
 ];
 
+const MOCK_FINANCE_FLOW = [
+  { time: "00:00", income: 2400, expense: 1200 },
+  { time: "04:00", income: 1398, expense: 900 },
+  { time: "08:00", income: 9800, expense: 4500 },
+  { time: "12:00", income: 3908, expense: 2800 },
+  { time: "16:00", income: 4800, expense: 1100 },
+  { time: "20:00", income: 3800, expense: 2300 },
+  { time: "23:59", income: 4300, expense: 1400 },
+];
+
 const MOCK_AGE_DATA = [
   { age: "13-17", value: 15 },
   { age: "18-24", value: 45 },
@@ -80,6 +91,8 @@ const MOCK_AGE_DATA = [
 const chartConfig = {
   views: { label: "Visualizaciones", color: "hsl(var(--primary))" },
   value: { label: "Usuarios", color: "hsl(var(--primary))" },
+  income: { label: "Ingresos", color: "hsl(var(--primary))" },
+  expense: { label: "Egresos", color: "hsl(var(--destructive))" },
 } satisfies ChartConfig;
 
 export function ProfileView({ 
@@ -90,7 +103,7 @@ export function ProfileView({
 }: { 
   username?: string;
   isOwnProfile?: boolean;
-  onBack?: () => void;
+  onBack?: void;
   requireAuth: (cb: () => void) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -286,32 +299,20 @@ export function ProfileView({
         </div>
       </ProtocolWindow>
 
-      {/* Bio-Analítica Avanzada */}
-      <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Analítica">
+      {/* Bio-Analítica Perfil */}
+      <ProtocolWindow isOpen={isProfileStatsOpen} onClose={() => setIsProfileStatsOpen(false)} title="Bio-Inteligencia Perfil">
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] px-0">
           <div className="flex flex-col items-center w-full space-y-8 pb-24 pt-6 overflow-x-hidden">
             
-            {/* Cabecera Analítica */}
             <div className="w-full max-w-[390px] flex items-center justify-between px-4">
                <div className="space-y-1">
                  <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Bio<span className="text-primary">Signals</span></h3>
-                 <p className="text-[8px] font-black uppercase text-white/20 tracking-widest">Auditoría de Alcance Neural</p>
+                 <p className="text-[8px] font-black uppercase text-white/20 tracking-widest">Alcance Neural del Perfil</p>
                </div>
-               <Select value={statsTimeframe} onValueChange={setStatsTimeframe}>
-                 <SelectTrigger className="h-9 w-24 bg-white/5 border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest">
-                   {statsTimeframe}
-                 </SelectTrigger>
-                 <SelectContent className="bg-[#050906] border-white/10 text-white">
-                   {["Día", "Semana", "Mes", "Año"].map(t => (
-                     <SelectItem key={t} value={t} className="text-[10px] font-black uppercase tracking-widest">{t}</SelectItem>
-                   ))}
-                 </SelectContent>
-               </Select>
             </div>
             
-            {/* Visualizaciones Alcanzadas */}
             <div className="w-full max-w-[390px] px-4">
-              <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full relative overflow-hidden group">
+              <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full relative overflow-hidden">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
@@ -319,179 +320,67 @@ export function ProfileView({
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Alcance Total</span>
-                      <p className="text-xl font-black text-white italic tracking-tighter">248,592 <span className="text-[10px] text-primary">VIEWS</span></p>
+                      <p className="text-xl font-black text-white italic tracking-tighter">248,592 views</p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end">
-                    <span className="text-[8px] font-black text-primary uppercase tracking-widest">+12.4%</span>
-                    <TrendingUp size={14} className="text-primary" />
-                  </div>
                 </div>
-                <ChartContainer config={chartConfig} className="h-[180px] w-full">
+                <ChartContainer config={chartConfig} className="h-[150px] w-full">
                   <AreaChart data={MOCK_VIEWS_DATA}>
                     <XAxis dataKey="name" hide />
                     <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="views" 
-                      stroke="hsl(var(--primary))" 
-                      fill="hsl(var(--primary))" 
-                      fillOpacity={0.15} 
-                      strokeWidth={3}
-                    />
+                    <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={3} />
                   </AreaChart>
                 </ChartContainer>
               </div>
             </div>
 
-            {/* Crecimiento Neto */}
             <div className="w-full max-w-[390px] px-4 grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
-                 <div className="flex items-center justify-between">
-                   <Users size={16} className="text-primary/60" />
-                   <div className="flex items-center gap-1 text-[8px] font-black text-primary uppercase tracking-widest">
-                     <TrendingUp size={10} /> +1.2K
-                   </div>
-                 </div>
-                 <div className="space-y-1">
-                   <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Seguidores Netos</span>
-                   <p className="text-lg font-black text-white italic tracking-tighter">12,402</p>
-                 </div>
-              </div>
-              <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
-                 <div className="flex items-center justify-between">
-                   <Heart size={16} className="text-accent/60" />
-                   <div className="flex items-center gap-1 text-[8px] font-black text-accent uppercase tracking-widest">
-                     <TrendingUp size={10} /> +4.8K
-                   </div>
-                 </div>
-                 <div className="space-y-1">
-                   <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Me Gusta Netos</span>
-                   <p className="text-lg font-black text-white italic tracking-tighter">48,910</p>
-                 </div>
-              </div>
+               <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
+                  <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Seguidores Netos</span>
+                  <p className="text-lg font-black text-white italic">+1.2K</p>
+               </div>
+               <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-2">
+                  <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Me Gusta Netos</span>
+                  <p className="text-lg font-black text-white italic">+4.8K</p>
+               </div>
             </div>
 
-            {/* Localización y Edad */}
-            <div className="w-full max-w-[390px] px-4 space-y-4">
-              <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-8">
-                {/* Localización */}
-                <div className="space-y-6">
+            <div className="w-full max-w-[390px] px-4">
+               <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
                   <div className="flex items-center gap-3">
                     <MapPin size={16} className="text-primary" />
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Localización de Nodos</h4>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Localización Nodos</h4>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {[
-                      { city: "Buenos Aires, AR", val: 42, color: "bg-primary" },
-                      { city: "Madrid, ES", val: 28, color: "bg-primary/60" },
-                      { city: "Mexico City, MX", val: 18, color: "bg-primary/30" },
-                      { city: "Otros", val: 12, color: "bg-white/10" }
-                    ].map(loc => (
-                      <div key={loc.city} className="space-y-2">
-                        <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
-                          <span className="text-white/60">{loc.city}</span>
-                          <span className="text-white">{loc.val}%</span>
+                      { l: "Buenos Aires", v: 42 },
+                      { l: "Madrid", v: 28 },
+                      { l: "Otros", v: 30 }
+                    ].map(x => (
+                      <div key={x.l} className="space-y-1">
+                        <div className="flex justify-between text-[8px] font-black uppercase tracking-widest text-white/60">
+                          <span>{x.l}</span><span>{x.v}%</span>
                         </div>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className={cn("h-full rounded-full transition-all duration-1000", loc.color)} style={{ width: `${loc.val}%` }} />
-                        </div>
+                        <Progress value={x.v} className="h-1 bg-white/5" />
                       </div>
                     ))}
                   </div>
-                </div>
-
-                <div className="h-px w-full bg-white/5" />
-
-                {/* Rango de Edad */}
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <Target size={16} className="text-accent" />
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Distribución de Edad</h4>
-                  </div>
-                  <div className="h-[120px] w-full">
-                    <ChartContainer config={chartConfig} className="h-full w-full">
-                      <RechartsBarChart data={MOCK_AGE_DATA}>
-                        <XAxis dataKey="age" hide />
-                        <Bar dataKey="value" radius={[10, 10, 0, 0]}>
-                          {MOCK_AGE_DATA.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={`rgba(204, 255, 0, ${0.2 + (index * 0.2)})`} />
-                          ))}
-                        </Bar>
-                        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                      </RechartsBarChart>
-                    </ChartContainer>
-                    <div className="flex justify-between mt-4 px-2">
-                      {MOCK_AGE_DATA.map(d => (
-                        <span key={d.age} className="text-[8px] font-black uppercase text-white/30 tracking-widest">{d.age}</span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Videos Virales + Aceptación */}
-            <div className="w-full max-w-[390px] px-4 space-y-4">
-              <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Award size={18} className="text-primary" />
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Videos Virales</h4>
-                  </div>
-                  <span className="text-[8px] font-black text-primary uppercase tracking-widest">Top 3</span>
-                </div>
-                <div className="space-y-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="flex items-center gap-4 group cursor-pointer">
-                       <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative shrink-0">
-                          <Image src={`https://picsum.photos/seed/viral${i}/200/200`} fill alt="Viral" className="object-cover grayscale group-hover:grayscale-0 transition-all" />
-                       </div>
-                       <div className="flex-1 min-w-0">
-                          <h5 className="text-[10px] font-black text-white uppercase italic truncate">Protocolo de Síntesis Bio-#{i}</h5>
-                          <div className="flex items-center gap-3 mt-1 text-[8px] font-black uppercase tracking-widest text-primary/40">
-                             <span className="flex items-center gap-1"><Eye size={10} /> {(Math.random() * 100 + 50).toFixed(1)}K</span>
-                             <span className="flex items-center gap-1"><Heart size={10} /> {(Math.random() * 10 + 2).toFixed(1)}K</span>
-                          </div>
-                       </div>
-                       <ArrowUpRight size={14} className="text-white/10 group-hover:text-primary transition-colors" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-8 rounded-[2.5rem] bg-primary text-black space-y-4 shadow-[0_0_50px_rgba(204,255,0,0.3)]">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] italic">Bio-Aceptación</h4>
-                  <Activity size={16} />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-baseline">
-                    <p className="text-4xl font-black italic tracking-tighter">98.4%</p>
-                    <span className="text-[8px] font-black uppercase tracking-widest">Nivel Óptimo</span>
-                  </div>
-                  <Progress value={98.4} className="h-2 bg-black/10 border-none" />
-                </div>
-                <p className="text-[8px] font-bold uppercase leading-relaxed opacity-60">
-                  Tu señal resuena positivamente en el 98% de los nodos receptores. Protocolo de influencia activo.
-                </p>
-              </div>
+               </div>
             </div>
 
           </div>
         </ScrollArea>
       </ProtocolWindow>
 
-      {/* Wallet Protocol Window */}
+      {/* Billetera ESP */}
       <ProtocolWindow 
         isOpen={isWalletOpen} 
         onClose={() => { setIsWalletOpen(false); setIsWalletAuthenticated(false); }} 
         title="Billetera ESP"
       >
         <ScrollArea className="w-full max-w-[500px] h-full max-h-[85vh] overflow-x-hidden">
-          <div className="flex flex-col items-center justify-start w-full gap-8 pb-24 pt-6 overflow-x-hidden">
+          <div className="flex flex-col items-center justify-start w-full gap-8 pb-32 pt-6 overflow-x-hidden">
             
-            {/* Bloqueo por Clave Neural */}
             {!isWalletAuthenticated ? (
               <div className="w-full max-w-[390px] px-6 py-12 flex flex-col items-center gap-8 animate-in fade-in duration-500">
                 <div className="h-20 w-20 bg-primary/10 rounded-[2.5rem] border border-primary/20 flex items-center justify-center text-primary shadow-[0_0_30px_rgba(204,255,0,0.2)]">
@@ -517,117 +406,191 @@ export function ProfileView({
                 <p className="text-[8px] text-white/20 font-bold uppercase tracking-widest">Tip: 2025</p>
               </div>
             ) : (
-              <>
-                {/* Balance Card */}
-                {walletView === "main" && (
-                  <div className="w-full flex flex-col items-center px-4 animate-in fade-in duration-500">
-                    <div className="w-full max-w-[390px] p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.4)] relative overflow-hidden">
-                      <div className="relative z-10">
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
-                        <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
-                          {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
-                        </div>
-                        <div className="mt-8 flex gap-3">
-                          <button 
-                            onClick={() => { setWalletView("buy"); setRechargeStep("gallery"); }} 
-                            className="flex-1 bg-black text-white rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-xl"
-                          >
-                            <ArrowDownLeft className="mr-2" size={14} /> Recargar
-                          </button>
-                          <button 
-                            onClick={() => { setWalletView("withdraw"); setAmount(""); }} 
-                            className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-14 text-[9px] font-black uppercase tracking-widest flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-                          >
-                            <ArrowUpRight className="mr-2" size={14} /> Retirar
-                          </button>
-                        </div>
-                      </div>
+              <div className="w-full max-w-[390px] px-4 flex flex-col gap-8 animate-in fade-in duration-700">
+                
+                {/* Balance Central */}
+                <div className="p-8 rounded-[2.5rem] bg-primary text-black shadow-[0_0_50px_rgba(204,255,0,0.3)] relative overflow-hidden w-full">
+                  <div className="relative z-10">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">Balance Gaia Activo</span>
+                    <div className="text-4xl font-black italic mt-1 tracking-tighter truncate">
+                      {espBalance.toLocaleString()} <span className="text-sm">ESP</span>
+                    </div>
+                    <div className="mt-8 flex gap-3">
+                      <button onClick={() => setWalletView("buy")} className="flex-1 bg-black text-white rounded-2xl h-12 text-[8px] font-black uppercase tracking-widest flex items-center justify-center transition-all active:scale-95 shadow-xl">
+                        <ArrowDownLeft className="mr-2" size={14} /> Recargar
+                      </button>
+                      <button onClick={() => setWalletView("withdraw")} className="flex-1 bg-black/10 text-black border border-black/20 rounded-2xl h-12 text-[8px] font-black uppercase tracking-widest flex items-center justify-center transition-all active:scale-95">
+                        <ArrowUpRight className="mr-2" size={14} /> Retirar
+                      </button>
                     </div>
                   </div>
-                )}
+                </div>
 
-                {/* Buy View */}
-                {walletView === "buy" && (
-                  <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
-                    <div className="w-full max-w-[390px] space-y-6">
-                      <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
-                        <ChevronLeft size={16} />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
-                      </button>
-                      
-                      {rechargeStep === "gallery" && (
-                        <div className="grid grid-cols-2 gap-4 w-full">
-                          {Array.from({ length: 4 }).map((_, i) => (
-                            <button 
-                              key={i}
-                              onClick={() => { setAmount(((i + 1) * 1000).toString()); setRechargeStep("confirm"); }}
-                              className="p-8 rounded-[2.5rem] bg-white/[0.03] border border-white/5 hover:border-primary/40 transition-all text-center group active:scale-95 shadow-xl"
-                            >
-                              <Zap size={24} className="text-primary/40 group-hover:text-primary mx-auto mb-4 transition-colors" />
-                              <p className="text-2xl font-black text-white italic truncate leading-none">{((i + 1) * 1000).toLocaleString()}</p>
-                              <p className="text-[8px] text-primary/60 font-black uppercase tracking-widest mt-3">+15% regalo</p>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {rechargeStep === "confirm" && (
-                        <div className="w-full space-y-8 animate-in zoom-in-95 duration-300">
-                          <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] italic block mb-3">Monto Seleccionado</span>
-                             <div className="text-5xl font-black text-white italic tracking-tighter truncate">{Number(amount).toLocaleString()} ESP</div>
+                {/* Sección de Analítica de Ingresos/Egresos */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 ml-2">
+                    <Activity size={16} className="text-primary" />
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Inteligencia de Flujo</h4>
+                  </div>
+                  <div className="p-6 rounded-[2.5rem] bg-white/[0.02] border border-white/5 w-full">
+                    <div className="flex justify-between items-center mb-6">
+                       <div className="flex gap-4">
+                          <div className="flex flex-col">
+                            <span className="text-[7px] font-black uppercase text-primary tracking-widest">Ingresos</span>
+                            <span className="text-sm font-black text-white italic">+42.5K</span>
                           </div>
-                          <button 
-                            onClick={executeTransaction} 
-                            disabled={isProcessing}
-                            className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
-                          >
-                            {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Recarga"}
-                          </button>
+                          <div className="flex flex-col">
+                            <span className="text-[7px] font-black uppercase text-destructive tracking-widest">Egresos</span>
+                            <span className="text-sm font-black text-white italic">-12.8K</span>
+                          </div>
+                       </div>
+                    </div>
+                    <ChartContainer config={chartConfig} className="h-[120px] w-full">
+                      <AreaChart data={MOCK_FINANCE_FLOW}>
+                        <XAxis dataKey="time" hide />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Area type="monotone" dataKey="income" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={2} />
+                        <Area type="monotone" dataKey="expense" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.05} strokeWidth={2} />
+                      </AreaChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+
+                {/* Generación por Contenido */}
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
+                      <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                        <Clapperboard size={18} />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Por Video</span>
+                        <p className="text-lg font-black text-white italic">12,402 ESP</p>
+                        <div className="flex items-center gap-1 text-[7px] font-black text-primary uppercase">
+                          <TrendingUp size={10} /> +12%
                         </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                      </div>
+                   </div>
+                   <div className="p-6 rounded-[2rem] bg-white/[0.02] border border-white/5 space-y-4">
+                      <div className="h-10 w-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
+                        <Radio size={18} />
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[8px] font-black uppercase text-white/30 tracking-widest">Por Live</span>
+                        <p className="text-lg font-black text-white italic">28,910 ESP</p>
+                        <div className="flex items-center gap-1 text-[7px] font-black text-accent uppercase">
+                          <TrendingUp size={10} /> +24%
+                        </div>
+                      </div>
+                   </div>
+                </div>
 
-                {/* Withdraw View */}
-                {walletView === "withdraw" && (
-                  <div className="w-full flex flex-col items-center px-4 animate-in slide-in-from-right duration-500">
+                {/* Actividad Reciente Detallada */}
+                <div className="space-y-6">
+                   
+                   {/* Últimas Recargas */}
+                   <div className="space-y-3">
+                     <div className="flex items-center justify-between px-2">
+                       <div className="flex items-center gap-3">
+                         <CreditCard size={14} className="text-primary" />
+                         <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Últimas Recargas</h4>
+                       </div>
+                       <History size={12} className="text-white/20" />
+                     </div>
+                     <div className="space-y-2">
+                       {[1, 2].map(i => (
+                         <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 group hover:border-primary/30 transition-all">
+                           <div className="flex items-center gap-3">
+                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                               <ArrowDownLeft size={14} />
+                             </div>
+                             <div className="flex flex-col">
+                               <span className="text-[9px] font-black text-white uppercase italic">Inyección de Nodo</span>
+                               <span className="text-[7px] text-white/20 font-bold uppercase">Hace {i*2} horas</span>
+                             </div>
+                           </div>
+                           <span className="text-[10px] font-black text-primary italic">+5,000 ESP</span>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+
+                   {/* Últimos Retiros */}
+                   <div className="space-y-3">
+                     <div className="flex items-center gap-3 px-2">
+                       <ArrowUpRight size={14} className="text-destructive" />
+                       <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Últimos Retiros</h4>
+                     </div>
+                     <div className="space-y-2">
+                       {[1].map(i => (
+                         <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                           <div className="flex items-center gap-3">
+                             <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive">
+                               <ArrowUpRight size={14} />
+                             </div>
+                             <div className="flex flex-col">
+                               <span className="text-[9px] font-black text-white uppercase italic">Retiro de Activos</span>
+                               <span className="text-[7px] text-white/20 font-bold uppercase">Ayer</span>
+                             </div>
+                           </div>
+                           <span className="text-[10px] font-black text-destructive italic">-10,000 ESP</span>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+
+                   {/* Regalos Donados */}
+                   <div className="space-y-3">
+                     <div className="flex items-center gap-3 px-2">
+                       <Gift size={14} className="text-accent" />
+                       <h4 className="text-[9px] font-black uppercase tracking-[0.3em] text-white">Últimos Regalos</h4>
+                     </div>
+                     <div className="space-y-2">
+                       {[1, 2, 3].map(i => (
+                         <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                           <div className="flex items-center gap-3">
+                             <div className="h-8 w-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
+                               <Gift size={14} />
+                             </div>
+                             <div className="flex flex-col">
+                               <span className="text-[9px] font-black text-white uppercase italic">Apoyo a Creador</span>
+                               <span className="text-[7px] text-white/20 font-bold uppercase">Nodo @Watcher_{i+20}</span>
+                             </div>
+                           </div>
+                           <span className="text-[10px] font-black text-accent italic">-250 ESP</span>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+
+                </div>
+
+                {/* Pasarelas de Pago Mock */}
+                {walletView === "buy" && (
+                  <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 animate-in zoom-in-95 duration-300">
                     <div className="w-full max-w-[390px] space-y-6">
-                      <button onClick={() => setWalletView("main")} className="flex items-center gap-2 text-white/30 hover:text-primary transition-all mb-4">
-                        <ChevronLeft size={16} />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Volver</span>
-                      </button>
-
-                      <div className="p-10 rounded-[3rem] bg-white/[0.02] border border-white/5 text-center w-full">
-                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/60 italic block mb-4">Cantidad a Retirar</label>
-                         <Input 
-                          type="number" 
-                          value={amount} 
-                          onChange={(e) => setAmount(e.target.value)} 
-                          className="h-20 bg-transparent border-none text-center text-5xl font-black text-white focus-visible:ring-0 placeholder:text-white/5"
-                          placeholder="0"
-                         />
+                      <div className="text-center space-y-2">
+                         <h3 className="text-xl font-black italic uppercase text-white tracking-tighter">Recargar <span className="text-primary">Tokens</span></h3>
+                         <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">Protocolo de Pago Seguro Gaia</p>
                       </div>
-                      <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/20 w-full text-center">
-                         <p className="text-[9px] font-bold text-red-500/80 uppercase leading-relaxed italic">
-                           AVISO: Solo se procesarán retiros al titular de la cuenta sincronizada con el Nodo Central.
-                         </p>
+                      <div className="grid grid-cols-2 gap-4">
+                        {[1000, 5000, 10000, 50000].map(v => (
+                          <button key={v} onClick={() => { setAmount(v.toString()); setRechargeStep("confirm"); }} className="p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-primary/40 text-center transition-all">
+                             <Zap size={20} className="text-primary/40 mx-auto mb-2" />
+                             <span className="text-xl font-black text-white italic">{v.toLocaleString()}</span>
+                          </button>
+                        ))}
                       </div>
-                      <button 
-                        onClick={executeTransaction} 
-                        disabled={isProcessing}
-                        className="w-full h-16 bg-primary text-black font-black uppercase italic tracking-widest rounded-2xl shadow-2xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                      >
-                        {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Confirmar Retiro"}
-                      </button>
+                      <Button onClick={() => setWalletView("main")} className="w-full h-14 bg-white/5 text-white/40 font-black uppercase tracking-widest rounded-2xl border border-white/10">Cancelar</Button>
                     </div>
                   </div>
                 )}
-              </>
+
+              </div>
             )}
           </div>
         </ScrollArea>
       </ProtocolWindow>
+
     </div>
   );
 }
